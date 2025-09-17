@@ -16,7 +16,7 @@
     <logger level="ERROR" name="io.netty.buffer"/>
     <logger level="ERROR" name="reactor.ipc.netty"/>
 
-    <root level="WARN">
+    <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </root>
 

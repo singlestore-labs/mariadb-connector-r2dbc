@@ -7,3 +7,4 @@
 /target/
 .idea
 /r2dbc-mariadb.iml
+scripts/ssl
