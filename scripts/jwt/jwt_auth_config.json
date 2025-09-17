@@ -1,0 +1,9 @@
+{
+  "username_claim": "username",
+  "methods": [
+    {
+      "algorithms": [ "RS384" ],
+      "secret": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA0i0dDauX6iaOaocic99O\nUTruTYPWFUv50aHTgfKxenFKpJTTL43T8ON36whwyObM3r/ayhPoyPxvSfkkCwxd\nE7XEmTRARHkJKQfebkbN6SaKlEgIdmZ8UroZCslSzOcsX0N1KNc3WSyFeOigHSp/\nww+roVtaJC/OJQ95kMjIGdN3ooO5g/YvZJZTn9KQ/dFmNDPaSyseT9/MCE2Rp0g0\nT2yCwewxVdfR+D4QcicaLat7CAFXMnoSxV9ifGXYkv6JE33dc95U4BgPYECca2QA\nNe3ZQHSNxC1rc+uim3cgcn6PP4WKTgTG4u74F9xA8FbumZUIMB7rChsr+E8Z4/Iq\nSGb7/y0J6Auho7BDJPL7ZFE9peuSA3NudZlpkH+GIWRW7fBY7qu1Koh8kGfZeg4k\nLIucgT0CpSvrxaDVqRSEIiqy4zoczrLXcVJN9ThtxVPJZCVTW2dir8aCwO9Sk60W\nQ8DP4wRWhnqa+Irsd/2r5c7QgSSOSo4/EIBU65qP5oA6xUw3F4sE7G+Q9ofijxxJ\n8iGr2Y7SBk5ztvSYAX/ZNfoUJZQ0cXDCSCKus8a9kQQ9zCNBLco9pIv7XUcJf1bj\nzfz1o911OZn/mdcgqUq0uRne8x73J/Z4uIsaVubvcSgv0XTSF8qYgpgRd016+nAa\nFtyVd9Y5xmYgIIHaXzQ3l7MCAwEAAQ==\n-----END PUBLIC KEY-----"
+    }
+  ]
+}
