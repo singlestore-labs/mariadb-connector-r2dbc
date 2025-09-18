@@ -25,18 +25,18 @@ public class BitParseTest extends BaseConnectionTest {
     afterAll2();
     sharedConn.beginTransaction().block();
     sharedConn
-        .createStatement("CREATE TABLE BitTable (t1 BIT(16), t2 int, t3 BIT(3))")
+        .createStatement("CREATE TABLE BitTable (t1 BIT(16), t2 int, t3 BIT(3), t4 INT)")
         .execute()
         .blockLast();
-    sharedConn.createStatement("CREATE TABLE BitTable2 (t1 BIT(1))").execute().blockLast();
+    sharedConn.createStatement("CREATE TABLE BitTable2 (t1 BIT(1), t4 INT)").execute().blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO BitTable VALUES (b'0000', 1, b'0'), (b'0000000100000000', 2,"
-                + " b'1'),(b'0000111100000000', 3, b'10'),(b'1010', 4, b'11'), (null, 5, b'100')")
+            "INSERT INTO BitTable VALUES (b'0000', 1, b'0', 1), (b'0000000100000000', 2,"
+                + " b'1', 2),(b'0000111100000000', 3, b'10', 3),(b'1010', 4, b'11', 4), (null, 5, b'100', 5)")
         .execute()
         .blockLast();
     sharedConn
-        .createStatement("INSERT INTO BitTable2 VALUES (b'0'), (true), (null)")
+        .createStatement("INSERT INTO BitTable2 VALUES (b'0', 1), (true, 2), (null, 3)")
         .execute()
         .blockLast();
     sharedConn.createStatement("FLUSH TABLES").execute().blockLast();
@@ -66,7 +66,7 @@ public class BitParseTest extends BaseConnectionTest {
     MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
     try {
       connection
-          .createStatement("SELECT t1 FROM BitTable2 WHERE 1 = ?")
+          .createStatement("SELECT t1 FROM BitTable2 WHERE 1 = ? ORDER BY t4")
           .bind(0, 1)
           .execute()
           .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -83,7 +83,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void defaultValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1, t2 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t1, t2 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(
@@ -104,7 +104,7 @@ public class BitParseTest extends BaseConnectionTest {
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BitTable2 WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BitTable2 WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -125,7 +125,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void booleanValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, boolean.class))))
@@ -138,7 +138,7 @@ public class BitParseTest extends BaseConnectionTest {
         .verify();
 
     connection
-        .createStatement("SELECT t3 FROM BitTable WHERE 1 = ? LIMIT 4")
+        .createStatement("SELECT t3 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, boolean.class))))
@@ -159,7 +159,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void booleanObjectValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Boolean.class))))
@@ -185,7 +185,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void byteArrayValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte[].class))))
@@ -211,7 +211,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void ByteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Byte.class))))
@@ -225,7 +225,7 @@ public class BitParseTest extends BaseConnectionTest {
         .verifyComplete();
 
     connection
-        .createStatement("SELECT t3 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t3 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Byte.class))))
@@ -251,7 +251,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void byteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? LIMIT 4")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte.class))))
@@ -276,7 +276,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void shortValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Short.class))))
@@ -302,7 +302,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void intValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Integer.class))))
@@ -324,7 +324,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void longValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Long.class))))
@@ -350,7 +350,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void floatValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Float.class))))
@@ -376,7 +376,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void doubleValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Double.class))))
@@ -393,7 +393,7 @@ public class BitParseTest extends BaseConnectionTest {
   @Test
   void wrongType() {
     sharedConn
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, this.getClass()))))
@@ -413,7 +413,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void stringValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
@@ -439,7 +439,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void decimalValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigDecimal.class))))
@@ -465,7 +465,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void bigintValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigInteger.class))))
@@ -491,7 +491,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   private void meta(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getJavaType()))
@@ -499,7 +499,7 @@ public class BitParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(BitSet.class))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
@@ -507,7 +507,7 @@ public class BitParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(MariadbType.BIT))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BitTable2 WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BitTable2 WHERE 1 = ? ORDER BY t4 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))

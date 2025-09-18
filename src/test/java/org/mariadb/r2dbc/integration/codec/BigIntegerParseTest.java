@@ -22,22 +22,22 @@ public class BigIntegerParseTest extends BaseConnectionTest {
     afterAll2();
     sharedConn.beginTransaction().block();
     sharedConn
-        .createStatement("CREATE TABLE BigIntTable (t1 BIGINT, t2 BIGINT, t3 BIGINT(4) ZEROFILL)")
+        .createStatement("CREATE TABLE BigIntTable (t1 BIGINT, t2 BIGINT)")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO BigIntTable VALUES (0,1, 2),(1,2, 20),(9223372036854775807,3, 120),"
-                + " (null,4, 1250)")
+            "INSERT INTO BigIntTable VALUES (0,1),(1,2),(9223372036854775807,3),"
+                + " (null,4)")
         .execute()
         .blockLast();
     sharedConn
-        .createStatement("CREATE TABLE BigIntUnsignedTable (t1 BIGINT UNSIGNED)")
+        .createStatement("CREATE TABLE BigIntUnsignedTable (t1 BIGINT UNSIGNED, t2 INT)")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO BigIntUnsignedTable VALUES (0), (1), (18446744073709551615), (null)")
+            "INSERT INTO BigIntUnsignedTable VALUES (0, 1), (1, 2), (18446744073709551615, 3), (null, 4)")
         .execute()
         .blockLast();
     sharedConn.createStatement("FLUSH TABLES").execute().blockLast();
@@ -62,7 +62,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void defaultValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1,t2 FROM BigIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1,t2 FROM BigIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(
@@ -80,7 +80,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
             Optional.of(0L), Optional.of(1L), Optional.of(9223372036854775807L), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -105,7 +105,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void booleanValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Boolean.class))))
@@ -113,7 +113,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
         .expectNext(Optional.of(false), Optional.of(true), Optional.of(true), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Boolean.class))))
@@ -125,7 +125,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
   @Test
   void wrongType() {
     sharedConn
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, this.getClass()))))
@@ -145,7 +145,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void byteArrayValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, byte[].class)))
@@ -158,7 +158,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
                         .equals("No decoder for type byte[] and column type BIGINT(signed)"))
         .verify();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, byte[].class)))
@@ -184,7 +184,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void ByteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Byte.class))))
@@ -196,10 +196,10 @@ public class BigIntegerParseTest extends BaseConnectionTest {
                     && throwable.getMessage().equals("byte overflow")
                     && ((R2dbcNonTransientResourceException) throwable)
                         .getSql()
-                        .equals("SELECT t1 FROM BigIntTable WHERE 1 = ? LIMIT 3"))
+                        .equals("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2 LIMIT 3"))
         .verify();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Byte.class))))
@@ -224,7 +224,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void byteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte.class))))
@@ -236,7 +236,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
                     && throwable.getMessage().equals("byte overflow"))
         .verify();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte.class))))
@@ -261,7 +261,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void shortValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Short.class))))
@@ -273,7 +273,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
                     && throwable.getMessage().equals("Short overflow"))
         .verify();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Short.class))))
@@ -298,7 +298,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void intValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Integer.class))))
@@ -310,7 +310,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
                     && throwable.getMessage().equals("integer overflow"))
         .verify();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Integer.class))))
@@ -335,7 +335,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void longValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1,t2 FROM BigIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1,t2 FROM BigIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, long.class))))
@@ -347,7 +347,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
                     && throwable.getMessage().equals("Cannot return null for primitive long"))
         .verify();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Long.class))))
@@ -374,7 +374,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void longObjectValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1,t2 FROM BigIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1,t2 FROM BigIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(
@@ -392,7 +392,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
             Optional.of(0L), Optional.of(1L), Optional.of(9223372036854775807L), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ?  LIMIT 3")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2  LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Long.class))))
@@ -419,7 +419,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void floatValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Float.class))))
@@ -428,7 +428,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
             Optional.of(0F), Optional.of(1F), Optional.of(9223372036854775807F), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Float.class))))
@@ -450,7 +450,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void doubleValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Double.class))))
@@ -459,7 +459,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
             Optional.of(0D), Optional.of(1D), Optional.of(9223372036854775807D), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Double.class))))
@@ -481,7 +481,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void stringValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
@@ -494,20 +494,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
         .verifyComplete();
 
     connection
-        .createStatement("SELECT t3 FROM BigIntTable WHERE 1 = ?")
-        .bind(0, 1)
-        .execute()
-        .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
-        .as(StepVerifier::create)
-        .expectNext(
-            Optional.of(isXpand() ? "2" : "0002"),
-            Optional.of(isXpand() ? "20" : "0020"),
-            Optional.of(isXpand() ? "120" : "0120"),
-            Optional.of("1250"))
-        .verifyComplete();
-
-    connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
@@ -532,7 +519,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void decimalValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigDecimal.class))))
@@ -544,7 +531,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigDecimal.class))))
@@ -569,7 +556,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void bigintValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigInteger.class))))
@@ -581,7 +568,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigInteger.class))))
@@ -606,7 +593,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
 
   private void meta(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getJavaType()))
@@ -614,7 +601,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(Long.class))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getJavaType()))
@@ -622,7 +609,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(BigInteger.class))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BigIntTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
@@ -630,7 +617,7 @@ public class BigIntegerParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(MariadbType.BIGINT))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM BigIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))

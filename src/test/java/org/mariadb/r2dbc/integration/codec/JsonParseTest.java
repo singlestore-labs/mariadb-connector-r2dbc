@@ -17,10 +17,10 @@ public class JsonParseTest extends BaseConnectionTest {
     afterAll2();
     sharedConn.beginTransaction().block();
     sharedConn.createStatement("DROP TABLE IF EXISTS JsonTable").execute().blockLast();
-    sharedConn.createStatement("CREATE TABLE JsonTable (t1 JSON)").execute().blockLast();
+    sharedConn.createStatement("CREATE TABLE JsonTable (t1 JSON, t2 INT)").execute().blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO JsonTable VALUES" + " ('{}'),('{\"val\": \"val1\"}')," + " (null)")
+            "INSERT INTO JsonTable VALUES" + " ('{}', 1),('{\"val\": \"val1\"}', 2)," + " (null, 3)")
         .execute()
         .blockLast();
     sharedConn.createStatement("FLUSH TABLES").execute().blockLast();
@@ -44,21 +44,21 @@ public class JsonParseTest extends BaseConnectionTest {
 
   private void defaultValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM JsonTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM JsonTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
         .as(StepVerifier::create)
-        .expectNext(Optional.of("{}"), Optional.of("{\"val\": \"val1\"}"), Optional.empty())
+        .expectNext(Optional.of("{}"), Optional.of("{\"val\":\"val1\"}"), Optional.empty())
         .verifyComplete();
 
     connection
-        .createStatement("SELECT t1 FROM JsonTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM JsonTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Object.class))))
         .as(StepVerifier::create)
-        .expectNext(Optional.of("{}"), Optional.of("{\"val\": \"val1\"}"), Optional.empty())
+        .expectNext(Optional.of("{}"), Optional.of("{\"val\":\"val1\"}"), Optional.empty())
         .verifyComplete();
   }
 
@@ -74,12 +74,12 @@ public class JsonParseTest extends BaseConnectionTest {
 
   private void stringValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM JsonTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM JsonTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
         .as(StepVerifier::create)
-        .expectNext(Optional.of("{}"), Optional.of("{\"val\": \"val1\"}"), Optional.empty())
+        .expectNext(Optional.of("{}"), Optional.of("{\"val\":\"val1\"}"), Optional.empty())
         .verifyComplete();
   }
 }

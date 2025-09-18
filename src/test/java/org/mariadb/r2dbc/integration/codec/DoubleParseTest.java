@@ -22,9 +22,9 @@ public class DoubleParseTest extends BaseConnectionTest {
   public static void before2() {
     afterAll2();
     sharedConn.beginTransaction().block();
-    sharedConn.createStatement("CREATE TABLE DoubleTable (t1 DOUBLE)").execute().blockLast();
+    sharedConn.createStatement("CREATE TABLE DoubleTable (t1 DOUBLE, t2 INT)").execute().blockLast();
     sharedConn
-        .createStatement("INSERT INTO DoubleTable VALUES (0.1),(1),(922.92233), (null)")
+        .createStatement("INSERT INTO DoubleTable VALUES (0.1, 1),(1, 2),(922.92233, 3), (null, 4)")
         .execute()
         .blockLast();
     sharedConn.createStatement("FLUSH TABLES").execute().blockLast();
@@ -39,7 +39,7 @@ public class DoubleParseTest extends BaseConnectionTest {
   @Test
   void wrongType() {
     sharedConn
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, this.getClass()))))
@@ -59,7 +59,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void defaultValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -95,7 +95,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void booleanValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Boolean.class))))
@@ -116,7 +116,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void byteArrayValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, byte[].class)))
@@ -142,7 +142,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void ByteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?  LIMIT 3")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2  LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Byte.class))))
@@ -169,7 +169,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void byteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?  LIMIT 3")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2  LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte.class))))
@@ -196,7 +196,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void shortValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Short.class))))
@@ -221,7 +221,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void intValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Integer.class))))
@@ -242,7 +242,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void longValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Long.class))))
@@ -263,7 +263,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void floatValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Float.class))))
@@ -299,7 +299,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void doubleValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, double.class))))
@@ -338,7 +338,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void doubleObjectValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Double.class))))
@@ -376,7 +376,7 @@ public class DoubleParseTest extends BaseConnectionTest {
   private void stringValue(
       MariadbConnection connection, Optional<String> t1, Optional<String> t2, Optional<String> t3) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
@@ -397,7 +397,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void decimalValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigDecimal.class))))
@@ -433,7 +433,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void bigintValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigInteger.class))))
@@ -458,7 +458,7 @@ public class DoubleParseTest extends BaseConnectionTest {
 
   private void meta(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getJavaType()))
@@ -466,7 +466,7 @@ public class DoubleParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(Double.class))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))

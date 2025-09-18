@@ -28,13 +28,12 @@ public class YearParseTest extends BaseConnectionTest {
     Assumptions.assumeFalse(isXpand());
     afterAll2();
     sharedConn.beginTransaction().block();
-    String sqlCreate = "CREATE TABLE YearTable (t1 YEAR(4), t2 YEAR(2))";
-    String sqlInsert = "INSERT INTO YearTable VALUES (2060, 60),(2071, 71),(0, 0), (null, null)";
+    String sqlCreate = "CREATE TABLE YearTable (t1 YEAR(4), t2 YEAR(2), t3 INT)";
+    String sqlInsert = "INSERT INTO YearTable VALUES (2060, 60, 1),(2071, 71, 2),(0, 0, 3), (null, null, 4)";
     // mysql doesn't support YEAR(2) anymore
     if (!meta.isMariaDBServer()) {
-      sqlCreate = "CREATE TABLE YearTable (t1 YEAR(4), t2 YEAR(4))";
-      //      sqlInsert = "INSERT INTO YearTable VALUES (2060, 2060),(2071, 1971),(0, 2000), (null,
-      // null)";
+      sqlCreate = "CREATE TABLE YearTable (t1 YEAR(4), t2 YEAR(4), t3 INT)";
+      sqlInsert = "INSERT INTO YearTable VALUES (2060, 2060, 1),(2071, 1971, 2),(2000, 2000, 3), (null, null, 4)";
     }
 
     sharedConn.createStatement(sqlCreate).execute().blockLast();
@@ -51,7 +50,7 @@ public class YearParseTest extends BaseConnectionTest {
   @Test
   void wrongType() {
     sharedConn
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, this.getClass()))))
@@ -71,7 +70,7 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void defaultValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -79,11 +78,11 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of((short) 2060),
             Optional.of((short) 2071),
-            Optional.of((short) 0),
+            Optional.of((short) 2000),
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -91,7 +90,7 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of((short) (meta.isMariaDBServer() ? 60 : 2060)),
             Optional.of((short) (meta.isMariaDBServer() ? 71 : 1971)),
-            Optional.of((short) 0),
+            Optional.of((short) 2000),
             Optional.empty())
         .verifyComplete();
   }
@@ -108,7 +107,7 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void booleanValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Boolean.class))))
@@ -134,7 +133,7 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void byteArrayValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, byte[].class)))
@@ -160,7 +159,7 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void ByteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Byte.class))))
@@ -184,7 +183,7 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void byteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte.class))))
@@ -208,7 +207,7 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void shortValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -216,11 +215,11 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of((short) 2060),
             Optional.of((short) 2071),
-            Optional.of((short) 0),
+            Optional.of((short) 2000),
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -228,7 +227,7 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of((short) (meta.isMariaDBServer() ? 60 : 2060)),
             Optional.of((short) (meta.isMariaDBServer() ? 71 : 1971)),
-            Optional.of((short) (0)),
+            Optional.of((short) (2000)),
             Optional.empty())
         .verifyComplete();
   }
@@ -245,15 +244,15 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void intValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Integer.class))))
         .as(StepVerifier::create)
-        .expectNext(Optional.of(2060), Optional.of(2071), Optional.of(0), Optional.empty())
+        .expectNext(Optional.of(2060), Optional.of(2071), Optional.of(2000), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Integer.class))))
@@ -261,7 +260,7 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of(meta.isMariaDBServer() ? 60 : 2060),
             Optional.of(meta.isMariaDBServer() ? 71 : 1971),
-            Optional.of(0),
+            Optional.of(2000),
             Optional.empty())
         .verifyComplete();
   }
@@ -278,15 +277,15 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void longValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Long.class))))
         .as(StepVerifier::create)
-        .expectNext(Optional.of(2060L), Optional.of(2071L), Optional.of(0L), Optional.empty())
+        .expectNext(Optional.of(2060L), Optional.of(2071L), Optional.of(2000L), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Long.class))))
@@ -294,7 +293,7 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of(meta.isMariaDBServer() ? 60L : 2060L),
             Optional.of(meta.isMariaDBServer() ? 71L : 1971L),
-            Optional.of(0L),
+            Optional.of(2000L),
             Optional.empty())
         .verifyComplete();
   }
@@ -311,15 +310,15 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void floatValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Float.class))))
         .as(StepVerifier::create)
-        .expectNext(Optional.of(2060f), Optional.of(2071f), Optional.of(0f), Optional.empty())
+        .expectNext(Optional.of(2060f), Optional.of(2071f), Optional.of(2000f), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Float.class))))
@@ -327,7 +326,7 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of(meta.isMariaDBServer() ? 60F : 2060F),
             Optional.of(meta.isMariaDBServer() ? 71F : 1971F),
-            Optional.of(0F),
+            Optional.of(2000F),
             Optional.empty())
         .verifyComplete();
   }
@@ -344,16 +343,16 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void doubleValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Double.class))))
         .as(StepVerifier::create)
-        .expectNext(Optional.of(2060D), Optional.of(2071D), Optional.of(0D), Optional.empty())
+        .expectNext(Optional.of(2060D), Optional.of(2071D), Optional.of(2000D), Optional.empty())
         .verifyComplete();
 
     connection
-        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Double.class))))
@@ -361,7 +360,7 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of(meta.isMariaDBServer() ? 60D : 2060D),
             Optional.of(meta.isMariaDBServer() ? 71D : 1971D),
-            Optional.of(0D),
+            Optional.of(2000D),
             Optional.empty())
         .verifyComplete();
   }
@@ -378,15 +377,15 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void stringValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
         .as(StepVerifier::create)
-        .expectNext(Optional.of("2060"), Optional.of("2071"), Optional.of("0000"), Optional.empty())
+        .expectNext(Optional.of("2060"), Optional.of("2071"), Optional.of("2000"), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
@@ -394,7 +393,7 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of(meta.isMariaDBServer() ? "60" : "2060"),
             Optional.of(meta.isMariaDBServer() ? "71" : "1971"),
-            Optional.of(meta.isMariaDBServer() ? "00" : "0000"),
+            Optional.of(meta.isMariaDBServer() ? "00" : "2000"),
             Optional.empty())
         .verifyComplete();
   }
@@ -411,7 +410,7 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void localDateValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, LocalDate.class))))
@@ -419,11 +418,11 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of(LocalDate.parse("2060-01-01")),
             Optional.of(LocalDate.parse("2071-01-01")),
-            Optional.of(LocalDate.parse("0000-01-01")),
+            Optional.of(LocalDate.parse("2000-01-01")),
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, LocalDate.class))))
@@ -431,7 +430,7 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of(LocalDate.parse("2060-01-01")),
             Optional.of(LocalDate.parse("1971-01-01")),
-            Optional.of(LocalDate.parse(meta.isMariaDBServer() ? "2000-01-01" : "0000-01-01")),
+            Optional.of(LocalDate.parse(meta.isMariaDBServer() ? "2000-01-01" : "2000-01-01")),
             Optional.empty())
         .verifyComplete();
   }
@@ -448,7 +447,7 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void decimalValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigDecimal.class))))
@@ -456,11 +455,11 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of(new BigDecimal("2060")),
             Optional.of(new BigDecimal("2071")),
-            Optional.of(new BigDecimal("0000")),
+            Optional.of(new BigDecimal("2000")),
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigDecimal.class))))
@@ -468,7 +467,7 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of(new BigDecimal(meta.isMariaDBServer() ? "60" : "2060")),
             Optional.of(new BigDecimal(meta.isMariaDBServer() ? "71" : "1971")),
-            Optional.of(new BigDecimal(meta.isMariaDBServer() ? "00" : "0000")),
+            Optional.of(new BigDecimal(meta.isMariaDBServer() ? "00" : "2000")),
             Optional.empty())
         .verifyComplete();
   }
@@ -485,7 +484,7 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void bigintValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigInteger.class))))
@@ -493,11 +492,11 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of(new BigInteger("2060")),
             Optional.of(new BigInteger("2071")),
-            Optional.of(new BigInteger("0")),
+            Optional.of(new BigInteger("2000")),
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM YearTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigInteger.class))))
@@ -505,7 +504,7 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNext(
             Optional.of(new BigInteger(meta.isMariaDBServer() ? "60" : "2060")),
             Optional.of(new BigInteger(meta.isMariaDBServer() ? "71" : "1971")),
-            Optional.of(BigInteger.ZERO),
+            Optional.of(new BigInteger("2000")),
             Optional.empty())
         .verifyComplete();
   }
@@ -522,7 +521,7 @@ public class YearParseTest extends BaseConnectionTest {
 
   private void meta(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getJavaType()))
@@ -530,7 +529,7 @@ public class YearParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(Short.class))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM YearTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))

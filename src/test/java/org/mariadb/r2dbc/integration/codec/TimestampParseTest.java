@@ -25,23 +25,23 @@ public class TimestampParseTest extends BaseConnectionTest {
     afterAll2();
     sharedConn.beginTransaction().block();
     sharedConn
-        .createStatement("CREATE TABLE TimestampTable (t1 TIMESTAMP(6) NULL)")
+        .createStatement("CREATE TABLE TimestampTable (t1 TIMESTAMP(6) NULL, t2 INT)")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO TimestampTable VALUES('2013-07-22 12:50:05.01230'), ('2035-01-31"
-                + " 10:45:01'), (null)")
+            "INSERT INTO TimestampTable VALUES('2013-07-22 12:50:05.01230', 1), ('2035-01-31"
+                + " 10:45:01', 2), (null, 3)")
         .execute()
         .blockLast();
     sharedConn
-        .createStatement("CREATE TABLE TimestampTable2 (t1 TIMESTAMP(6) NULL)")
+        .createStatement("CREATE TABLE TimestampTable2 (t1 TIMESTAMP(6) NULL, t2 INT)")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO TimestampTable2 VALUES('1970-01-02 12:50:05.01230'), ('1970-01-01"
-                + " 10:45:01'), (null)")
+            "INSERT INTO TimestampTable2 VALUES('1970-01-02 12:50:05.01230', 1), ('1970-01-01"
+                + " 10:45:01', 2), (null, 3)")
         .execute()
         .blockLast();
     sharedConn.createStatement("FLUSH TABLES").execute().blockLast();
@@ -57,7 +57,7 @@ public class TimestampParseTest extends BaseConnectionTest {
   @Test
   void wrongType() {
     sharedConn
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, this.getClass()))))
@@ -77,7 +77,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void defaultValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -101,7 +101,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void localDateValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, LocalDate.class))))
@@ -125,7 +125,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void localTimeValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, LocalTime.class))))
@@ -149,7 +149,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void durationValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable2 WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimestampTable2 WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Duration.class))))
@@ -173,7 +173,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void booleanValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Boolean.class))))
@@ -204,7 +204,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void byteArrayValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, byte[].class)))
@@ -233,7 +233,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void ByteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Byte.class))))
@@ -262,7 +262,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void byteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte.class))))
@@ -291,7 +291,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void shortValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Short.class))))
@@ -321,7 +321,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void intValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Integer.class))))
@@ -352,7 +352,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void longValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Long.class))))
@@ -381,7 +381,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void floatValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Float.class))))
@@ -411,7 +411,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void doubleValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Double.class))))
@@ -442,7 +442,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void stringValue(MariadbConnection connection, String t1, String t2) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
@@ -463,7 +463,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void decimalValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigDecimal.class))))
@@ -496,7 +496,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void bigintValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigInteger.class))))
@@ -529,7 +529,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void localDateTimeValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(
@@ -554,7 +554,7 @@ public class TimestampParseTest extends BaseConnectionTest {
 
   private void meta(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getJavaType()))
@@ -562,7 +562,7 @@ public class TimestampParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(LocalDateTime.class))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimestampTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))

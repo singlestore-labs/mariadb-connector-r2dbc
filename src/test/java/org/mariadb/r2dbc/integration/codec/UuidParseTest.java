@@ -13,21 +13,19 @@ import reactor.test.StepVerifier;
 public class UuidParseTest extends BaseConnectionTest {
   @BeforeAll
   public static void before2() {
-    if (isMariaDBServer() && minVersion(10, 7, 0)) {
-      afterAll2();
-      sharedConn.beginTransaction().block();
-      sharedConn.createStatement("DROP TABLE IF EXISTS UuidTable").execute().blockLast();
-      sharedConn.createStatement("CREATE TABLE UuidTable (t1 UUID)").execute().blockLast();
-      sharedConn
+    afterAll2();
+    sharedConn.beginTransaction().block();
+    sharedConn.createStatement("DROP TABLE IF EXISTS UuidTable").execute().blockLast();
+    sharedConn.createStatement("CREATE TABLE UuidTable (t1 TEXT, t2 INT)").execute().blockLast();
+    sharedConn
           .createStatement(
               "INSERT INTO UuidTable VALUES"
-                  + " ('123e4567-e89b-12d3-a456-426655440000'),('ffffffff-ffff-ffff-ffff-fffffffffffe'),"
-                  + " (null)")
+                  + " ('123e4567-e89b-12d3-a456-426655440000', 1),('ffffffff-ffff-ffff-ffff-fffffffffffe', 2),"
+                  + " (null, 3)")
           .execute()
           .blockLast();
-      sharedConn.createStatement("FLUSH TABLES").execute().blockLast();
-      sharedConn.commitTransaction().block();
-    }
+    sharedConn.createStatement("FLUSH TABLES").execute().blockLast();
+    sharedConn.commitTransaction().block();
   }
 
   @AfterAll
@@ -37,19 +35,17 @@ public class UuidParseTest extends BaseConnectionTest {
 
   @Test
   void defaultValue() {
-    Assumptions.assumeTrue(isMariaDBServer() && minVersion(10, 7, 0));
     defaultValue(sharedConn);
   }
 
   @Test
   void defaultValuePrepare() {
-    Assumptions.assumeTrue(isMariaDBServer() && minVersion(10, 7, 0));
     defaultValue(sharedConnPrepare);
   }
 
   private void defaultValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM UuidTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM UuidTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -61,7 +57,7 @@ public class UuidParseTest extends BaseConnectionTest {
         .verifyComplete();
 
     connection
-        .createStatement("SELECT t1 FROM UuidTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM UuidTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Object.class))))
@@ -75,19 +71,17 @@ public class UuidParseTest extends BaseConnectionTest {
 
   @Test
   void stringValue() {
-    Assumptions.assumeTrue(isMariaDBServer() && minVersion(10, 7, 0));
     stringValue(sharedConn);
   }
 
   @Test
   void stringValuePrepare() {
-    Assumptions.assumeTrue(isMariaDBServer() && minVersion(10, 7, 0));
     stringValue(sharedConnPrepare);
   }
 
   private void stringValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM UuidTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM UuidTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
@@ -101,19 +95,17 @@ public class UuidParseTest extends BaseConnectionTest {
 
   @Test
   void uuidValue() {
-    Assumptions.assumeTrue(isMariaDBServer() && minVersion(10, 7, 0));
     uuidValue(sharedConn);
   }
 
   @Test
   void uuidValuePrepare() {
-    Assumptions.assumeTrue(isMariaDBServer() && minVersion(10, 7, 0));
     uuidValue(sharedConnPrepare);
   }
 
   private void uuidValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM UuidTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM UuidTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, UUID.class))))

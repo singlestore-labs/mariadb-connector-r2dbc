@@ -23,19 +23,19 @@ public class MediumIntParseTest extends BaseConnectionTest {
     afterAll2();
     sharedConn.beginTransaction().block();
     sharedConn
-        .createStatement("CREATE TABLE MediumIntTable (t1 MEDIUMINT, t2 MEDIUMINT ZEROFILL)")
+        .createStatement("CREATE TABLE MediumIntTable (t1 MEDIUMINT, t2 MEDIUMINT)")
         .execute()
         .blockLast();
     sharedConn
-        .createStatement("INSERT INTO MediumIntTable VALUES (0, 0),(1, 10),(-1, 100), (null, null)")
+        .createStatement("INSERT INTO MediumIntTable VALUES (0, 1),(1, 2),(-1, 3), (null, 4)")
         .execute()
         .blockLast();
     sharedConn
-        .createStatement("CREATE TABLE MediumIntUnsignedTable (t1 MEDIUMINT UNSIGNED)")
+        .createStatement("CREATE TABLE MediumIntUnsignedTable (t1 MEDIUMINT UNSIGNED, t2 INT)")
         .execute()
         .blockLast();
     sharedConn
-        .createStatement("INSERT INTO MediumIntUnsignedTable VALUES (0), (1), (16777215), (null)")
+        .createStatement("INSERT INTO MediumIntUnsignedTable VALUES (0, 1), (1, 2), (16777215, 3), (null, 4)")
         .execute()
         .blockLast();
     sharedConn.createStatement("FLUSH TABLES").execute().blockLast();
@@ -51,7 +51,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
   @Test
   void wrongType() {
     sharedConn
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, this.getClass()))))
@@ -71,7 +71,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void defaultValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -79,7 +79,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .expectNext(Optional.of(0), Optional.of(1), Optional.of(-1), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -100,7 +100,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void booleanValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Boolean.class))))
@@ -108,7 +108,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .expectNext(Optional.of(false), Optional.of(true), Optional.of(true), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Boolean.class))))
@@ -129,7 +129,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void byteArrayValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, byte[].class)))
@@ -142,7 +142,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
                         .equals("No decoder for type byte[] and column type MEDIUMINT(signed)"))
         .verify();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, byte[].class)))
@@ -168,7 +168,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void ByteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Byte.class))))
@@ -177,7 +177,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
             Optional.of((byte) 0), Optional.of((byte) 1), Optional.of((byte) -1), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Byte.class))))
@@ -202,7 +202,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void byteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte.class))))
@@ -210,7 +210,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .expectNext(Optional.of((byte) 0), Optional.of((byte) 1), Optional.of((byte) -1))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte.class))))
@@ -235,7 +235,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void shortValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Short.class))))
@@ -247,7 +247,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? LIMIT 3")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Short.class))))
@@ -272,7 +272,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void intValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Integer.class))))
@@ -280,7 +280,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .expectNext(Optional.of(0), Optional.of(1), Optional.of(-1), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Integer.class))))
@@ -301,7 +301,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void longValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Long.class))))
@@ -309,7 +309,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .expectNext(Optional.of(0L), Optional.of(1L), Optional.of(-1L), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Long.class))))
@@ -330,7 +330,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void floatValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Float.class))))
@@ -338,7 +338,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .expectNext(Optional.of(0F), Optional.of(1F), Optional.of(-1F), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Float.class))))
@@ -359,7 +359,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void doubleValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Double.class))))
@@ -367,7 +367,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .expectNext(Optional.of(0D), Optional.of(1D), Optional.of(-1D), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Double.class))))
@@ -388,28 +388,16 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void stringValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
         .as(StepVerifier::create)
         .expectNext(Optional.of("0"), Optional.of("1"), Optional.of("-1"), Optional.empty())
         .verifyComplete();
-    connection
-        .createStatement("SELECT t2 FROM MediumIntTable WHERE 1 = ?")
-        .bind(0, 1)
-        .execute()
-        .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
-        .as(StepVerifier::create)
-        .expectNext(
-            Optional.of(isXpand() ? "0" : "00000000"),
-            Optional.of(isXpand() ? "10" : "00000010"),
-            Optional.of(isXpand() ? "100" : "00000100"),
-            Optional.empty())
-        .verifyComplete();
 
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
@@ -430,7 +418,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void decimalValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigDecimal.class))))
@@ -443,7 +431,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .verifyComplete();
 
     connection
-        .createStatement("SELECT t1, t2 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1, t2 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(
@@ -458,27 +446,27 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .assertNext(
             r -> {
               Assertions.assertEquals(0, r[0].intValue());
-              Assertions.assertEquals(0, r[1].intValue());
+              Assertions.assertEquals(1, r[1].intValue());
             })
         .assertNext(
             r -> {
               Assertions.assertEquals(1, r[0].intValue());
-              Assertions.assertEquals(10, r[1].intValue());
+              Assertions.assertEquals(2, r[1].intValue());
             })
         .assertNext(
             r -> {
               Assertions.assertEquals(-1, r[0].intValue());
-              Assertions.assertEquals(100, r[1].intValue());
+              Assertions.assertEquals(3, r[1].intValue());
             })
         .assertNext(
             r -> {
               Assertions.assertNull(r[0]);
-              Assertions.assertNull(r[1]);
+                Assertions.assertEquals(4, r[1].intValue());
             })
         .verifyComplete();
 
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigDecimal.class))))
@@ -503,7 +491,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void bigintValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigInteger.class))))
@@ -515,7 +503,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigInteger.class))))
@@ -540,7 +528,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
 
   private void meta(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getJavaType()))
@@ -548,7 +536,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(Integer.class))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getJavaType()))
@@ -556,7 +544,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(Integer.class))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM MediumIntTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
@@ -564,7 +552,7 @@ public class MediumIntParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(MariadbType.INTEGER))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM MediumIntUnsignedTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))

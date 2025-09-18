@@ -34,26 +34,26 @@ public class StringParseTest extends BaseConnectionTest {
     sharedConn.createStatement("DROP TABLE IF EXISTS StringTable").execute().blockLast();
     sharedConn
         .createStatement(
-            "CREATE TABLE StringTable (t1 varchar(256), t2 TEXT) CHARACTER SET utf8mb4 COLLATE"
+            "CREATE TABLE StringTable (t1 varchar(256), t2 TEXT, t3 INT) CHARACTER SET utf8mb4 COLLATE"
                 + " utf8mb4_unicode_ci")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO StringTable VALUES ('some🌟', 'some🌟'),('1', '1'),('0', '0'), (null,"
-                + " null)")
+            "INSERT INTO StringTable VALUES ('some🌟', 'some🌟', 1),('1', '1', 2),('0', '0', 3), (null,"
+                + " null, 4)")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "CREATE TABLE StringBinary (t1 varbinary(256), t2 varbinary(1024)) CHARACTER SET"
+            "CREATE TABLE StringBinary (t1 varbinary(256), t2 varbinary(1024), t3 INT) CHARACTER SET"
                 + " utf8mb4 COLLATE utf8mb4_unicode_ci")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO StringBinary VALUES ('some🌟', 'some🌟'),('1', '1'),('0', '0'), (null,"
-                + " null)")
+            "INSERT INTO StringBinary VALUES ('some🌟', 'some🌟', 1),('1', '1', 2),('0', '0', 3), (null,"
+                + " null, 4)")
         .execute()
         .blockLast();
     sharedConn.createStatement("FLUSH TABLES").execute().blockLast();
@@ -93,7 +93,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void wrongType(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, this.getClass()))))
@@ -113,7 +113,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void defaultValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -121,7 +121,7 @@ public class StringParseTest extends BaseConnectionTest {
         .expectNext(Optional.of("some🌟"), Optional.of("1"), Optional.of("0"), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM StringTable WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -129,7 +129,7 @@ public class StringParseTest extends BaseConnectionTest {
         .expectNext(Optional.of("some🌟"), Optional.of("1"), Optional.of("0"), Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Object.class))))
@@ -159,7 +159,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void defaultValueBinary(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringBinary WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM StringBinary WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -181,7 +181,7 @@ public class StringParseTest extends BaseConnectionTest {
         .expectNext(Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM StringBinary WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM StringBinary WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -203,7 +203,7 @@ public class StringParseTest extends BaseConnectionTest {
         .expectNext(Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Object.class))))
@@ -224,7 +224,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void clobValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? limit 2")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 limit 2")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Mono.from(row.get(0, Clob.class).stream())))
@@ -266,7 +266,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void booleanValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Boolean.class))))
@@ -287,7 +287,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void unknownValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ?  LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, this.getClass()))))
@@ -316,7 +316,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void durationValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ?  LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Duration.class))))
@@ -331,19 +331,19 @@ public class StringParseTest extends BaseConnectionTest {
     sharedConn.createStatement("DROP TABLE IF EXISTS durationValue").execute().blockLast();
     sharedConn
         .createStatement(
-            "CREATE TABLE durationValue (t1 varchar(256)) CHARACTER SET utf8mb4 COLLATE"
+            "CREATE TABLE durationValue (t1 varchar(256), t2 INT) CHARACTER SET utf8mb4 COLLATE"
                 + " utf8mb4_unicode_ci")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO durationValue VALUES ('90:00:00.012340'), ('800:00:00.123'), ('800'),"
-                + " ('22'), (null)")
+            "INSERT INTO durationValue VALUES ('90:00:00.012340', 1), ('800:00:00.123', 2), ('800', 3),"
+                + " ('22', 4), (null, 5)")
         .execute()
         .blockLast();
 
     connection
-        .createStatement("SELECT t1 FROM durationValue WHERE 1 = ?  LIMIT 3")
+        .createStatement("SELECT t1 FROM durationValue WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Duration.class))))
@@ -372,7 +372,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void localTimeValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ?  LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, LocalTime.class))))
@@ -388,19 +388,19 @@ public class StringParseTest extends BaseConnectionTest {
     sharedConn.createStatement("DROP TABLE IF EXISTS localTimeValue").execute().blockLast();
     sharedConn
         .createStatement(
-            "CREATE TABLE localTimeValue (t1 varchar(256)) CHARACTER SET utf8mb4 COLLATE"
+            "CREATE TABLE localTimeValue (t1 varchar(256), t2 INT) CHARACTER SET utf8mb4 COLLATE"
                 + " utf8mb4_unicode_ci")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO localTimeValue VALUES ('18:00:00.012340'), ('08:01:18.123'), ('800'),"
-                + " ('22'), (null)")
+            "INSERT INTO localTimeValue VALUES ('18:00:00.012340', 1), ('08:01:18.123', 2), ('800', 3),"
+                + " ('22', 4), (null, 5)")
         .execute()
         .blockLast();
 
     connection
-        .createStatement("SELECT t1 FROM localTimeValue WHERE 1 = ?  LIMIT 3")
+        .createStatement("SELECT t1 FROM localTimeValue WHERE 1 = ? ORDER BY t2 LIMIT 3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, LocalTime.class))))
@@ -429,7 +429,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void localDateValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ?  LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, LocalDate.class))))
@@ -444,19 +444,19 @@ public class StringParseTest extends BaseConnectionTest {
     sharedConn.createStatement("DROP TABLE IF EXISTS localDateValue").execute().blockLast();
     sharedConn
         .createStatement(
-            "CREATE TABLE localDateValue (t1 varchar(256)) CHARACTER SET utf8mb4 COLLATE"
+            "CREATE TABLE localDateValue (t1 varchar(256), t2 INT) CHARACTER SET utf8mb4 COLLATE"
                 + " utf8mb4_unicode_ci")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO localDateValue VALUES ('2010-01-12'), ('2011-2-28'), (null),"
-                + " ('2011-a-28')")
+            "INSERT INTO localDateValue VALUES ('2010-01-12', 1), ('2011-2-28', 2), (null, 3),"
+                + " ('2011-a-28', 4)")
         .execute()
         .blockLast();
 
     connection
-        .createStatement("SELECT t1 FROM localDateValue WHERE 1 = ? LIMIT 4")
+        .createStatement("SELECT t1 FROM localDateValue WHERE 1 = ? ORDER BY t2 LIMIT 4")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, LocalDate.class))))
@@ -486,7 +486,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void localDateTimeValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(
@@ -504,19 +504,19 @@ public class StringParseTest extends BaseConnectionTest {
     sharedConn.createStatement("DROP TABLE IF EXISTS localDateTimeValue").execute().blockLast();
     sharedConn
         .createStatement(
-            "CREATE TABLE localDateTimeValue (t1 varchar(256)) CHARACTER SET utf8mb4 COLLATE"
+            "CREATE TABLE localDateTimeValue (t1 varchar(256), t2 INT) CHARACTER SET utf8mb4 COLLATE"
                 + " utf8mb4_unicode_ci")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO localDateTimeValue VALUES ('2013-07-22 12:50:05.01230'), ('2035-01-31 "
-                + "10:45:01'), (null), ('2013-07-bb 12:50:05.01230')")
+            "INSERT INTO localDateTimeValue VALUES ('2013-07-22 12:50:05.01230', 1), ('2035-01-31 "
+                + "10:45:01', 2), (null, 3), ('2013-07-bb 12:50:05.01230', 4)")
         .execute()
         .blockLast();
 
     connection
-        .createStatement("SELECT t1 FROM localDateTimeValue WHERE 1 = ? LIMIT 4")
+        .createStatement("SELECT t1 FROM localDateTimeValue WHERE 1 = ? ORDER BY t2 LIMIT 4")
         .bind(0, 1)
         .execute()
         .flatMap(
@@ -549,7 +549,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void byteArrayValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte[].class))))
@@ -574,7 +574,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void ByteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Byte.class))))
@@ -600,7 +600,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void byteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte.class))))
@@ -626,7 +626,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void shortValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Short.class))))
@@ -652,7 +652,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void intValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Integer.class))))
@@ -678,7 +678,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void longValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Long.class))))
@@ -704,7 +704,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void floatValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Float.class))))
@@ -730,7 +730,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void doubleValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Double.class))))
@@ -756,7 +756,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void stringValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
@@ -777,7 +777,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void decimalValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigDecimal.class))))
@@ -803,7 +803,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void bigintValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigInteger.class))))
@@ -830,7 +830,7 @@ public class StringParseTest extends BaseConnectionTest {
   private void blobValue(MariadbConnection connection) {
 
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? limit 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 limit 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, Blob.class)))
@@ -858,7 +858,7 @@ public class StringParseTest extends BaseConnectionTest {
 
   private void meta(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getJavaType()))
@@ -866,7 +866,7 @@ public class StringParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(String.class))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
@@ -874,7 +874,7 @@ public class StringParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(MariadbType.VARCHAR))
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM StringTable WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t2 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
