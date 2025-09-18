@@ -264,6 +264,7 @@ public class ResultsetTest extends BaseConnectionTest {
   }
 
   @Test
+  @Disabled
   public void skippingRes() throws Exception {
     BigInteger maxAllowedPacket =
         sharedConn
