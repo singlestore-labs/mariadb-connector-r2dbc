@@ -6,7 +6,7 @@ cd "$(git rev-parse --show-toplevel)"
 
 DEFAULT_SINGLESTORE_VERSION=""
 VERSION="${SINGLESTORE_VERSION:-$DEFAULT_SINGLESTORE_VERSION}"
-IMAGE_NAME="ghcr.io/singlestore-labs/singlestoredb-dev:0.2.51"
+IMAGE_NAME="ghcr.io/singlestore-labs/singlestoredb-dev:latest"
 CONTAINER_NAME="singlestore-integration"
 SSL_DIR="${PWD}/scripts/ssl"
 DATABASE="${DATABASE:-"testr2"}"
