@@ -26,13 +26,13 @@ public class TimeParseTest extends BaseConnectionTest {
     afterAll2();
     sharedConn.beginTransaction().block();
     sharedConn
-        .createStatement("CREATE TABLE TimeParseTest (t1 TIME(6), t2 TIME(6))")
+        .createStatement("CREATE TABLE TimeParseTest (t1 TIME(6), t2 TIME(6), t3 INT)")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO TimeParseTest VALUES ('90:00:00.012340', '-10:01:02.012340'),"
-                + " ('800:00:00.123', '-00:00:10.123'), (800, 0), (22, -22), (null, null)")
+            "INSERT INTO TimeParseTest VALUES ('90:00:00.012340', '-10:01:02.012340', 1),"
+                + " ('800:00:00.123', '-00:00:10.123', 2), (800, 0, 3), (22, -22, 4), (null, null, 5)")
         .execute()
         .blockLast();
     sharedConn.createStatement("FLUSH TABLES").execute().blockLast();
@@ -47,7 +47,7 @@ public class TimeParseTest extends BaseConnectionTest {
   @Test
   void wrongType() {
     sharedConn
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, this.getClass()))))
@@ -67,7 +67,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void defaultValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -80,7 +80,7 @@ public class TimeParseTest extends BaseConnectionTest {
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM TimeParseTest WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM TimeParseTest WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -106,7 +106,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void durationValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Duration.class))))
@@ -119,7 +119,7 @@ public class TimeParseTest extends BaseConnectionTest {
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM TimeParseTest WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM TimeParseTest WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Duration.class))))
@@ -145,7 +145,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void localTimeValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, LocalTime.class))))
@@ -158,7 +158,7 @@ public class TimeParseTest extends BaseConnectionTest {
             Optional.empty())
         .verifyComplete();
     connection
-        .createStatement("SELECT t2 FROM TimeParseTest WHERE 1 = ?")
+        .createStatement("SELECT t2 FROM TimeParseTest WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, LocalTime.class))))
@@ -184,7 +184,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void booleanValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Boolean.class))))
@@ -210,7 +210,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void byteArrayValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, byte[].class)))
@@ -236,7 +236,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void ByteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Byte.class))))
@@ -262,7 +262,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void byteValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, byte.class))))
@@ -288,7 +288,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void shortValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Short.class))))
@@ -314,7 +314,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void intValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Integer.class))))
@@ -340,7 +340,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void longValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Long.class))))
@@ -366,7 +366,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void floatValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Float.class))))
@@ -392,7 +392,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void doubleValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, Double.class))))
@@ -426,7 +426,7 @@ public class TimeParseTest extends BaseConnectionTest {
   private void stringValue(
       MariadbConnection connection, String t1, String t2, String t3, String t4) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, String.class))))
@@ -448,7 +448,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void decimalValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigDecimal.class))))
@@ -474,7 +474,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void bigintValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, BigInteger.class))))
@@ -500,7 +500,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void localDateTimeValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ?")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
         .execute()
         .flatMap(
@@ -527,7 +527,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void localDateValue(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0, LocalDate.class))))
@@ -553,7 +553,7 @@ public class TimeParseTest extends BaseConnectionTest {
 
   private void meta(MariadbConnection connection) {
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getJavaType()))
@@ -561,7 +561,7 @@ public class TimeParseTest extends BaseConnectionTest {
         .expectNextMatches(c -> c.equals(LocalTime.class))
         .verifyComplete();
     connection
-        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? LIMIT 1")
+        .createStatement("SELECT t1 FROM TimeParseTest WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
