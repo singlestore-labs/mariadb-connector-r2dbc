@@ -4,6 +4,7 @@
 package org.mariadb.r2dbc.integration.parameter;
 
 import io.r2dbc.spi.Blob;
+
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -15,6 +16,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
 import org.junit.jupiter.api.*;
 import org.mariadb.r2dbc.BaseConnectionTest;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
@@ -75,7 +77,6 @@ public class BlobParameterTest extends BaseConnectionTest {
 
   @Test
   void bigIntValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     bigIntValue(sharedConnPrepare);
   }
 
@@ -124,7 +125,6 @@ public class BlobParameterTest extends BaseConnectionTest {
 
   @Test
   void decimalValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     decimalValue(sharedConnPrepare);
   }
 
@@ -149,7 +149,6 @@ public class BlobParameterTest extends BaseConnectionTest {
 
   @Test
   void intValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     intValue(sharedConnPrepare);
   }
 
@@ -174,7 +173,6 @@ public class BlobParameterTest extends BaseConnectionTest {
 
   @Test
   void byteValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     byteValue(sharedConnPrepare);
   }
 
@@ -206,17 +204,17 @@ public class BlobParameterTest extends BaseConnectionTest {
     MariadbStatement stmt =
         connection
             .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
-            .bind(0, Blob.from(Mono.just(ByteBuffer.wrap(new byte[] {(byte) 15}))))
+            .bind(0, Blob.from(Mono.just(ByteBuffer.wrap(new byte[]{(byte) 15}))))
             .bind(
                 1,
                 Blob.from(
-                    Mono.just(ByteBuffer.wrap(new byte[] {(byte) 1, 0, (byte) 127, (byte) 92}))))
-            .bind(2, Blob.from(Mono.just(ByteBuffer.wrap(new byte[] {0}))));
+                    Mono.just(ByteBuffer.wrap(new byte[]{(byte) 1, 0, (byte) 127, (byte) 92}))))
+            .bind(2, Blob.from(Mono.just(ByteBuffer.wrap(new byte[]{0}))));
     stmt.execute().blockLast();
     validateNotNull(
-        ByteBuffer.wrap(new byte[] {(byte) 15}),
-        ByteBuffer.wrap(new byte[] {(byte) 1, 0, (byte) 127, (byte) 92}),
-        ByteBuffer.wrap(new byte[] {0}));
+        ByteBuffer.wrap(new byte[]{(byte) 15}),
+        ByteBuffer.wrap(new byte[]{(byte) 1, 0, (byte) 127, (byte) 92}),
+        ByteBuffer.wrap(new byte[]{0}));
   }
 
   @Test
@@ -233,14 +231,14 @@ public class BlobParameterTest extends BaseConnectionTest {
     MariadbStatement stmt =
         connection
             .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
-            .bind(0, new ByteArrayInputStream(new byte[] {(byte) 15}))
-            .bind(1, new ByteArrayInputStream(new byte[] {(byte) 1, 0, (byte) 127}))
-            .bind(2, new ByteArrayInputStream(new byte[] {0}));
+            .bind(0, new ByteArrayInputStream(new byte[]{(byte) 15}))
+            .bind(1, new ByteArrayInputStream(new byte[]{(byte) 1, 0, (byte) 127}))
+            .bind(2, new ByteArrayInputStream(new byte[]{0}));
     stmt.execute().blockLast();
     validateNotNull(
-        ByteBuffer.wrap(new byte[] {(byte) 15}),
-        ByteBuffer.wrap(new byte[] {(byte) 1, 0, (byte) 127}),
-        ByteBuffer.wrap(new byte[] {0}));
+        ByteBuffer.wrap(new byte[]{(byte) 15}),
+        ByteBuffer.wrap(new byte[]{(byte) 1, 0, (byte) 127}),
+        ByteBuffer.wrap(new byte[]{0}));
   }
 
   @Test
@@ -257,14 +255,14 @@ public class BlobParameterTest extends BaseConnectionTest {
     MariadbStatement stmt =
         connection
             .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
-            .bind(0, ByteBuffer.wrap(new byte[] {(byte) 15}))
-            .bind(1, ByteBuffer.wrap(new byte[] {(byte) 1, 0, (byte) 127}))
-            .bind(2, ByteBuffer.wrap(new byte[] {0}));
+            .bind(0, ByteBuffer.wrap(new byte[]{(byte) 15}))
+            .bind(1, ByteBuffer.wrap(new byte[]{(byte) 1, 0, (byte) 127}))
+            .bind(2, ByteBuffer.wrap(new byte[]{0}));
     stmt.execute().blockLast();
     validateNotNull(
-        ByteBuffer.wrap(new byte[] {(byte) 15}),
-        ByteBuffer.wrap(new byte[] {(byte) 1, 0, (byte) 127}),
-        ByteBuffer.wrap(new byte[] {0}));
+        ByteBuffer.wrap(new byte[]{(byte) 15}),
+        ByteBuffer.wrap(new byte[]{(byte) 1, 0, (byte) 127}),
+        ByteBuffer.wrap(new byte[]{0}));
   }
 
   @Test
@@ -307,14 +305,14 @@ public class BlobParameterTest extends BaseConnectionTest {
     MariadbStatement stmt =
         connection
             .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
-            .bind(0, new ByteArrayInputStream(new byte[] {(byte) 15}))
-            .bind(1, new ByteArrayInputStream((new byte[] {(byte) 1, 39, (byte) 127})))
-            .bind(2, new ByteArrayInputStream((new byte[] {0})));
+            .bind(0, new ByteArrayInputStream(new byte[]{(byte) 15}))
+            .bind(1, new ByteArrayInputStream((new byte[]{(byte) 1, 39, (byte) 127})))
+            .bind(2, new ByteArrayInputStream((new byte[]{0})));
     stmt.execute().blockLast();
     validateNotNull(
-        ByteBuffer.wrap(new byte[] {(byte) 15}),
-        ByteBuffer.wrap(new byte[] {(byte) 1, 39, (byte) 127}),
-        ByteBuffer.wrap(new byte[] {0}));
+        ByteBuffer.wrap(new byte[]{(byte) 15}),
+        ByteBuffer.wrap(new byte[]{(byte) 1, 39, (byte) 127}),
+        ByteBuffer.wrap(new byte[]{0}));
   }
 
   @Test
@@ -356,7 +354,6 @@ public class BlobParameterTest extends BaseConnectionTest {
 
   @Test
   void doubleValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     doubleValue(sharedConnPrepare);
     validateNotNull(
         ByteBuffer.wrap("11".getBytes()),
@@ -429,16 +426,15 @@ public class BlobParameterTest extends BaseConnectionTest {
 
   @Test
   void localDateTimeValuePrepare() {
-    Assumptions.assumeFalse(isXpand());
     localDateTimeValue(
         sharedConnPrepare,
-        isMariaDBServer() ? "2013-07-22 12:50:05.012300" : "2013-07-22 12:50:05",
-        isMariaDBServer() ? "2025-01-31 10:45:01.123000" : "2025-01-31 10:45:01");
+        "2013-07-22 12:50:05.012300",
+        "2025-01-31 10:45:01.123000");
   }
 
   private void localDateTimeValue(MariadbConnection connection, String t1, String t3) {
     connection
-        .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
+        .createStatement("INSERT INTO BlobParam VALUES (? :> DATETIME(6),? :> DATETIME(6),? :> DATETIME(6))")
         .bind(0, LocalDateTime.parse("2013-07-22T12:50:05.01230"))
         .bind(1, LocalDateTime.parse("2035-01-31T10:45:01"))
         .bind(2, LocalDateTime.parse("2025-01-31T10:45:01.123"))
@@ -446,7 +442,7 @@ public class BlobParameterTest extends BaseConnectionTest {
         .blockLast();
     validateNotNull(
         ByteBuffer.wrap(t1.getBytes()),
-        ByteBuffer.wrap("2035-01-31 10:45:01".getBytes()),
+        ByteBuffer.wrap("2035-01-31 10:45:01.000000".getBytes()),
         ByteBuffer.wrap(t3.getBytes()));
   }
 
@@ -462,7 +458,7 @@ public class BlobParameterTest extends BaseConnectionTest {
 
   private void localDateValue(MariadbConnection connection) {
     connection
-        .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
+        .createStatement("INSERT INTO BlobParam VALUES (? :> DATE,? :> DATE,? :> DATE)")
         .bind(0, LocalDate.parse("2010-01-12"))
         .bind(1, LocalDate.parse("2019-01-31"))
         .bind(2, LocalDate.parse("2019-12-31"))
@@ -479,22 +475,22 @@ public class BlobParameterTest extends BaseConnectionTest {
     localTimeValue(sharedConn);
     validateNotNull(
         ByteBuffer.wrap("18:00:00.012340".getBytes()),
-        ByteBuffer.wrap("08:00:00.123".getBytes()),
-        ByteBuffer.wrap("08:00:00.123".getBytes()));
+        ByteBuffer.wrap("08:00:00.123000".getBytes()),
+        ByteBuffer.wrap("08:00:00.123000".getBytes()));
   }
 
   @Test
   void localTimeValuePrepare() {
     localTimeValue(sharedConnPrepare);
     validateNotNull(
-        ByteBuffer.wrap((isMariaDBServer() ? "18:00:00.012340" : "18:00:00").getBytes()),
-        ByteBuffer.wrap((isMariaDBServer() ? "08:00:00.123000" : "08:00:00").getBytes()),
-        ByteBuffer.wrap((isMariaDBServer() ? "08:00:00.123000" : "08:00:00").getBytes()));
+        ByteBuffer.wrap(("18:00:00.012340").getBytes()),
+        ByteBuffer.wrap(("08:00:00.123000").getBytes()),
+        ByteBuffer.wrap(("08:00:00.123000").getBytes()));
   }
 
   private void localTimeValue(MariadbConnection connection) {
     connection
-        .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
+        .createStatement("INSERT INTO BlobParam VALUES (? :> TIME(6),? :> TIME(6),? :> TIME(6))")
         .bind(0, LocalTime.parse("18:00:00.012340"))
         .bind(1, LocalTime.parse("08:00:00.123"))
         .bind(2, LocalTime.parse("08:00:00.123"))

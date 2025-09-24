@@ -3,7 +3,8 @@
 
 package org.mariadb.r2dbc.integration.parameter;
 
-import io.r2dbc.spi.R2dbcBadGrammarException;
+import io.r2dbc.spi.R2dbcTransientResourceException;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
+
 import org.junit.jupiter.api.*;
 import org.mariadb.r2dbc.BaseConnectionTest;
 import org.mariadb.r2dbc.api.MariadbConnection;
@@ -84,8 +86,8 @@ public class TimeParameterTest extends BaseConnectionTest {
           .as(StepVerifier::create)
           .expectErrorMatches(
               throwable ->
-                  throwable instanceof R2dbcBadGrammarException
-                      && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22007"))
+                  throwable instanceof R2dbcTransientResourceException
+                      && ((R2dbcTransientResourceException) throwable).getSqlState().equals("HY000"))
           .verify();
     }
   }
@@ -116,8 +118,8 @@ public class TimeParameterTest extends BaseConnectionTest {
           .as(StepVerifier::create)
           .expectErrorMatches(
               throwable ->
-                  throwable instanceof R2dbcBadGrammarException
-                      && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22007"))
+                  throwable instanceof R2dbcTransientResourceException
+                      && ((R2dbcTransientResourceException) throwable).getSqlState().equals("HY000"))
           .verify();
     }
   }
@@ -148,8 +150,8 @@ public class TimeParameterTest extends BaseConnectionTest {
           .as(StepVerifier::create)
           .expectErrorMatches(
               throwable ->
-                  throwable instanceof R2dbcBadGrammarException
-                      && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22007"))
+                  throwable instanceof R2dbcTransientResourceException
+                      && ((R2dbcTransientResourceException) throwable).getSqlState().equals("HY000"))
           .verify();
     }
   }
@@ -185,7 +187,6 @@ public class TimeParameterTest extends BaseConnectionTest {
 
   @Test
   void byteValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     byteValue(sharedConnPrepare);
   }
 
@@ -234,7 +235,6 @@ public class TimeParameterTest extends BaseConnectionTest {
 
   @Test
   void doubleValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     doubleValue(sharedConnPrepare);
   }
 
@@ -326,7 +326,6 @@ public class TimeParameterTest extends BaseConnectionTest {
 
   @Test
   void localDateValue() {
-    Assumptions.assumeFalse(isXpand());
     localDateValue(sharedConn);
   }
 
@@ -367,8 +366,8 @@ public class TimeParameterTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectErrorMatches(
             throwable ->
-                throwable instanceof R2dbcBadGrammarException
-                    && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22007"))
+                throwable instanceof R2dbcTransientResourceException
+                    && ((R2dbcTransientResourceException) throwable).getSqlState().equals("HY000"))
         .verify();
   }
 
