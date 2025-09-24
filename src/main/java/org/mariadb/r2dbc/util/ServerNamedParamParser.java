@@ -120,6 +120,9 @@ public class ServerNamedParamParser implements PrepareResult {
           break;
 
         case ':':
+          // skip :>, !:>, ::, ::$ and ::% operators
+          if (i + 1 < queryLength && (query[i + 1] == '>' || query[i + 1] == ':'))
+              break;
           if (state == LexState.Normal) {
             sb.append(queryString, lastParameterPosition, i).append("?");
             String placeholderName = "";

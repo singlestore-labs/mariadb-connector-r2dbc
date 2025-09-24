@@ -4,6 +4,7 @@
 package org.mariadb.r2dbc.integration.parameter;
 
 import io.r2dbc.spi.Clob;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +16,7 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
 import org.junit.jupiter.api.*;
 import org.mariadb.r2dbc.BaseConnectionTest;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
@@ -156,7 +158,6 @@ public class StringParameterTest extends BaseConnectionTest {
 
   @Test
   void stringValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     stringValue(sharedConnPrepare);
   }
 
@@ -221,7 +222,6 @@ public class StringParameterTest extends BaseConnectionTest {
 
   @Test
   void decimalValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     decimalValue(sharedConnPrepare);
   }
 
@@ -243,7 +243,6 @@ public class StringParameterTest extends BaseConnectionTest {
 
   @Test
   void intValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     intValue(sharedConnPrepare);
   }
 
@@ -265,7 +264,6 @@ public class StringParameterTest extends BaseConnectionTest {
 
   @Test
   void byteValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     byteValue(sharedConnPrepare);
   }
 
@@ -310,7 +308,6 @@ public class StringParameterTest extends BaseConnectionTest {
 
   @Test
   void doubleValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     doubleValue(sharedConnPrepare);
     validate(Optional.of("127"), Optional.of("-128"), Optional.of("0"));
   }
@@ -353,7 +350,6 @@ public class StringParameterTest extends BaseConnectionTest {
 
   @Test
   void longValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     longValue(sharedConnPrepare);
   }
 
@@ -381,9 +377,9 @@ public class StringParameterTest extends BaseConnectionTest {
   void localDateTimeValuePrepare() {
     localDateTimeValue(
         sharedConnPrepare,
-        meta.isMariaDBServer() ? "2010-01-12 05:08:09.001400" : "2010-01-12 05:08:09",
-        meta.isMariaDBServer() ? "2018-12-15 05:08:10.123456" : "2018-12-15 05:08:10",
-        meta.isMariaDBServer() ? "2025-05-12 05:08:11.123000" : "2025-05-12 05:08:11");
+        "2010-01-12 05:08:09.001400",
+        "2018-12-15 05:08:10.123456",
+        "2025-05-12 05:08:11.123000");
   }
 
   private void localDateTimeValue(MariadbConnection connection, String t1, String t2, String t3) {
@@ -409,7 +405,7 @@ public class StringParameterTest extends BaseConnectionTest {
 
   private void localDateValue(MariadbConnection connection) {
     connection
-        .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
+        .createStatement("INSERT INTO StringParam VALUES (? :> DATE,? :> DATE,? :> DATE)")
         .bind(0, LocalDate.parse("2010-01-12"))
         .bind(1, LocalDate.parse("2018-12-15"))
         .bind(2, LocalDate.parse("2025-05-12"))
@@ -424,25 +420,21 @@ public class StringParameterTest extends BaseConnectionTest {
     validate(
         Optional.of("05:08:09.001400"),
         Optional.of("05:08:10.123456"),
-        Optional.of("05:08:11.123"));
+        Optional.of("05:08:11.123000"));
   }
 
   @Test
   void localTimeValuePrepare() {
     localTimeValue(sharedConnPrepare);
-    if (meta.isMariaDBServer()) {
-      validate(
-          Optional.of("05:08:09.001400"),
-          Optional.of("05:08:10.123456"),
-          Optional.of("05:08:11.123000"));
-    } else {
-      validate(Optional.of("05:08:09"), Optional.of("05:08:10"), Optional.of("05:08:11"));
-    }
+    validate(
+        Optional.of("05:08:09.001400"),
+        Optional.of("05:08:10.123456"),
+        Optional.of("05:08:11.123000"));
   }
 
   private void localTimeValue(MariadbConnection connection) {
     connection
-        .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
+        .createStatement("INSERT INTO StringParam VALUES (? :> TIME(6),? :> TIME(6),? :> TIME(6))")
         .bind(0, LocalTime.parse("05:08:09.0014"))
         .bind(1, LocalTime.parse("05:08:10.123456"))
         .bind(2, LocalTime.parse("05:08:11.123"))
@@ -453,26 +445,22 @@ public class StringParameterTest extends BaseConnectionTest {
   @Test
   void durationValue() {
     durationValue(sharedConn);
-    validate(Optional.of("90:00:00.012340"), Optional.of("0:08:00"), Optional.of("0:00:22"));
+    validate(Optional.of("90:00:00.012340"), Optional.of("00:08:00.000000"), Optional.of("00:00:22.000000"));
   }
 
   @Test
   void durationValuePrepare() {
     durationValue(sharedConnPrepare);
-    if (meta.isMariaDBServer()) {
-      validate(
-          Optional.of("90:00:00.012340"),
-          Optional.of(isXpand() ? "00:08:00.000000" : "00:08:00"),
-          Optional.of(isXpand() ? "00:00:22.000000" : "00:00:22"));
-    } else {
-      validate(Optional.of("90:00:00"), Optional.of("00:08:00"), Optional.of("00:00:22"));
-    }
+    validate(
+        Optional.of("90:00:00.012340"),
+        Optional.of("00:08:00.000000"),
+        Optional.of("00:00:22.000000"));
   }
 
   private void durationValue(MariadbConnection connection) {
     MariadbStatement stmt =
         connection
-            .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
+            .createStatement("INSERT INTO StringParam VALUES (? :> TIME(6),? :> TIME(6),? :> TIME(6))")
             .bind(0, Duration.parse("P3DT18H0.012340S"))
             .bind(1, Duration.parse("PT8M"))
             .bind(2, Duration.parse("PT22S"));
