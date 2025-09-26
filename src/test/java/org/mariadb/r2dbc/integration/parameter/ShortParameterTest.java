@@ -3,13 +3,15 @@
 
 package org.mariadb.r2dbc.integration.parameter;
 
-import io.r2dbc.spi.R2dbcTransientResourceException;
+import io.r2dbc.spi.R2dbcBadGrammarException;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
+
 import org.junit.jupiter.api.*;
 import org.mariadb.r2dbc.BaseConnectionTest;
 import org.mariadb.r2dbc.api.MariadbConnection;
@@ -274,7 +276,6 @@ public class ShortParameterTest extends BaseConnectionTest {
 
   @Test
   void localDateTimeValue() {
-    Assumptions.assumeFalse(isXpand());
     sharedConn
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, LocalDateTime.now())
@@ -285,14 +286,13 @@ public class ShortParameterTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectErrorMatches(
             throwable ->
-                throwable instanceof R2dbcTransientResourceException
-                    && ((R2dbcTransientResourceException) throwable).getSqlState().equals("01000"))
+                throwable instanceof R2dbcBadGrammarException
+                    && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22003"))
         .verify();
   }
 
   @Test
   void localDateValue() {
-    Assumptions.assumeFalse(isXpand());
     sharedConn
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, LocalDate.now())
@@ -303,14 +303,13 @@ public class ShortParameterTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectErrorMatches(
             throwable ->
-                throwable instanceof R2dbcTransientResourceException
-                    && ((R2dbcTransientResourceException) throwable).getSqlState().equals("01000"))
+                throwable instanceof R2dbcBadGrammarException
+                    && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22003"))
         .verify();
   }
 
   @Test
   void localTimeValue() {
-    Assumptions.assumeFalse(isXpand());
     sharedConn
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, LocalTime.now())
@@ -321,8 +320,8 @@ public class ShortParameterTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectErrorMatches(
             throwable ->
-                throwable instanceof R2dbcTransientResourceException
-                    && ((R2dbcTransientResourceException) throwable).getSqlState().equals("01000"))
+                throwable instanceof R2dbcBadGrammarException
+                    && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22003"))
         .verify();
   }
 

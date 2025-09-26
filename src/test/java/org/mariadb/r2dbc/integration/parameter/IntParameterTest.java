@@ -3,7 +3,7 @@
 
 package org.mariadb.r2dbc.integration.parameter;
 
-import io.r2dbc.spi.R2dbcTransientResourceException;
+import io.r2dbc.spi.R2dbcBadGrammarException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -260,9 +260,9 @@ public class IntParameterTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectErrorMatches(
             throwable ->
-                throwable instanceof R2dbcTransientResourceException
-                    && (((R2dbcTransientResourceException) throwable).getSqlState().equals("01000")
-                        || throwable.getMessage().contains("truncated for conversion to INT")))
+                throwable instanceof R2dbcBadGrammarException
+                    && (((R2dbcBadGrammarException) throwable).getSqlState().equals("22003")
+                        && throwable.getMessage().contains("Out of range value for column 't1'")))
         .verify();
   }
 
@@ -278,8 +278,8 @@ public class IntParameterTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectErrorMatches(
             throwable ->
-                throwable instanceof R2dbcTransientResourceException
-                    && (((R2dbcTransientResourceException) throwable).getSqlState().equals("01000")
+                throwable instanceof R2dbcBadGrammarException
+                    && (((R2dbcBadGrammarException) throwable).getSqlState().equals("22003")
                         || throwable.getMessage().contains("truncated for conversion to INT")))
         .verify();
   }
@@ -296,8 +296,8 @@ public class IntParameterTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectErrorMatches(
             throwable ->
-                throwable instanceof R2dbcTransientResourceException
-                    && (((R2dbcTransientResourceException) throwable).getSqlState().equals("01000")
+                throwable instanceof R2dbcBadGrammarException
+                    && (((R2dbcBadGrammarException) throwable).getSqlState().equals("22003")
                         || throwable.getMessage().contains("truncated for conversion to INT")))
         .verify();
   }

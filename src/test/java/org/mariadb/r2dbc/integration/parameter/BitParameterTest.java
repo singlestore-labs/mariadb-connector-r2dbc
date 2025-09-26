@@ -69,7 +69,6 @@ public class BitParameterTest extends BaseConnectionTest {
 
   @Test
   void booleanValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     booleanValue(sharedConnPrepare);
   }
 
@@ -101,7 +100,6 @@ public class BitParameterTest extends BaseConnectionTest {
 
   @Test
   void bigIntValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     bigIntValue(sharedConnPrepare);
   }
 
@@ -150,7 +148,6 @@ public class BitParameterTest extends BaseConnectionTest {
 
   @Test
   void decimalValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     decimalValue(sharedConnPrepare);
   }
 
@@ -175,7 +172,6 @@ public class BitParameterTest extends BaseConnectionTest {
 
   @Test
   void intValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     intValue(sharedConnPrepare);
   }
 
@@ -200,7 +196,6 @@ public class BitParameterTest extends BaseConnectionTest {
 
   @Test
   void byteValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     byteValue(sharedConnPrepare);
   }
 
@@ -270,7 +265,7 @@ public class BitParameterTest extends BaseConnectionTest {
 
   private void floatValue(MariadbConnection connection) {
     connection
-        .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
+        .createStatement("INSERT INTO ByteParam VALUES (? :> BIT(4), ? :> BIT(20), ? :> BIT(2))")
         .bind(0, 11f)
         .bind(1, 512f)
         .bind(2, 1f)
@@ -289,13 +284,12 @@ public class BitParameterTest extends BaseConnectionTest {
 
   @Test
   void doubleValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     doubleValue(sharedConnPrepare);
   }
 
   private void doubleValue(MariadbConnection connection) {
     connection
-        .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
+        .createStatement("INSERT INTO ByteParam VALUES (? :> BIT(4), ? :> BIT(20), ? :> BIT(2))")
         .bind(0, 11d)
         .bind(1, 512d)
         .bind(2, 1d)
@@ -338,7 +332,6 @@ public class BitParameterTest extends BaseConnectionTest {
 
   @Test
   void longValuePrepare() {
-    Assumptions.assumeFalse(!isMariaDBServer() && minVersion(8, 0, 0));
     longValue(sharedConnPrepare);
   }
 
@@ -374,18 +367,7 @@ public class BitParameterTest extends BaseConnectionTest {
             .bind(1, LocalDateTime.now())
             .bind(2, LocalDateTime.now())
             .execute();
-    if ((isMariaDBServer() && !minVersion(10, 2, 0))
-        || (!isMariaDBServer() && !minVersion(5, 7, 0))) {
-      f.blockLast();
-    } else {
-      f.flatMap(r -> r.getRowsUpdated())
-          .as(StepVerifier::create)
-          .expectErrorMatches(
-              throwable ->
-                  throwable instanceof R2dbcBadGrammarException
-                      && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22001"))
-          .verify();
-    }
+    f.blockLast();
   }
 
   @Test
@@ -406,18 +388,7 @@ public class BitParameterTest extends BaseConnectionTest {
             .bind(1, LocalDate.now())
             .bind(2, LocalDate.now())
             .execute();
-    if ((isMariaDBServer() && !minVersion(10, 2, 0))
-        || (!isMariaDBServer() && !minVersion(5, 7, 0))) {
-      f.blockLast();
-    } else {
-      f.flatMap(r -> r.getRowsUpdated())
-          .as(StepVerifier::create)
-          .expectErrorMatches(
-              throwable ->
-                  throwable instanceof R2dbcBadGrammarException
-                      && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22001"))
-          .verify();
-    }
+    f.blockLast();
   }
 
   @Test
@@ -438,18 +409,7 @@ public class BitParameterTest extends BaseConnectionTest {
             .bind(1, LocalTime.now())
             .bind(2, LocalTime.now())
             .execute();
-    if ((isMariaDBServer() && !minVersion(10, 2, 0))
-        || (!isMariaDBServer() && !minVersion(5, 7, 0))) {
-      f.blockLast();
-    } else {
-      f.flatMap(r -> r.getRowsUpdated())
-          .as(StepVerifier::create)
-          .expectErrorMatches(
-              throwable ->
-                  throwable instanceof R2dbcBadGrammarException
-                      && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22001"))
-          .verify();
-    }
+    f.blockLast();
   }
 
   private void validate(Optional<BitSet> t1, Optional<BitSet> t2, Optional<BitSet> t3) {
