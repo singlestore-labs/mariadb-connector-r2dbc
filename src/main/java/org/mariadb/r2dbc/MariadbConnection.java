@@ -81,14 +81,7 @@ public final class MariadbConnection implements org.mariadb.r2dbc.api.MariadbCon
 
   @Override
   public Mono<Void> createSavepoint(String name) {
-    Assert.requireNonNull(name, "name must not be null");
-    Mono<Void> needsBegin = isAutoCommit() ? this.client.beginTransaction() : Mono.empty();
-    String cmd = String.format("SAVEPOINT `%s`", name.replace("`", "``"));
-    return needsBegin.then(
-        client
-            .sendCommand(new QueryPacket(cmd), true)
-            .handle(ExceptionFactory.withSql(cmd)::handleErrorResponse)
-            .then());
+    throw new UnsupportedOperationException("Savepoints are not supported in SingleStore");
   }
 
   @Override
@@ -126,12 +119,7 @@ public final class MariadbConnection implements org.mariadb.r2dbc.api.MariadbCon
 
   @Override
   public Mono<Void> releaseSavepoint(String name) {
-    Assert.requireNonNull(name, "name must not be null");
-    String cmd = String.format("RELEASE SAVEPOINT `%s`", name.replace("`", "``"));
-    return client
-        .sendCommand(new QueryPacket(cmd), true)
-        .handle(ExceptionFactory.withSql(cmd)::handleErrorResponse)
-        .then();
+    throw new UnsupportedOperationException("Savepoints are not supported in SingleStore");
   }
 
   @Override
@@ -166,8 +154,7 @@ public final class MariadbConnection implements org.mariadb.r2dbc.api.MariadbCon
 
   @Override
   public Mono<Void> rollbackTransactionToSavepoint(String name) {
-    Assert.requireNonNull(name, "name must not be null");
-    return this.client.rollbackTransactionToSavepoint(name);
+    throw new UnsupportedOperationException("Savepoints are not supported in SingleStore");
   }
 
   @Override

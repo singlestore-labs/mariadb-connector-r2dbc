@@ -8,6 +8,7 @@ import io.r2dbc.spi.test.TestKit;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Disabled;
 import org.mariadb.jdbc.MariaDbDataSource;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
@@ -90,5 +91,15 @@ public class MariadbTextTestKit implements TestKit<String> {
   @Override
   public String clobType() {
     return "TEXT";
+  }
+
+  @Override
+  @Disabled
+  public void savePointStartsTransaction() {
+  }
+
+  @Override
+  @Disabled
+  public void savePoint() {
   }
 }

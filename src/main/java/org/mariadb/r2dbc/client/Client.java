@@ -74,8 +74,6 @@ public interface Client {
 
   Mono<Void> setAutoCommit(boolean autoCommit);
 
-  Mono<Void> rollbackTransactionToSavepoint(String name);
-
   long getThreadId();
 
   HostAddress getHostAddress();

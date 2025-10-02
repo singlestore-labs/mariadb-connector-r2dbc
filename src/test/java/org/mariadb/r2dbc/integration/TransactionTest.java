@@ -92,19 +92,6 @@ public class TransactionTest extends BaseConnectionTest {
   }
 
   @Test
-  void createSavepoint() {
-    // must issue multiple savepoints
-    MariadbConnection conn = factory.create().block();
-    try {
-      conn.createSavepoint("t").subscribe();
-      conn.createSavepoint("t2").block();
-      conn.createSavepoint("t3").block();
-    } finally {
-      conn.close().block();
-    }
-  }
-
-  @Test
   void rollback() {
     MariadbConnection conn = factory.create().block();
     try {
@@ -132,65 +119,21 @@ public class TransactionTest extends BaseConnectionTest {
   }
 
   @Test
-  void releaseSavepoint() throws Exception {
+  void savepoints() {
     MariadbConnection conn = factory.create().block();
     try {
-      conn.setAutoCommit(false).block();
-      conn.createStatement(insertCmd).execute().subscribe();
-      conn.createSavepoint("mySavePoint1").subscribe();
-      try {
-        conn.createStatement(insertCmd).execute().flatMap(r -> r.getRowsUpdated()).blockLast();
-      } catch (Exception e) {
-        conn.rollbackTransaction().block();
-      }
-      conn.releaseSavepoint("mySavePoint1").block();
-      checkInserted(conn, 2);
-      conn.rollbackTransaction().block();
-      conn.setAutoCommit(true).block();
-    } finally {
-      conn.close().block();
-    }
-  }
-
-  @Test
-  void rollbackSavepoint() {
-    MariadbConnection conn = factory.create().block();
-    try {
-      conn.setAutoCommit(false).block();
-      conn.createStatement(insertCmd).execute().subscribe();
-
-      conn.createSavepoint("mySavePoint2").subscribe();
-      try {
-        conn.createStatement(insertCmd).execute().flatMap(r -> r.getRowsUpdated()).blockLast();
-      } catch (Exception e) {
-        conn.rollbackTransaction().block();
-      }
-
-      conn.rollbackTransactionToSavepoint("mySavePoint2").block();
-      checkInserted(conn, 1);
-      conn.rollbackTransaction().block();
-      conn.setAutoCommit(true).block();
-    } finally {
-      conn.close().block();
-    }
-  }
-
-  @Test
-  void rollbackSavepointPipelining() {
-    MariadbConnection conn = factory.create().block();
-    try {
-      conn.setAutoCommit(false).block();
-      conn.createStatement(insertCmd).execute().subscribe();
-      conn.createSavepoint("mySavePoint3").subscribe();
-      conn.createStatement(insertCmd).execute().subscribe();
-      try {
-        conn.rollbackTransactionToSavepoint("mySavePoint3").block();
-      } catch (Exception e) {
-        conn.rollbackTransaction().block();
-      }
-      checkInserted(conn, 1);
-      conn.rollbackTransaction().block();
-      conn.setAutoCommit(true).block();
+      assertThrowsContains(
+        UnsupportedOperationException.class,
+        () -> conn.createSavepoint("mySavePoint1").block(),
+        "Savepoints are not supported in SingleStore");
+      assertThrowsContains(
+        UnsupportedOperationException.class,
+        () -> conn.rollbackTransactionToSavepoint("mySavePoint1").block(),
+        "Savepoints are not supported in SingleStore");
+      assertThrowsContains(
+        UnsupportedOperationException.class,
+        () -> conn.releaseSavepoint("mySavePoint1").block(),
+        "Savepoints are not supported in SingleStore");
     } finally {
       conn.close().block();
     }
