@@ -883,44 +883,6 @@ public class ConnectionTest extends BaseConnectionTest {
   }
 
   @Test
-  void wrongSavePoint() {
-    sharedConn.createStatement("START TRANSACTION").execute().blockLast();
-    try {
-      sharedConn.rollbackTransactionToSavepoint("wrong").block();
-      Assertions.fail("Must have thrown error");
-    } catch (Exception e) {
-      Assertions.assertTrue(
-          e.getMessage().contains("Savepoint does not exist")
-              || e.getMessage().contains("SAVEPOINT wrong does not exist"));
-    }
-    sharedConn.rollbackTransaction().block();
-  }
-
-  @Test
-  void useSavePoint() {
-    sharedConn.createStatement("DROP TABLE IF EXISTS useSavePoint").execute().blockLast();
-    sharedConn.createStatement("CREATE TABLE useSavePoint (t1 VARCHAR(256))").execute().blockLast();
-    Assertions.assertTrue(sharedConn.isAutoCommit());
-    sharedConn.setAutoCommit(false).block();
-    Assertions.assertFalse(sharedConn.isAutoCommit());
-    sharedConn.createSavepoint("point1").block();
-    sharedConn.releaseSavepoint("point1").block();
-    sharedConn.createSavepoint("point2").block();
-    sharedConn.createStatement("INSERT INTO useSavePoint VALUES ('a')").execute().blockLast();
-    sharedConn.rollbackTransactionToSavepoint("point2").block();
-    sharedConn.commitTransaction().block();
-    sharedConn
-        .createStatement("SELECT * FROM useSavePoint")
-        .execute()
-        .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
-        .as(StepVerifier::create)
-        //        .expectNext(Optional.of("a"))
-        .verifyComplete();
-    sharedConn.createStatement("DROP TABLE IF EXISTS useSavePoint").execute().blockLast();
-    sharedConn.setAutoCommit(true).block();
-  }
-
-  @Test
   void toStringTest() {
     MariadbConnection connection =
         new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();

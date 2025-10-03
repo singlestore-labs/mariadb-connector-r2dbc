@@ -467,16 +467,6 @@ public class SimpleClient implements Client {
   }
 
   /**
-   * Specific implementation, to avoid executing ROLLBACK TO TRANSACTION if no transaction
-   *
-   * @return publisher
-   */
-  public Mono<Void> rollbackTransactionToSavepoint(String name) {
-    String sql = String.format("ROLLBACK TO SAVEPOINT `%s`", name.replace("`", "``"));
-    return executeWhenTransaction(sql);
-  }
-
-  /**
    * Specific implementation, to avoid changing autocommit mode if already in this autocommit mode
    *
    * @return publisher

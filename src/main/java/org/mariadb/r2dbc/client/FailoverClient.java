@@ -589,19 +589,6 @@ public class FailoverClient implements Client {
   }
 
   @Override
-  public Mono<Void> rollbackTransactionToSavepoint(String name) {
-    return client
-        .get()
-        .rollbackTransactionToSavepoint(name)
-        .onErrorResume(
-            FAIL_PREDICATE,
-            t ->
-                reconnectFallbackReplay(t, conf, lock, client, true, true, null)
-                    .map(c -> c.rollbackTransactionToSavepoint(name))
-                    .flatMap(flux -> flux));
-  }
-
-  @Override
   public long getThreadId() {
     return client.get().getThreadId();
   }
