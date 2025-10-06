@@ -82,8 +82,6 @@ public class ResultsetTest extends BaseConnectionTest {
 
   @Test
   public void returning() {
-    Assumptions.assumeTrue(isMariaDBServer() && minVersion(10, 5, 1));
-
     sharedConn
         .createStatement(
             "CREATE TEMPORARY TABLE INSERT_RETURNING (id int not null primary key auto_increment,"
@@ -264,7 +262,6 @@ public class ResultsetTest extends BaseConnectionTest {
   }
 
   @Test
-  @Disabled
   public void skippingRes() throws Exception {
     BigInteger maxAllowedPacket =
         sharedConn

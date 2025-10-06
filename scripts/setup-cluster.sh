@@ -4,7 +4,7 @@ set -eu
 cd "$(git rev-parse --show-toplevel)"
 
 
-DEFAULT_SINGLESTORE_VERSION=""
+DEFAULT_SINGLESTORE_VERSION="8.9"
 VERSION="${SINGLESTORE_VERSION:-$DEFAULT_SINGLESTORE_VERSION}"
 IMAGE_NAME="ghcr.io/singlestore-labs/singlestoredb-dev:latest"
 CONTAINER_NAME="singlestore-integration"
@@ -22,8 +22,14 @@ openssl req -new -x509 -key  "${SSL_DIR}"/ca-key.pem -out "${SSL_DIR}"/ca-cert.p
 echo "Generate the Server Certificate"
 
 openssl genpkey -algorithm RSA -out "${SSL_DIR}"/server-key.pem
-openssl req -new -key "${SSL_DIR}"/server-key.pem -out "${SSL_DIR}"/server-req.csr -subj "/CN=singlestore-server"
-openssl x509 -req -in "${SSL_DIR}"/server-req.csr -CA "${SSL_DIR}"/ca-cert.pem -CAkey "${SSL_DIR}"/ca-key.pem -CAcreateserial -out "${SSL_DIR}"/server-cert.pem -days 365
+openssl req -new -key "${SSL_DIR}"/server-key.pem -out "${SSL_DIR}"/server-req.csr -subj "/CN=singlestore-server" -addext "subjectAltName=DNS:localhost"
+cat > "$SSL_DIR/server-ext.cnf" <<'EOF'
+basicConstraints=CA:FALSE
+keyUsage=digitalSignature,keyEncipherment
+extendedKeyUsage=serverAuth
+subjectAltName=DNS:localhost
+EOF
+openssl x509 -req -in "${SSL_DIR}"/server-req.csr -CA "${SSL_DIR}"/ca-cert.pem -CAkey "${SSL_DIR}"/ca-key.pem -CAcreateserial -out "${SSL_DIR}"/server-cert.pem -days 365 -extfile "$SSL_DIR/server-ext.cnf"
 
 echo "Create truststore"
 keytool -import -trustcacerts -file "${SSL_DIR}"/ca-cert.pem -keystore "${SSL_DIR}"/truststore.jks -storepass password -alias singlestore-ca -noprompt
@@ -90,6 +96,7 @@ fi
 echo
 echo "Setting up SSL"
 docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_ca --value /test-ssl/ca-cert.pem
+docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_ca_for_client_cert --value /test-ssl/ca-cert.pem
 docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_cert --value /test-ssl/server-cert.pem
 docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_key --value /test-ssl/server-key.pem
 echo "Setting up JWT"
@@ -104,6 +111,15 @@ mysql -u root -h 127.0.0.1 -P 5507 -p"${ROOT_PASSWORD}" -e 'create user "root-ss
 mysql -u root -h 127.0.0.1 -P 5507 -p"${ROOT_PASSWORD}" -e 'grant all privileges on *.* to "root-ssl"@"%" require ssl with grant option'
 mysql -u root -h 127.0.0.1 -P 5508 -p"${ROOT_PASSWORD}" -e 'grant all privileges on *.* to "root-ssl"@"%" require ssl with grant option'
 echo "Done!"
+if (( $(echo "$VERSION >= 9.0" | bc -l) )); then
+  echo "Setting up root-mutual-ssl user"
+  mysql -u root -h 127.0.0.1 -P 5506 -p"${ROOT_PASSWORD}" -e 'create user "root-mutual-ssl"@"%" require x509'
+  mysql -u root -h 127.0.0.1 -P 5506 -p"${ROOT_PASSWORD}" -e 'grant all privileges on *.* to "root-mutual-ssl"@"%"'
+  mysql -u root -h 127.0.0.1 -P 5507 -p"${ROOT_PASSWORD}" -e 'create user "root-mutual-ssl"@"%" require x509'
+  mysql -u root -h 127.0.0.1 -P 5507 -p"${ROOT_PASSWORD}" -e 'grant all privileges on *.* to "root-mutual-ssl"@"%"'
+  mysql -u root -h 127.0.0.1 -P 5508 -p"${ROOT_PASSWORD}" -e 'grant all privileges on *.* to "root-mutual-ssl"@"%"'
+  echo "Done!"
+fi
 echo "Setting up root-jwt user"
 mysql -h 127.0.0.1 -u root -P 5506 -p"${ROOT_PASSWORD}" -e "CREATE USER 'test_jwt_user' IDENTIFIED WITH authentication_jwt"
 mysql -h 127.0.0.1 -u root -P 5506 -p"${ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON *.* TO 'test_jwt_user'@'%'"

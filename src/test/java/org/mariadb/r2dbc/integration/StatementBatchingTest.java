@@ -39,7 +39,7 @@ public class StatementBatchingTest extends BaseConnectionTest {
         .blockLast();
 
     connection
-        .createStatement("SELECT * FROM batchStatement")
+        .createStatement("SELECT * FROM batchStatement ORDER BY id")
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, String.class) + row.get(1, String.class)))
         .as(StepVerifier::create)
