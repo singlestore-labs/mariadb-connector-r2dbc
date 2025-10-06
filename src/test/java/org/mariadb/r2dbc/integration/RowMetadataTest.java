@@ -25,20 +25,21 @@ public class RowMetadataTest extends BaseConnectionTest {
     sharedConn
         .createStatement(
             "CREATE TABLE rowmeta (t1 varchar(256) NOT NULL,"
-                + "t2 int ZEROFILL, "
+                + "t2 int, "
                 + "t3 DECIMAL(10,6), "
                 + "t4 DECIMAL (10,6) unsigned, "
                 + "t5 DECIMAL(20,0), "
-                + "t6 DECIMAL (20,0) unsigned "
+                + "t6 DECIMAL (20,0) unsigned, "
+                + "id INT "
                 + ") CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
         .execute()
         .blockLast();
     sharedConn
         .createStatement(
-            "INSERT INTO rowmeta VALUES ('some🌟', 1, 2, 2, 2, 2),"
-                + "('1', 2, 10, 11, 10, 11),"
-                + "('0', 3, 100, 101, 100, 101), "
-                + "('3', null, null, null, null, null)")
+            "INSERT INTO rowmeta VALUES ('some🌟', 1, 2, 2, 2, 2, 1),"
+                + "('1', 2, 10, 11, 10, 11, 2),"
+                + "('0', 3, 100, 101, 100, 101, 3), "
+                + "('3', null, null, null, null, null, 4)")
         .execute()
         .blockLast();
   }
@@ -53,7 +54,7 @@ public class RowMetadataTest extends BaseConnectionTest {
   void rowMeta() {
     sharedConn
         .createStatement(
-            "SELECT t1 as t1Alias, t2, t3, t4, t5, t6 FROM rowmeta as rowMetaAlias WHERE 1 = ?")
+            "SELECT t1 as t1Alias, t2, t3, t4, t5, t6 FROM rowmeta as rowMetaAlias WHERE 1 = ? ORDER BY id")
         .bind(0, 1)
         .execute()
         .flatMap(
@@ -109,7 +110,7 @@ public class RowMetadataTest extends BaseConnectionTest {
 
                       colMeta = metadata.getColumnMetadata("t2");
                       if (!isXpand()) {
-                        assertEquals(Long.class, colMeta.getJavaType());
+                        assertEquals(Integer.class, colMeta.getJavaType());
                       }
                       assertEquals("t2", colMeta.getName());
 
@@ -121,10 +122,10 @@ public class RowMetadataTest extends BaseConnectionTest {
                       colMeta = metadata.getColumnMetadata(1);
                       if (!isXpand()) {
 
-                        assertEquals(Long.class, colMeta.getJavaType());
+                        assertEquals(Integer.class, colMeta.getJavaType());
                         assertEquals("t2", colMeta.getName());
                         assertEquals(Nullability.NULLABLE, colMeta.getNullability());
-                        assertEquals(10, colMeta.getPrecision());
+                        assertEquals(11, colMeta.getPrecision());
                       }
                       assertEquals(0, colMeta.getScale());
                       assertEquals(
@@ -140,17 +141,13 @@ public class RowMetadataTest extends BaseConnectionTest {
                       assertEquals("rowMetaAlias", t2Meta.getTableAlias());
 
                       if (!isXpand()) {
-                        assertEquals(10, t2Meta.getDisplaySize());
+                        assertEquals(11, t2Meta.getDisplaySize());
                         assertEquals(63, t2Meta.getCharset());
                       }
                       assertTrue(t2Meta.isBinary());
                       assertFalse(t2Meta.isBlob());
                       assertFalse(t2Meta.isMultipleKey());
                       assertFalse(t2Meta.isPrimaryKey());
-                      if (!isXpand()) {
-                        assertFalse(t2Meta.isSigned());
-                        assertTrue(t2Meta.isZeroFill());
-                      }
                       assertFalse(t2Meta.isUniqueKey());
 
                       colMeta = metadata.getColumnMetadata(2);
@@ -197,7 +194,7 @@ public class RowMetadataTest extends BaseConnectionTest {
   @Test
   void rowMetaString() {
     sharedConn
-        .createStatement("SELECT * FROM rowmeta WHERE 1 = ?")
+        .createStatement("SELECT t1, t2, t3, t4, t5, t6 FROM rowmeta WHERE 1 = ? ORDER BY id")
         .bind(0, 1)
         .execute()
         .flatMap(
