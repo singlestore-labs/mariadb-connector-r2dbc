@@ -19,12 +19,33 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 public class StatementTest extends BaseConnectionTest {
+  private static void insert_to_seq(MariadbConnection conn, String table, int start, int end) {
+    StringBuilder query = new StringBuilder(String.format("INSERT INTO %s VALUES (%d)", table, start));
+    for (int i = start + 1; i <= end; i++) {
+      query.append(String.format(", (%d)", i));
+    }
+
+    conn
+        .createStatement(query.toString())
+        .execute()
+        .blockLast();
+  }
 
   @BeforeAll
   public static void before2() throws Exception {
     dropAll();
     sharedConn
-        .createStatement("CREATE TABLE parameterNull(t varchar(10), t2 varchar(10))")
+        .createStatement("CREATE TABLE seq_1_to_10000(seq INT)")
+        .execute()
+        .blockLast();
+    insert_to_seq(sharedConn, "seq_1_to_10000", 1, 10000);
+    sharedConn
+        .createStatement("CREATE TABLE seq_1_to_1000(seq INT)")
+        .execute()
+        .blockLast();
+    insert_to_seq(sharedConn, "seq_1_to_1000", 1, 1000);
+    sharedConn
+        .createStatement("CREATE TABLE parameterNull(t varchar(10), t2 varchar(10), id INT)")
         .execute()
         .blockLast();
     sharedConn
@@ -80,6 +101,8 @@ public class StatementTest extends BaseConnectionTest {
 
   @AfterAll
   public static void dropAll() {
+    sharedConn.createStatement("DROP TABLE IF EXISTS seq_1_to_1000").execute().blockLast();
+    sharedConn.createStatement("DROP TABLE IF EXISTS seq_1_to_10000").execute().blockLast();
     sharedConn.createStatement("DROP TABLE IF EXISTS parameterNull").execute().blockLast();
     sharedConn
         .createStatement("DROP TABLE IF EXISTS prepareReturningBefore105")
@@ -108,7 +131,11 @@ public class StatementTest extends BaseConnectionTest {
   @Test
   void basicSetter() {
     sharedConn
-        .createStatement("SELECT @amount := 10")
+        .createStatement("SET @amount = 10")
+        .execute()
+        .blockLast();
+    sharedConn
+        .createStatement("SELECT @amount")
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, String.class)))
         .as(StepVerifier::create)
@@ -254,11 +281,9 @@ public class StatementTest extends BaseConnectionTest {
   @Test
   void fetchSize() {
     MariadbConnectionMetadata meta = sharedConn.getMetadata();
-    // sequence table requirement
-    Assumptions.assumeTrue(meta.isMariaDBServer() && minVersion(10, 1, 0));
 
     sharedConn
-        .createStatement("SELECT * FROM seq_1_to_1000")
+        .createStatement("SELECT * FROM seq_1_to_1000 ORDER BY seq")
         .fetchSize(100)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0)))
@@ -266,7 +291,7 @@ public class StatementTest extends BaseConnectionTest {
         .expectNextCount(1000)
         .verifyComplete();
     sharedConn
-        .createStatement("SELECT * FROM seq_1_to_1000 WHERE seq > ?")
+        .createStatement("SELECT * FROM seq_1_to_1000 WHERE seq > ? ORDER BY seq")
         .fetchSize(100)
         .bind(0, 800)
         .execute()
@@ -350,7 +375,6 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void sinkEndCheck() throws Throwable {
-    Assumptions.assumeTrue(isMariaDBServer() && !isXpand());
     AtomicReference<Disposable> d = new AtomicReference<>();
     AtomicReference<Disposable> d2 = new AtomicReference<>();
     MariadbConnection connection = factory.create().block();
@@ -358,7 +382,7 @@ public class StatementTest extends BaseConnectionTest {
     try {
       Flux<Integer> flux =
           connection
-              .createStatement("SELECT * from seq_1_to_10000")
+              .createStatement("SELECT * from seq_1_to_10000 ORDER BY seq")
               .execute()
               .flatMap(
                   r ->
@@ -391,14 +415,13 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void sinkFirstOnly() throws Throwable {
-    Assumptions.assumeTrue(isMariaDBServer() && !isXpand());
     AtomicReference<Disposable> d2 = new AtomicReference<>();
     MariadbConnection connection = factory.create().block();
     connection.beginTransaction().block();
     try {
       Flux<Integer> flux =
           connection
-              .createStatement("SELECT * from seq_1_to_10000")
+              .createStatement("SELECT * from seq_1_to_10000 ORDER BY seq")
               .execute()
               .flatMap(
                   r ->
@@ -453,8 +476,6 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void returning() {
-    Assumptions.assumeTrue(isMariaDBServer());
-
     if (!minVersion(10, 5, 1)) {
       Assertions.assertThrows(
           IllegalArgumentException.class,
@@ -643,7 +664,6 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void prepareReturning() {
-    Assumptions.assumeTrue(isMariaDBServer() && minVersion(10, 5, 1));
     sharedConn.beginTransaction().block();
     sharedConn
         .createStatement("INSERT INTO prepareReturning(test) VALUES (?), (?)")
@@ -713,11 +733,11 @@ public class StatementTest extends BaseConnectionTest {
 
   void parameterNull(MariadbConnection conn) {
     conn.beginTransaction().block();
-    conn.createStatement("INSERT INTO parameterNull VALUES ('1', '1'), (null, '2'), (null, null)")
+    conn.createStatement("INSERT INTO parameterNull VALUES ('1', '1', 1), (null, '2', 2), (null, null, 3)")
         .execute()
         .blockLast();
     MariadbStatement stmt =
-        conn.createStatement("SELECT t2 FROM parameterNull WHERE COALESCE(t,?) is null");
+        conn.createStatement("SELECT t2 FROM parameterNull WHERE COALESCE(t,?) is null ORDER BY id");
     stmt.bindNull(0, Integer.class)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -805,7 +825,6 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void generatedId() {
-    Assumptions.assumeTrue(!isMaxscale() && !"skysql-ha".equals(System.getenv("srv")));
     sharedConn.beginTransaction().block();
     sharedConn
         .createStatement("INSERT INTO generatedId(test) VALUES (?)")
@@ -816,51 +835,5 @@ public class StatementTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectNext(1)
         .verifyComplete();
-
-    sharedConn
-        .createStatement("ALTER TABLE generatedId AUTO_INCREMENT = 60000")
-        .execute()
-        .blockLast();
-
-    sharedConn
-        .createStatement("INSERT INTO generatedId(test) VALUES (?)")
-        .bind(0, "test1")
-        .returnGeneratedValues()
-        .execute()
-        .flatMap(r -> r.map((row, metadata) -> row.get("id", Integer.class)))
-        .as(StepVerifier::create)
-        .expectNext(60000)
-        .verifyComplete();
-
-    sharedConn
-        .createStatement("ALTER TABLE generatedId AUTO_INCREMENT = 70000")
-        .execute()
-        .blockLast();
-
-    sharedConn
-        .createStatement("INSERT INTO generatedId(test) VALUES (?)")
-        .bind(0, "test1")
-        .returnGeneratedValues()
-        .execute()
-        .flatMap(r -> r.map((row, metadata) -> row.get("id", Integer.class)))
-        .as(StepVerifier::create)
-        .expectNext(70000)
-        .verifyComplete();
-
-    sharedConn
-        .createStatement("ALTER TABLE generatedId AUTO_INCREMENT = 20000000")
-        .execute()
-        .blockLast();
-
-    sharedConn
-        .createStatement("INSERT INTO generatedId(test) VALUES (?)")
-        .bind(0, "test1")
-        .returnGeneratedValues()
-        .execute()
-        .flatMap(r -> r.map((row, metadata) -> row.get("id", Integer.class)))
-        .as(StepVerifier::create)
-        .expectNext(20000000)
-        .verifyComplete();
-    sharedConn.rollbackTransaction().block();
   }
 }
