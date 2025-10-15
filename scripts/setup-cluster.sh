@@ -98,7 +98,7 @@ echo "Setting up SSL"
 docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_ca --value /test-ssl/ca-cert.pem
 docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_cert --value /test-ssl/server-cert.pem
 docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_key --value /test-ssl/server-key.pem
-if (( $(echo "$VERSION >= 9.0" | bc -l) )); then
+if dpkg --compare-versions "$VERSION" ge "9.0"; then
   docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_ca_for_client_cert --value /test-ssl/ca-cert.pem
 fi
 echo "Setting up JWT"
@@ -113,7 +113,7 @@ mysql -u root -h 127.0.0.1 -P 5507 -p"${ROOT_PASSWORD}" -e 'create user "root-ss
 mysql -u root -h 127.0.0.1 -P 5507 -p"${ROOT_PASSWORD}" -e 'grant all privileges on *.* to "root-ssl"@"%" require ssl with grant option'
 mysql -u root -h 127.0.0.1 -P 5508 -p"${ROOT_PASSWORD}" -e 'grant all privileges on *.* to "root-ssl"@"%" require ssl with grant option'
 echo "Done!"
-if (( $(echo "$VERSION >= 9.0" | bc -l) )); then
+if dpkg --compare-versions "$VERSION" ge "9.0"; then
   echo "Setting up root-mutual-ssl user"
   mysql -u root -h 127.0.0.1 -P 5506 -p"${ROOT_PASSWORD}" -e 'create user "root-mutual-ssl"@"%" require x509'
   mysql -u root -h 127.0.0.1 -P 5506 -p"${ROOT_PASSWORD}" -e 'grant all privileges on *.* to "root-mutual-ssl"@"%"'
