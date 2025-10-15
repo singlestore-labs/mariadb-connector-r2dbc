@@ -96,9 +96,11 @@ fi
 echo
 echo "Setting up SSL"
 docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_ca --value /test-ssl/ca-cert.pem
-docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_ca_for_client_cert --value /test-ssl/ca-cert.pem
 docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_cert --value /test-ssl/server-cert.pem
 docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_key --value /test-ssl/server-key.pem
+if (( $(echo "$VERSION >= 9.0" | bc -l) )); then
+  docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key ssl_ca_for_client_cert --value /test-ssl/ca-cert.pem
+fi
 echo "Setting up JWT"
 docker exec ${CONTAINER_NAME} memsqlctl update-config --yes --all --key jwt_auth_config_file --value /test-jwt/jwt_auth_config.json
 echo "Restarting cluster"
