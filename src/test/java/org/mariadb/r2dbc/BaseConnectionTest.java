@@ -162,13 +162,12 @@ public class BaseConnectionTest {
   }
 
   public boolean haveSsl(MariadbConnection connection) {
-    if (!isMariaDBServer() && minVersion(8, 4, 0)) return true;
     return connection
         .createStatement("select @@have_ssl")
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, String.class)))
         .blockLast()
-        .equals("YES");
+        .equals("1");
   }
 
   private class Follow implements BeforeEachCallback, AfterEachCallback {
