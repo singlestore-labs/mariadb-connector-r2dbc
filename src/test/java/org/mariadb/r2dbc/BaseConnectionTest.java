@@ -243,4 +243,21 @@ public class BaseConnectionTest {
           .verifyComplete();
     }
   }
+
+  public static void create_seq(MariadbConnection conn, String table, int start, int end) {
+    conn
+        .createStatement(String.format("CREATE TABLE %s(seq INT)", table))
+        .execute()
+        .blockLast();
+
+    StringBuilder query = new StringBuilder(String.format("INSERT INTO %s VALUES (%d)", table, start));
+    for (int i = start + 1; i <= end; i++) {
+      query.append(String.format(", (%d)", i));
+    }
+
+    conn
+        .createStatement(query.toString())
+        .execute()
+        .blockLast();
+  }
 }

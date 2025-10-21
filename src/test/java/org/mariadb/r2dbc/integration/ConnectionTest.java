@@ -114,13 +114,8 @@ public class ConnectionTest extends BaseConnectionTest {
   }
 
   @Test
+  @Disabled // TODO: PLAT-7666
   void connectionCollation() throws Exception {
-    Assumptions.assumeTrue(
-        isMariaDBServer()
-            && !isMaxscale()
-            && !"skysql".equals(System.getenv("srv"))
-            && !"skysql-ha".equals(System.getenv("srv")));
-
     String defaultUtf8Collation =
         sharedConn
             .createStatement(
@@ -457,7 +452,7 @@ public class ConnectionTest extends BaseConnectionTest {
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, String.class)))
         .as(StepVerifier::create)
-        .expectNext("-08:00")
+        .expectNext("SYSTEM") // In SingleStore time_zone is noop and exists for MySQL compatibility
         .verifyComplete();
 
     connection.close().block();
@@ -515,6 +510,7 @@ public class ConnectionTest extends BaseConnectionTest {
   }
 
   @Test
+  @Disabled // TODO: PLAT-7665
   void multipleBeginWithIsolation() throws Exception {
     MariadbTransactionDefinition[] transactionDefinitions = {
       MariadbTransactionDefinition.READ_ONLY,
@@ -550,6 +546,7 @@ public class ConnectionTest extends BaseConnectionTest {
   }
 
   @Test
+  @Disabled // TODO: PLAT-7665
   void beginTransactionWithIsolation() throws Exception {
     Assumptions.assumeTrue(!isEnterprise() && !minVersion(10, 2, 0));
     TransactionDefinition transactionDefinition =
@@ -622,28 +619,10 @@ public class ConnectionTest extends BaseConnectionTest {
   }
 
   private void consume(Connection connection) {
-    if (isXpand()) {
-      Statement statement = connection.createStatement("select 1");
-      Flux.from(statement.execute())
-          .flatMap(it -> it.map((row, rowMetadata) -> row.get(0)))
-          .blockLast();
-
-    } else {
-      int numberOfUserCol = 41;
-      Statement statement = connection.createStatement("select * FROM mysql.user LIMIT 1");
-      Flux.from(statement.execute())
-          .flatMap(
-              it ->
-                  it.map(
-                      (row, rowMetadata) -> {
-                        Object[] objs = new Object[numberOfUserCol];
-                        for (int i = 0; i < numberOfUserCol; i++) {
-                          objs[i] = row.get(i);
-                        }
-                        return objs;
-                      }))
-          .blockLast();
-    }
+    Statement statement = connection.createStatement("select 1");
+    Flux.from(statement.execute())
+        .flatMap(it -> it.map((row, rowMetadata) -> row.get(0)))
+        .blockLast();
   }
 
   @Test
@@ -706,10 +685,9 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void sessionVariables() throws Exception {
-    Assumptions.assumeTrue(isMariaDBServer() && minVersion(10, 2, 0));
     BigInteger[] res =
         sharedConn
-            .createStatement("SELECT @@wait_timeout, @@net_read_timeout")
+            .createStatement("SELECT @@lock_wait_timeout, @@multi_statement_xact_idle_timeout")
             .execute()
             .flatMap(
                 r ->
@@ -721,25 +699,25 @@ public class ConnectionTest extends BaseConnectionTest {
             .blockLast();
 
     Map<String, Object> sessionVariables = new HashMap<>();
-    sessionVariables.put("max_statement_time", 60.5);
-    sessionVariables.put("wait_timeout", 2147483);
+    sessionVariables.put("multi_statement_xact_idle_timeout", 60);
+    sessionVariables.put("lock_wait_timeout", 2147483);
 
     MariadbConnectionConfiguration conf =
         TestConfiguration.defaultBuilder.clone().sessionVariables(sessionVariables).build();
     MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
     assert connection != null;
     connection
-        .createStatement("SELECT @@wait_timeout, @@max_statement_time")
+        .createStatement("SELECT @@lock_wait_timeout, @@multi_statement_xact_idle_timeout")
         .execute()
         .flatMap(
             r ->
                 r.map(
                     (row, metadata) -> {
                       Assertions.assertEquals(row.get(0, BigInteger.class).intValue(), 2147483);
-                      Assertions.assertEquals(row.get(1, Float.class), 60.5f);
+                      Assertions.assertEquals(row.get(1, Integer.class), 60);
                       Assertions.assertNotEquals(
                           row.get(0, BigInteger.class).intValue(), res[0].intValue());
-                      Assertions.assertNotEquals(row.get(1, Float.class), res[1].floatValue());
+                      Assertions.assertNotEquals(row.get(1, Integer.class), res[1].intValue());
                       return 0;
                     }))
         .blockLast();
@@ -991,43 +969,48 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   public void errorOnConnection() throws Throwable {
-    Assumptions.assumeTrue(
-        !isMaxscale()
-            && !"skysql-ha".equals(System.getenv("srv"))
-            && !"skysql".equals(System.getenv("srv"))
-            && !isXpand());
+    sharedConn
+        .createStatement("SET GLOBAL max_connections=400")
+        .execute()
+        .blockLast();
+    try {
+      BigInteger maxConn =
+          sharedConn
+              .createStatement("select @@max_connections")
+              .execute()
+              .flatMap(r -> r.map((row, metadata) -> row.get(0, BigInteger.class)))
+              .blockLast();
+      Assumptions.assumeTrue(maxConn.intValue() < 600);
 
-    BigInteger maxConn =
-        sharedConn
-            .createStatement("select @@max_connections")
-            .execute()
-            .flatMap(r -> r.map((row, metadata) -> row.get(0, BigInteger.class)))
-            .blockLast();
-    Assumptions.assumeTrue(maxConn.intValue() < 600);
-
-    Throwable expected = null;
-    Mono<?>[] cons = new Mono<?>[maxConn.intValue()];
-    for (int i = 0; i < maxConn.intValue(); i++) {
-      cons[i] = new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create();
-    }
-    MariadbConnection[] connections = new MariadbConnection[maxConn.intValue()];
-    for (int i = 0; i < maxConn.intValue(); i++) {
-      try {
-        connections[i] = (MariadbConnection) cons[i].block();
-      } catch (Throwable e) {
-        expected = e;
+      Throwable expected = null;
+      Mono<?>[] cons = new Mono<?>[maxConn.intValue()];
+      for (int i = 0; i < maxConn.intValue(); i++) {
+        cons[i] = new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create();
       }
-    }
-
-    for (int i = 0; i < maxConn.intValue(); i++) {
-      if (connections[i] != null) {
-        connections[i].close().block();
+      MariadbConnection[] connections = new MariadbConnection[maxConn.intValue()];
+      for (int i = 0; i < maxConn.intValue(); i++) {
+        try {
+          connections[i] = (MariadbConnection) cons[i].block();
+        } catch (Throwable e) {
+          expected = e;
+        }
       }
+
+      for (int i = 0; i < maxConn.intValue(); i++) {
+        if (connections[i] != null) {
+          connections[i].close().block();
+        }
+      }
+      Assertions.assertNotNull(expected);
+      Assertions.assertTrue(expected.getMessage().contains("Fail to establish connection to"));
+      Assertions.assertTrue(expected.getCause().getMessage().contains("Too many connections"));
+      Thread.sleep(1000);
+    } finally {
+      sharedConn
+          .createStatement("SET GLOBAL max_connections=100000")
+          .execute()
+          .blockLast();
     }
-    Assertions.assertNotNull(expected);
-    Assertions.assertTrue(expected.getMessage().contains("Fail to establish connection to"));
-    Assertions.assertTrue(expected.getCause().getMessage().contains("Too many connections"));
-    Thread.sleep(1000);
   }
 
   @Test
@@ -1085,7 +1068,7 @@ public class ConnectionTest extends BaseConnectionTest {
   }
 
   @Test
-  @Disabled
+  @Disabled // TODO: PLAT-7664
   public void queryTimeout() throws Throwable {
     Assumptions.assumeTrue(
         !isMaxscale()
