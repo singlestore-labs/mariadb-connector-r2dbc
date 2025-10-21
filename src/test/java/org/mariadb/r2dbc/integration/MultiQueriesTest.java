@@ -28,7 +28,7 @@ public class MultiQueriesTest extends BaseConnectionTest {
         .expectErrorMatches(
             throwable ->
                 throwable instanceof R2dbcBadGrammarException
-                    && throwable.getMessage().contains("You have an error in your SQL syntax"))
+                    && throwable.getMessage().contains("Additional statements detected after a single query"))
         .verify();
   }
 
@@ -63,7 +63,7 @@ public class MultiQueriesTest extends BaseConnectionTest {
         .expectErrorMatches(
             throwable ->
                 throwable instanceof R2dbcBadGrammarException
-                    && throwable.getMessage().contains("You have an error in your SQL syntax"))
+                    && throwable.getMessage().contains("Additional statements detected after a single query"))
         .verify();
     connection.close().subscribe();
   }
@@ -83,7 +83,7 @@ public class MultiQueriesTest extends BaseConnectionTest {
         .expectErrorMatches(
             throwable ->
                 throwable instanceof R2dbcBadGrammarException
-                    && throwable.getMessage().contains("You have an error in your SQL syntax"))
+                    && throwable.getMessage().contains("Additional statements detected after a single query"))
         .verify();
   }
 
@@ -122,7 +122,7 @@ public class MultiQueriesTest extends BaseConnectionTest {
         .expectErrorMatches(
             throwable ->
                 throwable instanceof R2dbcBadGrammarException
-                    && throwable.getMessage().contains("You have an error in your SQL syntax"))
+                    && throwable.getMessage().contains("Additional statements detected after a single query"))
         .verify();
     connection.close().subscribe();
   }

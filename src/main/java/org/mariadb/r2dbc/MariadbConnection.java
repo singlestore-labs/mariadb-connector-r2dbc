@@ -288,7 +288,10 @@ public final class MariadbConnection implements org.mariadb.r2dbc.api.MariadbCon
         .sendCommand(new ChangeSchemaPacket(database), true)
         .handle(exceptionFactory::handleErrorResponse)
         .then()
-        .doOnSuccess(ignore -> this.database = newDatabase);
+        .doOnSuccess(ignore -> {
+          this.database = newDatabase;
+          client.getContext().setDatabase(database);
+        });
   }
 
   public PrepareCache _test_prepareCache() {

@@ -42,7 +42,7 @@ public class BatchTest extends BaseConnectionTest {
         .expectNextCount(15)
         .verifyComplete();
     sharedConn
-        .createStatement("SELECT id FROM basicBatch")
+        .createStatement("SELECT id FROM basicBatch ORDER BY id")
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0)))
         .as(StepVerifier::create)
@@ -90,7 +90,7 @@ public class BatchTest extends BaseConnectionTest {
           .expectNextCount(15)
           .verifyComplete();
       multiConn
-          .createStatement("SELECT id FROM multiBatch")
+          .createStatement("SELECT id FROM multiBatch ORDER BY id")
           .execute()
           .flatMap(r -> r.map((row, metadata) -> row.get(0)))
           .as(StepVerifier::create)

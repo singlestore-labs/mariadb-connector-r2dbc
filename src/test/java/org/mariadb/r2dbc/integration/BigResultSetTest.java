@@ -16,6 +16,8 @@ import reactor.test.StepVerifier;
 public class BigResultSetTest extends BaseConnectionTest {
   @BeforeAll
   public static void before2() {
+    create_seq(sharedConn, "seq_1_to_10000", 1, 10000);
+    create_seq(sharedConn, "seq_1_to_50000", 1, 50000);
     sharedConn
         .createStatement("CREATE TABLE multiPacketRow(val LONGTEXT, id int)")
         .execute()
@@ -25,6 +27,8 @@ public class BigResultSetTest extends BaseConnectionTest {
   @AfterAll
   public static void after2() {
     sharedConn.createStatement("DROP TABLE multiPacketRow").execute().blockLast();
+    sharedConn.createStatement("DROP TABLE seq_1_to_10000").execute().blockLast();
+    sharedConn.createStatement("DROP TABLE seq_1_to_50000").execute().blockLast();
   }
 
   @BeforeEach
@@ -34,11 +38,6 @@ public class BigResultSetTest extends BaseConnectionTest {
 
   @Test
   void BigResultSet() {
-    Assumptions.assumeTrue(runLongTest());
-    MariadbConnectionMetadata meta = sharedConn.getMetadata();
-    // sequence table requirement
-    Assumptions.assumeTrue(meta.isMariaDBServer() && minVersion(10, 1, 0));
-
     sharedConn
         .createStatement("SELECT * FROM seq_1_to_10000")
         .execute()
@@ -51,8 +50,6 @@ public class BigResultSetTest extends BaseConnectionTest {
   @Test
   void multipleFluxSubscription() {
     MariadbConnectionMetadata meta = sharedConn.getMetadata();
-    // sequence table requirement
-    Assumptions.assumeTrue(meta.isMariaDBServer() && minVersion(10, 1, 0));
     Flux<MariadbResult> res = sharedConn.createStatement("SELECT * FROM seq_1_to_50000").execute();
 
     Flux<String> flux1 =
@@ -70,13 +67,13 @@ public class BigResultSetTest extends BaseConnectionTest {
 
   @Test
   void multiPacketRow() {
-    Assumptions.assumeTrue(checkMaxAllowedPacketMore20m(sharedConn) && runLongTest());
+    Assumptions.assumeTrue(checkMaxAllowedPacketMore20m(sharedConn));
     multiPacketRow(sharedConn);
   }
 
   @Test
   void multiPacketRowPrepare() {
-    Assumptions.assumeTrue(checkMaxAllowedPacketMore20m(sharedConn) && runLongTest());
+    Assumptions.assumeTrue(checkMaxAllowedPacketMore20m(sharedConn));
     multiPacketRow(sharedConnPrepare);
   }
 
@@ -85,7 +82,6 @@ public class BigResultSetTest extends BaseConnectionTest {
     for (int i = 0; i < array19m.length; i++) {
       array19m[i] = (char) (0x30 + (i % 10));
     }
-    connection.beginTransaction().block();
     connection
         .createStatement("INSERT INTO multiPacketRow VALUES (?, ?)")
         .bind(0, new String(array19m))
@@ -108,7 +104,6 @@ public class BigResultSetTest extends BaseConnectionTest {
                         }))
             .blockLast()
             .toCharArray());
-    connection.rollbackTransaction().block();
   }
 
   public boolean checkMaxAllowedPacketMore20m(MariadbConnection connection) {

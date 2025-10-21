@@ -19,31 +19,12 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 public class StatementTest extends BaseConnectionTest {
-  private static void insert_to_seq(MariadbConnection conn, String table, int start, int end) {
-    StringBuilder query = new StringBuilder(String.format("INSERT INTO %s VALUES (%d)", table, start));
-    for (int i = start + 1; i <= end; i++) {
-      query.append(String.format(", (%d)", i));
-    }
-
-    conn
-        .createStatement(query.toString())
-        .execute()
-        .blockLast();
-  }
 
   @BeforeAll
   public static void before2() throws Exception {
     dropAll();
-    sharedConn
-        .createStatement("CREATE TABLE seq_1_to_10000(seq INT)")
-        .execute()
-        .blockLast();
-    insert_to_seq(sharedConn, "seq_1_to_10000", 1, 10000);
-    sharedConn
-        .createStatement("CREATE TABLE seq_1_to_1000(seq INT)")
-        .execute()
-        .blockLast();
-    insert_to_seq(sharedConn, "seq_1_to_1000", 1, 1000);
+    create_seq(sharedConn, "seq_1_to_10000", 1, 10000);
+    create_seq(sharedConn, "seq_1_to_1000", 1, 1000);
     sharedConn
         .createStatement("CREATE TABLE parameterNull(t varchar(10), t2 varchar(10), id INT)")
         .execute()
