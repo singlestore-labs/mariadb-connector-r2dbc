@@ -8,7 +8,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mariadb.r2dbc.BaseConnectionTest;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
@@ -20,11 +23,24 @@ import reactor.test.StepVerifier;
 
 public class NoPipelineTest extends BaseConnectionTest {
 
+  @BeforeAll
+  public static void before2() {
+    int MAX = 100;
+    for (int i = 0; i < MAX; i++) {
+      create_seq(sharedConn, String.format("seq_%d_to_%d", (100 * i), (100 * (i + 1) - 1)), (100 * i), (100 * (i + 1) - 1));
+    }
+  }
+
+  @AfterAll
+  public static void after2() {
+    int MAX = 100;
+    for (int i = 0; i < MAX; i++) {
+      sharedConn.createStatement(String.format("DROP TABLE seq_%d_to_%d", (100 * i), (100 * (i + 1) - 1))).execute().blockLast();
+    }
+  }
+
   @Test
   void noPipelineConnect() throws Exception {
-    // use sequence engine
-    Assumptions.assumeTrue(!isMariaDBServer() && minVersion(10, 0, 3));
-
     MariadbConnectionConfiguration confPipeline =
         TestConfiguration.defaultBuilder.clone().allowPipelining(true).build();
     MariadbConnection connection = new MariadbConnectionFactory(confPipeline).create().block();

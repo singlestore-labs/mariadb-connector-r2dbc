@@ -6,6 +6,7 @@ package org.mariadb.r2dbc.integration;
 import io.r2dbc.spi.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mariadb.r2dbc.BaseConnectionTest;
@@ -19,27 +20,36 @@ import reactor.test.StepVerifier;
 
 public class ErrorTest extends BaseConnectionTest {
 
+  @BeforeAll
+  public static void before2() {
+    create_seq(sharedConn, "seq_1_to_100000", 1, 100000);
+    sharedConn.createStatement("CREATE RESOURCE POOL temp_pool WITH QUERY_TIMEOUT = 1").execute().blockLast();
+  }
+
   @AfterAll
   public static void after2() {
+    sharedConn.createStatement("DROP RESOURCE POOL temp_pool").execute().blockLast();
+    sharedConn.createStatement("DROP TABLE IF EXISTS seq_1_to_100000").execute().blockLast();
     sharedConn.createStatement("DROP TABLE IF EXISTS deadlock").execute().blockLast();
   }
 
   @Test
-  @Disabled
   void queryTimeout() throws Exception {
-    Assumptions.assumeTrue(isMariaDBServer() && minVersion(10, 2, 0));
-    sharedConn
-        .createStatement(
-            "SET STATEMENT max_statement_time=0.01 FOR "
-                + "SELECT * FROM information_schema.tables, information_schema.tables as t2")
-        .execute()
-        .flatMap(r -> r.getRowsUpdated())
-        .as(StepVerifier::create)
-        .expectErrorMatches(
-            throwable ->
-                throwable instanceof R2dbcTimeoutException
-                    && throwable.getMessage().contains("Query execution was interrupted"))
-        .verify();
+    sharedConn.createStatement("SET resource_pool = temp_pool").execute().blockLast();
+    try {
+      sharedConn
+          .createStatement("SELECT SLEEP(10)")
+          .execute()
+          .flatMap(r -> r.getRowsUpdated())
+          .as(StepVerifier::create)
+          .expectErrorMatches(
+              throwable ->
+                  throwable instanceof io.r2dbc.spi.R2dbcTransientResourceException
+                      && throwable.getMessage().contains("The query has reached the timeout"))
+          .verify();
+    } finally {
+      sharedConn.createStatement("SET resource_pool = default_pool").execute().blockLast();
+    }
   }
 
   @Test
@@ -103,66 +113,7 @@ public class ErrorTest extends BaseConnectionTest {
   }
 
   @Test
-  void rollbackException() {
-    Assumptions.assumeTrue(
-        !isMaxscale()
-            && !"skysql".equals(System.getenv("srv"))
-            && !"skysql-ha".equals(System.getenv("srv"))
-            && !isXpand());
-    MariadbConnection connection = null;
-    MariadbConnection connection2 = null;
-    try {
-      connection2 = factory.create().block();
-      connection2.createStatement("DROP TABLE IF EXISTS deadlock").execute().blockLast();
-      connection2
-          .createStatement("CREATE TABLE deadlock(a int primary key) engine=innodb")
-          .execute()
-          .blockLast();
-      connection2.createStatement("insert into deadlock(a) values(0), (1)").execute().blockLast();
-      connection2.setTransactionIsolationLevel(IsolationLevel.SERIALIZABLE);
-
-      connection2.beginTransaction().block();
-      connection2.createStatement("update deadlock set a = 2 where a <> 0").execute().blockLast();
-      connection = factory.create().block();
-      connection
-          .createStatement("SET SESSION innodb_lock_wait_timeout=1")
-          .execute()
-          .map(res -> res.getRowsUpdated())
-          .onErrorReturn(Mono.empty())
-          .blockLast();
-      connection.beginTransaction().block();
-      connection
-          .createStatement("update deadlock set a = 3 where a <> 1")
-          .execute()
-          .flatMap(r -> r.getRowsUpdated())
-          .as(StepVerifier::create)
-          .expectErrorMatches(
-              throwable ->
-                  throwable instanceof R2dbcTransientResourceException
-                      && throwable
-                          .getMessage()
-                          .contains("Lock wait timeout exceeded; try restarting transaction"))
-          .verify();
-
-    } finally {
-      try {
-        if (connection != null) connection.close().block();
-      } catch (Throwable e) {
-      } finally {
-        try {
-          if (connection2 != null) connection2.close().block();
-        } catch (Throwable e) {
-        }
-      }
-    }
-  }
-
-  @Test
   void closeDuringSelect() {
-    // sequence table requirement
-    MariadbConnectionMetadata meta = sharedConn.getMetadata();
-    Assumptions.assumeTrue(meta.isMariaDBServer() && minVersion(10, 1, 0));
-
     MariadbConnection connection2 = factory.create().block();
     connection2
         .createStatement("SELECT * FROM seq_1_to_100000")

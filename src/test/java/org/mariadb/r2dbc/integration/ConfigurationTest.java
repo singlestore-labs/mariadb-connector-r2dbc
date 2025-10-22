@@ -299,7 +299,7 @@ public class ConfigurationTest extends BaseConnectionTest {
   @Test
   void sessionVariablesMultipleValues() throws Exception {
     Map<String, Object> sessionVariables1 = new HashMap<>();
-    sessionVariables1.put("sql_mode", "ONLY_FULL_GROUP_BY,NO_AUTO_VALUE_ON_ZERO");
+    sessionVariables1.put("sql_mode", "ANSI_QUOTES,ONLY_FULL_GROUP_BY,STRICT_ALL_TABLES");
     MariadbConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
@@ -313,7 +313,7 @@ public class ConfigurationTest extends BaseConnectionTest {
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, String.class)))
         .as(StepVerifier::create)
-        .expectNext("ONLY_FULL_GROUP_BY,NO_AUTO_VALUE_ON_ZERO")
+        .expectNext("ANSI_QUOTES,ONLY_FULL_GROUP_BY,STRICT_ALL_TABLES")
         .verifyComplete();
     Assertions.assertTrue(sharedConn.isAutoCommit());
     sharedConn.close().block();

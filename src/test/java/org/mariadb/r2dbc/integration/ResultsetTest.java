@@ -157,12 +157,12 @@ public class ResultsetTest extends BaseConnectionTest {
 
     sharedConn
         .createStatement(
-            "CREATE TEMPORARY TABLE readResultSet (a TEXT, b TEXT, c LONGTEXT, d TEXT)")
+            "CREATE TEMPORARY TABLE readResultSet (a TEXT, b TEXT, c LONGTEXT, d TEXT, id INT)")
         .execute()
         .subscribe();
     sharedConn.beginTransaction().block();
     sharedConn
-        .createStatement("INSERT INTO readResultSet VALUES (?,?,?,?), (?,?,?,?), (?,?,?,?)")
+        .createStatement("INSERT INTO readResultSet VALUES (?,?,?,?, 1), (?,?,?,?, 2), (?,?,?,?, 3)")
         .bind(0, first[0])
         .bind(1, first[1])
         .bind(2, first[2])
@@ -179,7 +179,7 @@ public class ResultsetTest extends BaseConnectionTest {
         .subscribe();
 
     sharedConn
-        .createStatement("SELECT * FROM readResultSet")
+        .createStatement("SELECT * FROM readResultSet ORDER BY id")
         .execute()
         .flatMap(
             res ->

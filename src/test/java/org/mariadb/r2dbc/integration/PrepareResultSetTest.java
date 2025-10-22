@@ -140,11 +140,6 @@ public class PrepareResultSetTest extends BaseConnectionTest {
   @Test
   void parameterLengthEncoded() {
     Assumptions.assumeTrue(maxAllowedPacket() >= 17 * 1024 * 1024);
-    Assumptions.assumeTrue(
-        !sharedConn.getMetadata().getDatabaseVersion().contains("maxScale-6.1.")
-            && !isMaxscale()
-            && !"skysql-ha".equals(System.getenv("srv")));
-    Assumptions.assumeTrue(runLongTest());
     char[] arr1024 = new char[1024];
     for (int i = 0; i < arr1024.length; i++) {
       arr1024[i] = (char) ('a' + (i % 10));
@@ -308,8 +303,6 @@ public class PrepareResultSetTest extends BaseConnectionTest {
 
   @Test
   public void returning() {
-    Assumptions.assumeTrue(isMariaDBServer() && minVersion(10, 5, 1));
-
     sharedConnPrepare
         .createStatement(
             "CREATE TEMPORARY TABLE INSERT_RETURNING (id int not null primary key auto_increment,"
@@ -521,17 +514,17 @@ public class PrepareResultSetTest extends BaseConnectionTest {
   @Test
   void parameterNull() {
     sharedConnPrepare
-        .createStatement("CREATE TEMPORARY TABLE parameterNull(t varchar(10), t2 varchar(10))")
+        .createStatement("CREATE TEMPORARY TABLE parameterNull(t varchar(10), t2 varchar(10), id INT)")
         .execute()
         .blockLast();
     sharedConnPrepare.beginTransaction().block();
     sharedConnPrepare
-        .createStatement("INSERT INTO parameterNull VALUES ('1', '1'), (null, '2'), (null, null)")
+        .createStatement("INSERT INTO parameterNull VALUES ('1', '1', 0), (null, '2', 1), (null, null, 2)")
         .execute()
         .blockLast();
     MariadbStatement stmt =
         sharedConnPrepare.createStatement(
-            "SELECT t2 FROM parameterNull WHERE COALESCE(t,?) is null");
+            "SELECT t2 FROM parameterNull WHERE COALESCE(t,?) is null ORDER BY id");
     stmt.bindNull(0, Integer.class)
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
@@ -620,8 +613,6 @@ public class PrepareResultSetTest extends BaseConnectionTest {
 
   @Test
   void cache() throws Throwable {
-    Assumptions.assumeTrue(
-        isMariaDBServer() && !isMaxscale() && !"skysql-ha".equals(System.getenv("srv")));
     MariadbConnectionConfiguration confPipeline =
         TestConfiguration.defaultBuilder
             .clone()
@@ -651,8 +642,6 @@ public class PrepareResultSetTest extends BaseConnectionTest {
   @Test
   @SuppressWarnings("unchecked")
   void cacheReuse() throws Throwable {
-    Assumptions.assumeTrue(
-        isMariaDBServer() && !isMaxscale() && !"skysql-ha".equals(System.getenv("srv")));
     MariadbConnectionConfiguration confPipeline =
         TestConfiguration.defaultBuilder
             .clone()

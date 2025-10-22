@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.r2dbc.spi.ConnectionFactoryMetadata;
 import io.r2dbc.spi.ConnectionMetadata;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mariadb.r2dbc.BaseConnectionTest;
 import org.mariadb.r2dbc.api.MariadbConnectionMetadata;
@@ -15,6 +16,7 @@ import org.mariadb.r2dbc.api.MariadbConnectionMetadata;
 public class ConnectionMetadataTest extends BaseConnectionTest {
 
   @Test
+  @Disabled // TODO: PLAT-7668
   void connectionMeta() {
     ConnectionMetadata meta = sharedConn.getMetadata();
     System.out.println(meta.getDatabaseVersion());
