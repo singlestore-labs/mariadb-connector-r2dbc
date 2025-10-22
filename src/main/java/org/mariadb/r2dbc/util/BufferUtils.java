@@ -66,7 +66,7 @@ public final class BufferUtils {
     return buf.slice(buf.readerIndex() - length, length);
   }
 
-  public static byte[] encodeLength(int length) {
+  public static byte[] encodeLength(long length) {
     if (length < 251) {
       return new byte[] {(byte) length};
     }
