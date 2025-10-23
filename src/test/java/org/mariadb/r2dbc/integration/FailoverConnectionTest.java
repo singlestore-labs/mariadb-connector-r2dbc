@@ -177,7 +177,7 @@ public class FailoverConnectionTest extends BaseConnectionTest {
           .blockLast();
       connection.commitTransaction().block();
       connection
-          .createStatement("SELECT id from testReplay")
+          .createStatement("SELECT id from testReplay ORDER BY id")
           .execute()
           .flatMap(r -> r.map((row, metadata) -> row.get(0, Integer.class)))
           .as(StepVerifier::create)
