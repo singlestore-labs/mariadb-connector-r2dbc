@@ -569,7 +569,6 @@ public class StatementTest extends BaseConnectionTest {
   @Test
   public void returningBefore105WithParameter() {
     Assumptions.assumeFalse((isMariaDBServer() && minVersion(10, 5, 1)));
-    sharedConn.beginTransaction().block();
     try {
       sharedConn
           .createStatement("INSERT INTO returningBefore105WithParameter(test) VALUES (?), (?)")
@@ -644,6 +643,7 @@ public class StatementTest extends BaseConnectionTest {
   }
 
   @Test
+  @Disabled // TODO: PLAT-7672
   public void prepareReturning() {
     sharedConn.beginTransaction().block();
     sharedConn

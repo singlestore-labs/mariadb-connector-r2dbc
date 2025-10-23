@@ -220,7 +220,7 @@ public class BitParseTest extends BaseConnectionTest {
             Optional.of((byte) 0),
             Optional.of((byte) 1),
             Optional.of((byte) 15),
-            Optional.of((byte) 0),
+            Optional.of((byte) 10),
             Optional.empty())
         .verifyComplete();
 
@@ -260,7 +260,7 @@ public class BitParseTest extends BaseConnectionTest {
             Optional.of((byte) 0),
             Optional.of((byte) 1),
             Optional.of((byte) 15),
-            Optional.of((byte) 0))
+            Optional.of((byte) 10))
         .verifyComplete();
   }
 

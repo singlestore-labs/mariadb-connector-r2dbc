@@ -50,10 +50,31 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
     return SimpleClient.connect(
             ConnectionProvider.newConnection(), endpoint, hostAddress, configuration, lock)
         .delayUntil(client -> AuthenticationFlow.exchange(client, configuration, hostAddress))
+        .flatMap(client -> retrieveSingleStoreVersion(configuration, client))
         .cast(Client.class)
         .flatMap(client -> setSessionVariables(configuration, client).thenReturn(client))
         .onErrorMap(e -> cannotConnect(e, endpoint));
   }
+
+  public static Mono<SimpleClient> retrieveSingleStoreVersion(final MariadbConnectionConfiguration configuration, SimpleClient client) {
+    return client.sendCommand(new QueryPacket("SELECT @@memsql_version"), true)
+        .doOnDiscard(ReferenceCounted.class, ReferenceCountUtil::release)
+        .windowUntil(ServerMessage::resultSetEnd)
+        .map(
+            dataRow ->
+                new MariadbResult(
+                    Protocol.TEXT,
+                    null,
+                    dataRow,
+                    ExceptionFactory.INSTANCE,
+                    null,
+                    false,
+                    configuration))
+        .flatMap(result -> result.map((row, md) -> row.get(0, String.class)))
+        .single()
+        .doOnNext(client::setVersion)
+        .thenReturn(client);
+    }
 
   private static Mono<String> setTimezoneIfNeeded(
       final MariadbConnectionConfiguration configuration, Client client) {

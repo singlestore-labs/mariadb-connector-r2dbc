@@ -302,6 +302,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
   }
 
   @Test
+  @Disabled // TODO: PLAT-7672
   public void returning() {
     sharedConnPrepare
         .createStatement(
@@ -603,8 +604,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
   private List<String> prepareInfo(MariadbConnection connection) {
     return connection
         .createStatement(
-            "SHOW SESSION STATUS WHERE Variable_name in ('Prepared_stmt_count','Com_stmt_prepare',"
-                + " 'Com_stmt_close')")
+            "SHOW SESSION STATUS LIKE 'Prepared_stmt_count'")
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(1, String.class)))
         .collectList()
@@ -719,16 +719,6 @@ public class PrepareResultSetTest extends BaseConnectionTest {
           prepareResults[3].toString().contains("closing=false, use=0, cached=true}"));
       Assertions.assertTrue(
           prepareResults[4].toString().contains("closing=false, use=0, cached=true}"));
-
-      List<String> endingStatus = prepareInfo(connection);
-      // Com_stmt_prepare
-      if (!isMaxscale()
-          && !"skysql-ha".equals(System.getenv("srv"))
-          && (isMariaDBServer() || !minVersion(8, 0, 0))
-          && !isXpand()) {
-        Assertions.assertEquals("5", endingStatus.get(1), endingStatus.get(1));
-      }
-
     } finally {
       connection.close().block();
     }

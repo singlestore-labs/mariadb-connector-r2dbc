@@ -84,9 +84,12 @@ public class ByteCodec implements Codec<Byte> {
         break;
 
       case BIT:
-        if (length == 0) return 0;
-        Byte val = buf.readByte();
-        if (length > 1) buf.skipBytes(length - 1);
+        int index = 0;
+        byte val = 0;
+        while (index++ < length && val == 0) {
+          val = buf.readByte();
+        }
+        buf.skipBytes(length - index + 1);
         return val;
 
       case BLOB:
@@ -161,9 +164,12 @@ public class ByteCodec implements Codec<Byte> {
         break;
 
       case BIT:
-        if (length == 0) return 0;
-        Byte val = buf.readByte();
-        if (length > 1) buf.skipBytes(length - 1);
+        int index = 0;
+        byte val = 0;
+        while (index++ < length && val == 0) {
+          val = buf.readByte();
+        }
+        buf.skipBytes(length - index + 1);
         return val;
 
       case FLOAT:
