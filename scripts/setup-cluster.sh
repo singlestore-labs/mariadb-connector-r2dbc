@@ -151,3 +151,19 @@ echo "Done!"
 echo "Creating test database"
 mysql -h 127.0.0.1 -u root -P 5506 -p"${ROOT_PASSWORD}" -e "CREATE DATABASE ${DATABASE}"
 echo "Done!"
+
+echo "Setup PAM for tests"
+docker exec ${CONTAINER_NAME} bash -c 'printf "read password
+[ \"\$PAM_USER\" == \"%s\" ] || exit 1
+[ \"\$password\" == \"%s\" ] || exit 1
+" "test_pam" \
+  "test_pass" \
+  > /tmp/s2_pamauth'
+
+docker exec -iu 0 ${CONTAINER_NAME} bash -c 'printf "auth required pam_exec.so expose_authtok /bin/bash %s
+account required pam_permit.so
+session required pam_permit.so
+password required pam_permit.so
+" "/tmp/s2_pamauth" \
+  > /etc/pam.d/s2_pam_test'
+echo "Done!"
