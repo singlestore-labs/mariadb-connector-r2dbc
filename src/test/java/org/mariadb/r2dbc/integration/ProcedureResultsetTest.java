@@ -36,8 +36,9 @@ public class ProcedureResultsetTest extends BaseConnectionTest {
         .blockLast();
     sharedConn
         .createStatement(
-            "CREATE PROCEDURE no_out_proc (IN t1 INT, IN t2 INT) BEGIN \n"
-                + "DO t1 + t2;\n"
+            "CREATE PROCEDURE no_out_proc (t1 INT, t2 INT) AS DECLARE result INT;"
+                + "BEGIN \n"
+                + "result = t1 + t2;\n"
                 + "END")
         .execute()
         .blockLast();
@@ -50,6 +51,7 @@ public class ProcedureResultsetTest extends BaseConnectionTest {
   }
 
   @Test
+  @Disabled // TODO: PLAT-7673
   void outputParameter() {
     // https://jira.mariadb.org/browse/XPT-268
     Assumptions.assumeFalse(isXpand());

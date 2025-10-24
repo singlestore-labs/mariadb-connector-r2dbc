@@ -78,6 +78,7 @@ public class SimpleClient implements Client {
   private ByteBufAllocator byteBufAllocator;
   protected volatile Context context;
   private volatile boolean closeRequested = false;
+  private ServerVersion singlestoreVersion;
 
   protected SimpleClient(
       Connection connection,
@@ -189,6 +190,7 @@ public class SimpleClient implements Client {
               .delayUntil(client -> AuthenticationFlow.exchange(client, redirectConf, hostAddress))
               .doOnError(e -> HaMode.failHost(hostAddress))
               .onErrorComplete()
+              .flatMap(client -> MariadbConnectionFactory.retrieveSingleStoreVersion(redirectConf, client))
               .cast(SimpleClient.class)
               .flatMap(
                   client ->
@@ -570,7 +572,8 @@ public class SimpleClient implements Client {
 
   @Override
   public ServerVersion getVersion() {
-    return (this.context != null) ? this.context.getVersion() : ServerVersion.UNKNOWN_VERSION;
+    return (this.singlestoreVersion != null) ? singlestoreVersion :
+        (this.context != null) ? this.context.getVersion() : ServerVersion.UNKNOWN_VERSION;
   }
 
   @Override
@@ -824,5 +827,9 @@ public class SimpleClient implements Client {
     public boolean isClose() {
       return close;
     }
+  }
+
+  public void setVersion(String version) {
+    this.singlestoreVersion = new ServerVersion(version, false);
   }
 }

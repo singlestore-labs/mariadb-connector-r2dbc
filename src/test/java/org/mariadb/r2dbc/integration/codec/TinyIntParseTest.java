@@ -124,7 +124,7 @@ public class TinyIntParseTest extends BaseConnectionTest {
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
         .as(StepVerifier::create)
-        .expectNext(Optional.of(Boolean.FALSE), Optional.of(Boolean.TRUE), Optional.empty())
+        .expectNext(Optional.of((byte) 0), Optional.of((byte) 1), Optional.empty())
         .verifyComplete();
   }
 

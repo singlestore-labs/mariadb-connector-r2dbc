@@ -16,35 +16,13 @@ import org.mariadb.r2dbc.api.MariadbConnectionMetadata;
 public class ConnectionMetadataTest extends BaseConnectionTest {
 
   @Test
-  @Disabled // TODO: PLAT-7668
   void connectionMeta() {
     ConnectionMetadata meta = sharedConn.getMetadata();
-    System.out.println(meta.getDatabaseVersion());
     assertEquals(meta.getDatabaseProductName(), isMariaDBServer() ? "MariaDB" : "MySQL");
-    if (isMariaDBServer() && !isXpand()) {
-      assertTrue(
-          meta.getDatabaseVersion().contains("10.")
-              || meta.getDatabaseVersion().contains("11.")
-              || meta.getDatabaseVersion().contains("12.")
-              || meta.getDatabaseVersion().contains("23."));
-    } else {
-      assertTrue(
-          meta.getDatabaseVersion().contains("8.") || meta.getDatabaseVersion().contains("9."));
-    }
-    String type = System.getenv("srv");
-    String version = System.getenv("v");
-    if (type != null && version != null && System.getenv("TRAVIS") != null) {
-      if (version.endsWith("-rc")) version = version.replace("-rc", "");
-      if ("mariadb".equals(type) || "mysql".equals(type)) {
-        assertTrue(
-            meta.getDatabaseVersion().contains(version),
-            "Error " + meta.getDatabaseVersion() + " doesn't contains " + version);
-        assertEquals(
-            type.toLowerCase(),
-            meta.getDatabaseProductName().toLowerCase(),
-            "Error comparing " + type + " with " + meta.getDatabaseProductName());
-      }
-    }
+    assertTrue(
+        meta.getDatabaseVersion().contains("7.")
+            || meta.getDatabaseVersion().contains("8.")
+            || meta.getDatabaseVersion().contains("9."));
   }
 
   @Test

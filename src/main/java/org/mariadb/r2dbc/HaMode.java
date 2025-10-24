@@ -117,6 +117,7 @@ public enum HaMode {
             lock)
         .delayUntil(client -> AuthenticationFlow.exchange(client, conf, hostAddress))
         .doOnError(e -> HaMode.failHost(hostAddress))
+        .flatMap(client -> MariadbConnectionFactory.retrieveSingleStoreVersion(conf, client))
         .cast(Client.class)
         .flatMap(
             client ->

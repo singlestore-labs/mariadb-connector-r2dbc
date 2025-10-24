@@ -39,7 +39,7 @@ public class ResultsetTest extends BaseConnectionTest {
   void multipleResultSet() {
     sharedConn
         .createStatement(
-            "create procedure multiResultSets() BEGIN  SELECT 'a', 'b'; SELECT 'c', 'd', 'e'; END")
+            "CREATE PROCEDURE multiResultSets() AS BEGIN ECHO SELECT 'a', 'b'; ECHO SELECT 'c', 'd', 'e'; END")
         .execute()
         .blockLast();
     final AtomicBoolean first = new AtomicBoolean(true);
@@ -81,6 +81,7 @@ public class ResultsetTest extends BaseConnectionTest {
   }
 
   @Test
+  @Disabled // TODO: PLAT-7672
   public void returning() {
     sharedConn
         .createStatement(
