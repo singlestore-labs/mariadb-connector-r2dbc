@@ -369,7 +369,7 @@ public class TlsTest extends BaseConnectionTest {
   void fullMutualAuthentication() throws Exception {
     Assumptions.assumeTrue(haveSsl(sharedConn));
     Assumptions.assumeTrue(serverSslCert != null && clientSslCert != null & clientSslKey != null);
-    Assumptions.assumeTrue(!minVersion(9, 0, 0));
+    Assumptions.assumeTrue(minVersion(9, 0, 0));
     MariadbConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
