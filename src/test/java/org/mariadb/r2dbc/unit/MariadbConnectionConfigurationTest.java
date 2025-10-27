@@ -54,14 +54,13 @@ public class MariadbConnectionConfigurationTest {
             .allowMultiQueries(false)
             .socket("/path/to/mysocket")
             .username("MyUSer")
-            .collation("utf8mb4_nopad_bin")
             .loopResources(LoopResources.create("mariadb"))
             .sslContextBuilderCustomizer((b) -> b)
             .sslTunnelDisableHostVerification(true)
             .timezone("auto")
             .build();
     Assertions.assertEquals(
-        "r2dbc:mariadb:loadbalance://localhost/MyDB?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&collation=utf8mb4_nopad_bin&timezone=auto&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=MyUSer&allowPipelining=false&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone=Europe/Paris&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&rsaPublicKey=/path/to/publicRSAKey&cachingRsaPublicKey=cachingRSAPublicKey&allowPublicKeyRetrieval=true&useServerPrepStmts=true&autocommit=false&tinyInt1isBit=false&restrictedAuth=mysql_native_password,client_ed25519&isolationLevel=SERIALIZABLE",
+        "r2dbc:mariadb:loadbalance://localhost/MyDB?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&timezone=auto&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=MyUSer&allowPipelining=false&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone=Europe/Paris&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&rsaPublicKey=/path/to/publicRSAKey&cachingRsaPublicKey=cachingRSAPublicKey&allowPublicKeyRetrieval=true&useServerPrepStmts=true&autocommit=false&tinyInt1isBit=false&restrictedAuth=mysql_native_password,client_ed25519&isolationLevel=SERIALIZABLE",
         conf.toString());
   }
 
@@ -110,7 +109,6 @@ public class MariadbConnectionConfigurationTest {
                 + "&tinyInt1isBit=false"
                 + "&allowPipelining=false"
                 + "&allowMultiQueries=true"
-                + "&collation=utf8mb4_nopad_bin"
                 + "&socket=/path/to/mysocket"
                 + "&sslTunnelDisableHostVerification=true"
                 + "&timezone=auto");
@@ -122,7 +120,6 @@ public class MariadbConnectionConfigurationTest {
             + "&tcpAbortiveClose=true"
             + "&transactionReplay=true"
             + "&password=***"
-            + "&collation=utf8mb4_nopad_bin"
             + "&timezone=auto"
             + "&pamOtherPwd=otherPwd"
             + "&prepareCacheSize=125"
