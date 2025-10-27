@@ -153,6 +153,9 @@ mysql -h 127.0.0.1 -u root -P 5506 -p"${ROOT_PASSWORD}" -e "CREATE DATABASE ${DA
 echo "Done!"
 
 echo "Setup PAM for tests"
+
+docker exec -u 0 "$CONTAINER_NAME" sh -lc 'yum -y install pam pam-libs bash && yum clean all'
+
 docker exec ${CONTAINER_NAME} bash -c 'printf "read password
 [ \"\$PAM_USER\" == \"%s\" ] || exit 1
 [ \"\$password\" == \"%s\" ] || exit 1
