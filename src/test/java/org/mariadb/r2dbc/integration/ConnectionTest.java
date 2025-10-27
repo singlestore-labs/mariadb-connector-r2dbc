@@ -113,62 +113,6 @@ public class ConnectionTest extends BaseConnectionTest {
     connection.close().block();
   }
 
-  @Test
-  @Disabled // TODO: PLAT-7666
-  void connectionCollation() throws Exception {
-    String defaultUtf8Collation =
-        sharedConn
-            .createStatement(
-                "SELECT COLLATION_NAME FROM information_schema.COLLATIONS c WHERE"
-                    + " c.CHARACTER_SET_NAME = 'utf8mb4' AND IS_DEFAULT = 'Yes'")
-            .execute()
-            .flatMap(r -> r.map((row, metadata) -> row.get(0, String.class)))
-            .blockLast();
-    System.out.println("default collation:" + defaultUtf8Collation);
-    try {
-      defaultUtf8Collation =
-          sharedConn
-              .createStatement(
-                  "SELECT COLLATION_NAME FROM"
-                      + " information_schema.COLLATION_CHARACTER_SET_APPLICABILITY c WHERE"
-                      + " c.CHARACTER_SET_NAME = 'utf8mb4' AND IS_DEFAULT = 'Yes'")
-              .execute()
-              .flatMap(r -> r.map((row, metadata) -> row.get(0, String.class)))
-              .blockLast();
-      System.out.println("default collation applicability:" + defaultUtf8Collation);
-    } catch (Exception e) {
-      // eat - for mariadb 11.3+ only
-    }
-
-    MariadbConnection connection = factory.create().block();
-    try {
-      String newDefaultCollation =
-          connection
-              .createStatement("SELECT @@collation_connection")
-              .execute()
-              .flatMap(r -> r.map((row, metadata) -> row.get(0, String.class)))
-              .blockLast();
-      Assertions.assertTrue(
-          defaultUtf8Collation.equals(newDefaultCollation)
-              || ("utf8mb4_" + defaultUtf8Collation).equals(newDefaultCollation));
-      connection.close().block();
-
-      MariadbConnectionConfiguration confPipeline =
-          TestConfiguration.defaultBuilder.clone().collation("utf8mb4_nopad_bin").build();
-      connection = new MariadbConnectionFactory(confPipeline).create().block();
-      newDefaultCollation =
-          connection
-              .createStatement("SELECT @@collation_connection")
-              .execute()
-              .flatMap(r -> r.map((row, metadata) -> row.get(0, String.class)))
-              .blockLast();
-      Assertions.assertEquals("utf8mb4_nopad_bin", newDefaultCollation);
-
-    } finally {
-      connection.close().block();
-    }
-  }
-
   //    @Test
   //    void perf() {
   //      for (int ii = 0; ii < 1000000; ii++) {

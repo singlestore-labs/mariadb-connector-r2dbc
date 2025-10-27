@@ -34,7 +34,6 @@ public final class MariadbConnectionConfiguration {
   private final boolean tcpAbortiveClose;
   private final boolean transactionReplay;
   private final CharSequence password;
-  private final String collation;
   private final String timezone;
   private final CharSequence[] pamOtherPwd;
   private final int port;
@@ -70,7 +69,6 @@ public final class MariadbConnectionConfiguration {
       @Nullable Map<String, String> connectionAttributes,
       @Nullable Map<String, Object> sessionVariables,
       @Nullable CharSequence password,
-      @Nullable String collation,
       @Nullable String timezone,
       int port,
       @Nullable List<HostAddress> hostAddresses,
@@ -115,7 +113,6 @@ public final class MariadbConnectionConfiguration {
     this.connectionAttributes = connectionAttributes;
     this.sessionVariables = sessionVariables;
     this.password = password != null && !password.toString().isEmpty() ? password : null;
-    this.collation = collation;
     this.timezone = timezone == null ? "disable" : timezone;
     this.port = port;
     this.socket = socket;
@@ -159,7 +156,6 @@ public final class MariadbConnectionConfiguration {
       boolean tcpAbortiveClose,
       boolean transactionReplay,
       CharSequence password,
-      String collation,
       String timezone,
       CharSequence[] pamOtherPwd,
       int port,
@@ -190,7 +186,6 @@ public final class MariadbConnectionConfiguration {
     this.tcpAbortiveClose = tcpAbortiveClose;
     this.transactionReplay = transactionReplay;
     this.password = password;
-    this.collation = collation;
     this.timezone = timezone;
     this.pamOtherPwd = pamOtherPwd;
     this.port = port;
@@ -228,7 +223,6 @@ public final class MariadbConnectionConfiguration {
         this.tcpAbortiveClose,
         this.transactionReplay,
         password,
-        this.collation,
         this.timezone,
         this.pamOtherPwd,
         hostAddress.getPort(),
@@ -452,8 +446,6 @@ public final class MariadbConnectionConfiguration {
       builder.haMode((String) connectionFactoryOptions.getValue(ConnectionFactoryOptions.PROTOCOL));
     }
     builder.password((CharSequence) connectionFactoryOptions.getValue(PASSWORD));
-    builder.collation(
-        (String) connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.COLLATION));
     builder.timezone(
         (String) connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.TIMEZONE));
 
@@ -569,11 +561,6 @@ public final class MariadbConnectionConfiguration {
   @Nullable
   public CharSequence getPassword() {
     return this.password;
-  }
-
-  @Nullable
-  public String getCollation() {
-    return this.collation;
   }
 
   public String getTimezone() {
@@ -847,7 +834,6 @@ public final class MariadbConnectionConfiguration {
     @Nullable private Map<String, Object> sessionVariables;
     @Nullable private Map<String, String> connectionAttributes;
     @Nullable private CharSequence password;
-    @Nullable private String collation;
     @Nullable private String timezone;
     private int port = DEFAULT_PORT;
     @Nullable private String socket;
@@ -908,7 +894,6 @@ public final class MariadbConnectionConfiguration {
           this.connectionAttributes,
           this.sessionVariables,
           this.password,
-          this.collation,
           this.timezone,
           this.port,
           this.hostAddresses,
@@ -1032,17 +1017,6 @@ public final class MariadbConnectionConfiguration {
      */
     public Builder password(@Nullable CharSequence password) {
       this.password = password;
-      return this;
-    }
-
-    /**
-     * Configure the utf8mb4 collation.
-     *
-     * @param collation default utf8mb4 collation if not using server default collation
-     * @return this {@link Builder}
-     */
-    public Builder collation(@Nullable String collation) {
-      this.collation = collation;
       return this;
     }
 
@@ -1408,8 +1382,6 @@ public final class MariadbConnectionConfiguration {
           + allowPipelining
           + ", useServerPrepStmts="
           + useServerPrepStmts
-          + ", collation="
-          + collation
           + ", timezone="
           + timezone
           + ", prepareCacheSize="

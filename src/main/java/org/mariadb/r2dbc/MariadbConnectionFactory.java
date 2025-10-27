@@ -151,8 +151,6 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
     // set default autocommit value
     StringBuilder sql = new StringBuilder("SET ");
     sql.append(" names UTF8MB4");
-    if (configuration.getCollation() != null && !configuration.getCollation().isEmpty())
-      sql.append(" COLLATE ").append(configuration.getCollation());
     if (configuration.autocommit() != null) {
       sql.append(",autocommit=").append((configuration.autocommit() ? "1" : "0"));
     }
