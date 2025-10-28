@@ -399,19 +399,7 @@ public class SimpleClient implements Client {
    * @return publisher
    */
   public Mono<Void> beginTransaction(TransactionDefinition definition) {
-    StringBuilder sb = new StringBuilder("START TRANSACTION");
-    boolean first = true;
-    if (Boolean.TRUE.equals(definition.getAttribute(TransactionDefinition.READ_ONLY))) {
-      sb.append(" READ ONLY");
-      first = false;
-    }
-    if (Boolean.TRUE.equals(
-        definition.getAttribute(MariadbTransactionDefinition.WITH_CONSISTENT_SNAPSHOT))) {
-      if (!first) sb.append(",");
-      sb.append(" WITH CONSISTENT SNAPSHOT");
-    }
-
-    return executeWhenNotInTransaction(sb.toString());
+    return executeWhenNotInTransaction("BEGIN");
   }
 
   /**
@@ -534,8 +522,7 @@ public class SimpleClient implements Client {
                 handshake.isMariaDBServer(),
                 clientCapabilities,
                 configuration.getDatabase(),
-                byteBufAllocator,
-                configuration.getIsolationLevel())
+                byteBufAllocator)
             : new SimpleContext(
                 handshake.getServerVersion(),
                 handshake.getThreadId(),
@@ -544,8 +531,7 @@ public class SimpleClient implements Client {
                 handshake.isMariaDBServer(),
                 clientCapabilities,
                 configuration.getDatabase(),
-                byteBufAllocator,
-                configuration.getIsolationLevel());
+                byteBufAllocator);
     decoder.setContext(context);
     encoder.setContext(context);
   }

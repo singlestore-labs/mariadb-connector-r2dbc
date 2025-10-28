@@ -4,7 +4,6 @@
 package org.mariadb.r2dbc.client;
 
 import io.netty.buffer.ByteBufAllocator;
-import io.r2dbc.spi.IsolationLevel;
 import org.mariadb.r2dbc.message.Context;
 
 public class SimpleContext implements Context {
@@ -16,7 +15,6 @@ public class SimpleContext implements Context {
   private final ByteBufAllocator byteBufAllocator;
   private String redirectValue;
   private short serverStatus;
-  private IsolationLevel isolationLevel;
   private String database;
 
   public SimpleContext(
@@ -27,15 +25,13 @@ public class SimpleContext implements Context {
       boolean mariaDBServer,
       long clientCapabilities,
       String database,
-      ByteBufAllocator byteBufAllocator,
-      IsolationLevel isolationLevel) {
+      ByteBufAllocator byteBufAllocator) {
 
     this.threadId = threadId;
     this.serverCapabilities = capabilities;
     this.clientCapabilities = clientCapabilities;
     this.serverStatus = serverStatus;
     this.version = new ServerVersion(serverVersion, mariaDBServer);
-    this.isolationLevel = isolationLevel;
     this.database = database;
     this.byteBufAllocator = byteBufAllocator;
     this.redirectValue = null;
@@ -67,14 +63,6 @@ public class SimpleContext implements Context {
 
   public void setDatabase(String database) {
     this.database = database;
-  }
-
-  public IsolationLevel getIsolationLevel() {
-    return isolationLevel;
-  }
-
-  public void setIsolationLevel(IsolationLevel isolationLevel) {
-    this.isolationLevel = isolationLevel;
   }
 
   public ServerVersion getVersion() {

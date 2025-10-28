@@ -4,7 +4,6 @@
 package org.mariadb.r2dbc.unit;
 
 import io.r2dbc.spi.ConnectionFactoryOptions;
-import io.r2dbc.spi.IsolationLevel;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +46,6 @@ public class MariadbConnectionConfigurationTest {
             .cachingRsaPublicKey("cachingRSAPublicKey")
             .allowPublicKeyRetrieval(true)
             .useServerPrepStmts(true)
-            .isolationLevel(IsolationLevel.SERIALIZABLE)
             .autocommit(false)
             .tinyInt1isBit(false)
             .allowPipelining(false)
@@ -60,7 +58,7 @@ public class MariadbConnectionConfigurationTest {
             .timezone("auto")
             .build();
     Assertions.assertEquals(
-        "r2dbc:mariadb:loadbalance://localhost/MyDB?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&timezone=auto&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=MyUSer&allowPipelining=false&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone=Europe/Paris&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&rsaPublicKey=/path/to/publicRSAKey&cachingRsaPublicKey=cachingRSAPublicKey&allowPublicKeyRetrieval=true&useServerPrepStmts=true&autocommit=false&tinyInt1isBit=false&restrictedAuth=mysql_native_password,client_ed25519&isolationLevel=SERIALIZABLE",
+        "r2dbc:mariadb:loadbalance://localhost/MyDB?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&timezone=auto&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=MyUSer&allowPipelining=false&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone=Europe/Paris&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&rsaPublicKey=/path/to/publicRSAKey&cachingRsaPublicKey=cachingRSAPublicKey&allowPublicKeyRetrieval=true&useServerPrepStmts=true&autocommit=false&tinyInt1isBit=false&restrictedAuth=mysql_native_password,client_ed25519",
         conf.toString());
   }
 
@@ -104,7 +102,6 @@ public class MariadbConnectionConfigurationTest {
                 + "&cachingRsaPublicKey=cachingRSAPublicKey"
                 + "&allowPublicKeyRetrieval=true"
                 + "&useServerPrepStmts=true"
-                + "&isolationLevel=SERIALIZABLE"
                 + "&autocommit=false"
                 + "&tinyInt1isBit=false"
                 + "&allowPipelining=false"
@@ -140,8 +137,7 @@ public class MariadbConnectionConfigurationTest {
             + "&allowPublicKeyRetrieval=true"
             + "&autocommit=false"
             + "&tinyInt1isBit=false"
-            + "&restrictedAuth=mysql_native_password,client_ed25519"
-            + "&isolationLevel=SERIALIZABLE",
+            + "&restrictedAuth=mysql_native_password,client_ed25519",
         conf.toString());
   }
 
@@ -179,7 +175,6 @@ public class MariadbConnectionConfigurationTest {
                 + "&cachingRsaPublicKey=cachingRSAPublicKey"
                 + "&allowPublicKeyRetrieval=true"
                 + "&useServerPrepStmts=true"
-                + "&isolationLevel=SERIALIZABLE"
                 + "&autocommit=false"
                 + "&tinyInt1isBit=false"
                 + "&allowPipelining=false"
@@ -189,7 +184,7 @@ public class MariadbConnectionConfigurationTest {
     MariadbConnectionConfiguration conf =
         MariadbConnectionConfiguration.fromOptions(options).build();
     Assertions.assertEquals(
-        "r2dbc:mariadb:loadbalance://localhost/db?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=ro:ot&allowMultiQueries=true&allowPipelining=false&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone='Europe/Paris'&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&rsaPublicKey=/path/to/publicRSAKey&cachingRsaPublicKey=cachingRSAPublicKey&allowPublicKeyRetrieval=true&autocommit=false&tinyInt1isBit=false&restrictedAuth=mysql_native_password,client_ed25519&isolationLevel=SERIALIZABLE",
+        "r2dbc:mariadb:loadbalance://localhost/db?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=ro:ot&allowMultiQueries=true&allowPipelining=false&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone='Europe/Paris'&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&rsaPublicKey=/path/to/publicRSAKey&cachingRsaPublicKey=cachingRSAPublicKey&allowPublicKeyRetrieval=true&autocommit=false&tinyInt1isBit=false&restrictedAuth=mysql_native_password,client_ed25519",
         conf.toString());
   }
 

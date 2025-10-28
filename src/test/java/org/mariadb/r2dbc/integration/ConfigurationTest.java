@@ -66,32 +66,18 @@ public class ConfigurationTest extends BaseConnectionTest {
   }
 
   @Test
-  void isolationLevel() {
-    MariadbConnectionFactory factory =
-        (MariadbConnectionFactory)
-            ConnectionFactories.get(
-                "r2dbc:mariadb://root:password@localhost:3305/db?isolationLevel=REPEATABLE-READ");
-    Assertions.assertTrue(
-        factory
-            .toString()
-            .contains(
-                "r2dbc:mariadb://localhost:3305/db?password=***&username=root&isolationLevel=REPEATABLE-READ"));
-  }
-
-  @Test
   void haMode() {
     MariadbConnectionFactory factory =
         (MariadbConnectionFactory)
             ConnectionFactories.get(
-                "r2dbc:mariadb:loadbalance://root:password@localhost:3305/db?isolationLevel=REPEATABLE-READ");
+                "r2dbc:mariadb:loadbalance://root:password@localhost:3305/db");
     Assertions.assertTrue(factory.toString().contains("username=root"));
-    Assertions.assertTrue(factory.toString().contains("/db?"));
-    Assertions.assertTrue(factory.toString().contains("isolationLevel=REPEATABLE-READ"));
+    Assertions.assertTrue(factory.toString().contains("/db"));
     assertThrows(
         Exception.class,
         () ->
             ConnectionFactories.get(
-                "r2dbc:mariadb:failover://root:password@localhost:3305/db?isolationLevel=REPEATABLE-READ"),
+                "r2dbc:mariadb:failover://root:password@localhost:3305/db"),
         "Wrong argument value 'failover' for HaMode");
   }
 
@@ -369,7 +355,7 @@ public class ConfigurationTest extends BaseConnectionTest {
             + " host=localhost, sessionVariables=null, connectionAttributes=null, password=*,"
             + " restrictedAuth=null, port=3306, hosts={}, socket=null, allowMultiQueries=false,"
             + " allowPipelining=true, useServerPrepStmts=false, timezone=null,"
-            + " prepareCacheSize=null, isolationLevel=null, tlsProtocol=null, serverSslCert=null,"
+            + " prepareCacheSize=null, tlsProtocol=null, serverSslCert=null,"
             + " clientSslCert=null, clientSslKey=null, clientSslPassword=null, sslMode=TRUST,"
             + " sslTunnelDisableHostVerification=false, pamOtherPwd=*,*, tinyInt1isBit=false,"
             + " autoCommit=true, permitRedirect=true}",
@@ -382,7 +368,7 @@ public class ConfigurationTest extends BaseConnectionTest {
             + " host=localhost, sessionVariables=null, connectionAttributes=null, password=*,"
             + " restrictedAuth=null, port=3306, hosts={}, socket=null, allowMultiQueries=false,"
             + " allowPipelining=true, useServerPrepStmts=false, timezone=null,"
-            + " prepareCacheSize=null, isolationLevel=null, tlsProtocol=null, serverSslCert=null,"
+            + " prepareCacheSize=null, tlsProtocol=null, serverSslCert=null,"
             + " clientSslCert=null, clientSslKey=null, clientSslPassword=null, sslMode=TRUST,"
             + " sslTunnelDisableHostVerification=false, pamOtherPwd=*,*, tinyInt1isBit=false,"
             + " autoCommit=true, permitRedirect=true}",

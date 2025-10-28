@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.r2dbc.spi.IsolationLevel;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -200,8 +199,7 @@ class BufferUtilsTest {
             true,
             1,
             "testr2",
-            null,
-            IsolationLevel.REPEATABLE_READ);
+            null);
     Context ctx =
         new SimpleContext(
             "10.5.5-mariadb",
@@ -211,8 +209,7 @@ class BufferUtilsTest {
             true,
             1,
             "testr2",
-            null,
-            IsolationLevel.REPEATABLE_READ);
+            null);
 
     ByteBuf buf = allocator.buffer(1000);
     buf.writerIndex(0);

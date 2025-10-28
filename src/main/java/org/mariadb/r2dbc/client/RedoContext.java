@@ -5,7 +5,6 @@ package org.mariadb.r2dbc.client;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.r2dbc.spi.IsolationLevel;
 import org.mariadb.r2dbc.message.ClientMessage;
 import org.mariadb.r2dbc.util.constants.ServerStatus;
 
@@ -21,8 +20,7 @@ public class RedoContext extends SimpleContext {
       boolean mariaDBServer,
       long clientCapabilities,
       String database,
-      ByteBufAllocator byteBufAllocator,
-      IsolationLevel isolationLevel) {
+      ByteBufAllocator byteBufAllocator) {
     super(
         serverVersion,
         threadId,
@@ -31,8 +29,7 @@ public class RedoContext extends SimpleContext {
         mariaDBServer,
         clientCapabilities,
         database,
-        byteBufAllocator,
-        isolationLevel);
+        byteBufAllocator);
     transactionSaver = new TransactionSaver();
   }
 

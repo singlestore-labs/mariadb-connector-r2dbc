@@ -23,13 +23,6 @@ import reactor.netty.resources.LoopResources;
 import reactor.test.StepVerifier;
 
 public class ConnectionTest extends BaseConnectionTest {
-  IsolationLevel[] levels =
-      new IsolationLevel[] {
-        IsolationLevel.READ_UNCOMMITTED,
-        IsolationLevel.READ_COMMITTED,
-        IsolationLevel.SERIALIZABLE,
-        IsolationLevel.REPEATABLE_READ
-      };
 
   @BeforeAll
   public static void before2() {
@@ -454,72 +447,6 @@ public class ConnectionTest extends BaseConnectionTest {
   }
 
   @Test
-  @Disabled // TODO: PLAT-7665
-  void multipleBeginWithIsolation() throws Exception {
-    MariadbTransactionDefinition[] transactionDefinitions = {
-      MariadbTransactionDefinition.READ_ONLY,
-      MariadbTransactionDefinition.READ_WRITE,
-      MariadbTransactionDefinition.EMPTY,
-      MariadbTransactionDefinition.WITH_CONSISTENT_SNAPSHOT_READ_ONLY,
-      MariadbTransactionDefinition.WITH_CONSISTENT_SNAPSHOT_READ_WRITE
-    };
-
-    for (MariadbTransactionDefinition transactionDefinition : transactionDefinitions) {
-      MariadbConnection connection = factory.create().block();
-      assert connection != null;
-      multipleBeginWithIsolation(connection, transactionDefinition);
-      connection.close().block();
-
-      connection =
-          new MariadbConnectionFactory(
-                  TestConfiguration.defaultBuilder.clone().allowPipelining(false).build())
-              .create()
-              .block();
-      assert connection != null;
-      multipleBeginWithIsolation(connection, transactionDefinition);
-      connection.close().block();
-    }
-  }
-
-  void multipleBeginWithIsolation(
-      MariadbConnection con, MariadbTransactionDefinition transactionDefinition) throws Exception {
-    con.beginTransaction(transactionDefinition).subscribe();
-    con.beginTransaction(transactionDefinition).block();
-    con.beginTransaction(transactionDefinition).block();
-    con.rollbackTransaction().block();
-  }
-
-  @Test
-  @Disabled // TODO: PLAT-7665
-  void beginTransactionWithIsolation() throws Exception {
-    Assumptions.assumeTrue(!isEnterprise() && !minVersion(10, 2, 0));
-    TransactionDefinition transactionDefinition =
-        MariadbTransactionDefinition.READ_ONLY.isolationLevel(IsolationLevel.READ_COMMITTED);
-    TransactionDefinition transactionDefinition2 =
-        MariadbTransactionDefinition.READ_ONLY.isolationLevel(IsolationLevel.REPEATABLE_READ);
-    assertFalse(sharedConn.isInTransaction());
-
-    sharedConn.beginTransaction(transactionDefinition).block();
-    assertEquals(IsolationLevel.READ_COMMITTED, sharedConn.getTransactionIsolationLevel());
-    assertTrue(sharedConn.isInTransaction());
-    assertTrue(sharedConn.isInReadOnlyTransaction());
-    sharedConn.beginTransaction(transactionDefinition).block();
-    sharedConn
-        .beginTransaction(transactionDefinition2)
-        .as(StepVerifier::create)
-        .expectErrorMatches(
-            throwable ->
-                throwable instanceof R2dbcPermissionDeniedException
-                    && throwable
-                        .getMessage()
-                        .equals(
-                            "Transaction characteristics can't be changed while a transaction is"
-                                + " in progress"))
-        .verify();
-    sharedConn.rollbackTransaction().block();
-  }
-
-  @Test
   void multipleAutocommit() throws Exception {
     MariadbConnection connection = factory.create().block();
     assert connection != null;
@@ -674,12 +601,12 @@ public class ConnectionTest extends BaseConnectionTest {
     MariadbConnection connection =
         new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
     try {
-      IsolationLevel defaultValue = IsolationLevel.REPEATABLE_READ;
+      IsolationLevel defaultValue = IsolationLevel.READ_COMMITTED;
       Assertions.assertEquals(defaultValue, connection.getTransactionIsolationLevel());
-      connection.setTransactionIsolationLevel(IsolationLevel.READ_UNCOMMITTED).block();
+      connection.setTransactionIsolationLevel(IsolationLevel.READ_COMMITTED).block();
       connection.createStatement("BEGIN").execute().blockLast();
       Assertions.assertEquals(
-          IsolationLevel.READ_UNCOMMITTED, connection.getTransactionIsolationLevel());
+          IsolationLevel.READ_COMMITTED, connection.getTransactionIsolationLevel());
       connection.setTransactionIsolationLevel(defaultValue).block();
     } finally {
       connection.close().block();
@@ -815,13 +742,6 @@ public class ConnectionTest extends BaseConnectionTest {
               .contains(
                   "MariadbConnection{client=Client{isClosed=false, "
                       + "context=ConnectionContext{"));
-      if (!"skysql".equals(System.getenv("srv")) && !"skysql-ha".equals(System.getenv("srv"))) {
-        Assertions.assertTrue(
-            connection
-                .toString()
-                .contains(", isolationLevel=IsolationLevel{sql='REPEATABLE READ'}}"),
-            connection.toString());
-      }
     } finally {
       connection.close().block();
     }
@@ -834,14 +754,11 @@ public class ConnectionTest extends BaseConnectionTest {
 
     Assertions.assertThrows(
         Exception.class, () -> connection.setTransactionIsolationLevel(null).block());
-    for (IsolationLevel level : levels) {
-      System.out.println(level);
-      connection.setTransactionIsolationLevel(level).block();
-      assertEquals(level, connection.getTransactionIsolationLevel());
-    }
+    connection.setTransactionIsolationLevel(IsolationLevel.READ_COMMITTED).block();
+    assertEquals(IsolationLevel.READ_COMMITTED, connection.getTransactionIsolationLevel());
     connection.close().block();
     Assertions.assertThrows(
-        R2dbcNonTransientResourceException.class,
+        java.lang.IllegalArgumentException.class,
         () -> connection.setTransactionIsolationLevel(IsolationLevel.READ_UNCOMMITTED).block());
   }
 
@@ -865,51 +782,6 @@ public class ConnectionTest extends BaseConnectionTest {
     }
   }
 
-  @Test
-  public void initialIsolationLevel() throws CloneNotSupportedException {
-    Assumptions.assumeTrue(
-        !"skysql".equals(System.getenv("srv")) && !"skysql-ha".equals(System.getenv("srv")));
-    for (IsolationLevel level : levels) {
-      sharedConn
-          .createStatement("SET GLOBAL TRANSACTION ISOLATION LEVEL " + level.asSql())
-          .execute()
-          .blockLast();
-      MariadbConnection connection =
-          new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
-      assertEquals(IsolationLevel.REPEATABLE_READ, connection.getTransactionIsolationLevel());
-      connection.close().block();
-
-      connection =
-          new MariadbConnectionFactory(
-                  TestConfiguration.defaultBuilder.clone().isolationLevel(level).build())
-              .create()
-              .block();
-      assertEquals(level, connection.getTransactionIsolationLevel());
-      String sql = "SELECT @@tx_isolation";
-
-      if (!isMariaDBServer()) {
-        if ((minVersion(8, 0, 3))
-            || (sharedConn.getMetadata().getMajorVersion() < 8 && minVersion(5, 7, 20))) {
-          sql = "SELECT @@transaction_isolation";
-        }
-      }
-
-      String iso =
-          connection
-              .createStatement(sql)
-              .execute()
-              .flatMap(it -> it.map((row, rowMetadata) -> row.get(0, String.class)))
-              .blockFirst();
-      assertEquals(level, IsolationLevel.valueOf(iso.replace("-", " ")));
-      connection.close().block();
-    }
-
-    sharedConn
-        .createStatement(
-            "SET GLOBAL TRANSACTION ISOLATION LEVEL " + IsolationLevel.REPEATABLE_READ.asSql())
-        .execute()
-        .blockLast();
-  }
 
   @Test
   public void errorOnConnection() throws Throwable {

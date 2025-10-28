@@ -156,23 +156,7 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
     }
 
     // set default transaction isolation
-    String txIsolation =
-        (client.getVersion().isMariaDBServer()
-                    && client.getVersion().versionGreaterOrEqual(11, 1, 1))
-                || (!client.getVersion().isMariaDBServer()
-                    && (client.getVersion().versionGreaterOrEqual(8, 0, 3)
-                        || (client.getVersion().getMajorVersion() < 8
-                            && client.getVersion().versionGreaterOrEqual(5, 7, 20))))
-            ? "transaction_isolation"
-            : "tx_isolation";
-    sql.append(",")
-        .append(txIsolation)
-        .append("='")
-        .append(
-            configuration.getIsolationLevel() == null
-                ? "REPEATABLE-READ"
-                : configuration.getIsolationLevel().asSql().replace(" ", "-"))
-        .append("'");
+    String txIsolation = "tx_isolation";
 
     // set session tracking
     if ((client.getContext().getClientCapabilities() & Capabilities.CLIENT_SESSION_TRACK) > 0) {
@@ -196,15 +180,6 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
             .append(txIsolation)
             .append("')))");
       }
-
-      ;
-
-      client
-          .getContext()
-          .setIsolationLevel(
-              configuration.getIsolationLevel() == null
-                  ? IsolationLevel.REPEATABLE_READ
-                  : configuration.getIsolationLevel());
     }
 
     // set session variables if defined
@@ -292,9 +267,6 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
                 Mono.just(
                         new MariadbConnection(
                             client,
-                            configuration.getIsolationLevel() == null
-                                ? IsolationLevel.REPEATABLE_READ
-                                : configuration.getIsolationLevel(),
                             configuration))
                     .onErrorResume(throwable -> closeWithError(client, throwable)))
         .cast(org.mariadb.r2dbc.api.MariadbConnection.class);
