@@ -26,7 +26,6 @@ public final class MariadbConnectionFactoryProvider implements ConnectionFactory
 
   public static final Option<Boolean> ALLOW_PIPELINING = Option.valueOf("allowPipelining");
   public static final Option<Boolean> USE_SERVER_PREPARE = Option.valueOf("useServerPrepStmts");
-  public static final Option<String> ISOLATION_LEVEL = Option.valueOf("isolationLevel");
   public static final Option<Boolean> AUTO_COMMIT = Option.valueOf("autocommit");
   public static final Option<Boolean> PERMIT_REDIRECT = Option.valueOf("permitRedirect");
   public static final Option<Boolean> SKIP_POST_COMMANDS = Option.valueOf("skipPostCommands");

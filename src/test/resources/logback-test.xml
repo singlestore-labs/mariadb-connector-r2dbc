@@ -12,11 +12,11 @@
         </encoder>
     </appender>
 
-    <logger level="ERROR" name="org.mariadb.r2dbc"/>
-    <logger level="ERROR" name="io.netty.buffer"/>
-    <logger level="ERROR" name="reactor.ipc.netty"/>
+    <logger level="TRACE" name="org.mariadb.r2dbc"/>
+    <logger level="TRACE" name="io.netty.buffer"/>
+    <logger level="TRACE" name="reactor.ipc.netty"/>
 
-    <root level="WARN">
+    <root level="TRACE">
         <appender-ref ref="STDOUT"/>
     </root>
 

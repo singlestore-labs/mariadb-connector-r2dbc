@@ -7,7 +7,6 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 import io.netty.handler.ssl.SslContextBuilder;
 import io.r2dbc.spi.ConnectionFactoryOptions;
-import io.r2dbc.spi.IsolationLevel;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.URLDecoder;
@@ -55,7 +54,6 @@ public final class MariadbConnectionConfiguration {
   private final String[] restrictedAuth;
   private final LoopResources loopResources;
   private final UnaryOperator<SslContextBuilder> sslContextBuilderCustomizer;
-  private IsolationLevel isolationLevel;
   private final boolean skipPostCommands;
 
   private MariadbConnectionConfiguration(
@@ -86,7 +84,6 @@ public final class MariadbConnectionConfiguration {
       @Nullable String cachingRsaPublicKey,
       boolean allowPublicKeyRetrieval,
       boolean useServerPrepStmts,
-      IsolationLevel isolationLevel,
       Boolean autocommit,
       boolean permitRedirect,
       boolean skipPostCommands,
@@ -103,7 +100,6 @@ public final class MariadbConnectionConfiguration {
     this.tcpAbortiveClose = tcpAbortiveClose == null ? Boolean.FALSE : tcpAbortiveClose;
     this.transactionReplay = transactionReplay == null ? Boolean.FALSE : transactionReplay;
     this.database = database != null && !database.isEmpty() ? database : null;
-    this.isolationLevel = isolationLevel;
     this.restrictedAuth = restrictedAuth != null ? restrictedAuth.split(",") : null;
     if (hostAddresses != null) {
       this.hostAddresses = hostAddresses;
@@ -362,13 +358,6 @@ public final class MariadbConnectionConfiguration {
               connectionFactoryOptions.getValue(
                   MariadbConnectionFactoryProvider.USE_SERVER_PREPARE)));
     }
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.ISOLATION_LEVEL)) {
-      String isolationLvl =
-          (String)
-              connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.ISOLATION_LEVEL);
-      builder.isolationLevel(
-          isolationLvl == null ? null : IsolationLevel.valueOf(isolationLvl.replace("-", " ")));
-    }
 
     if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.AUTO_COMMIT)) {
       Object value =
@@ -515,14 +504,6 @@ public final class MariadbConnectionConfiguration {
 
   public static Builder builder() {
     return new Builder();
-  }
-
-  public IsolationLevel getIsolationLevel() {
-    return isolationLevel;
-  }
-
-  private void setIsolationLevel(IsolationLevel isolationLevel) {
-    this.isolationLevel = isolationLevel;
   }
 
   @Nullable
@@ -766,14 +747,6 @@ public final class MariadbConnectionConfiguration {
               sb.append(field.getName()).append('=');
               sb.append(obj);
             }
-          } else if (field.getType().equals(IsolationLevel.class)) {
-            Object defaultValue = field.get(defaultConf);
-            if (!obj.equals(defaultValue)) {
-              sb.append(first ? '?' : '&');
-              first = false;
-              sb.append("isolationLevel=");
-              sb.append(((IsolationLevel) obj).asSql().replace(" ", "-"));
-            }
           } else if (field.getType().equals(Map.class)) {
             Object defaultValue = field.get(defaultConf);
             if (!obj.equals(defaultValue)) {
@@ -840,7 +813,6 @@ public final class MariadbConnectionConfiguration {
     private boolean allowMultiQueries = false;
     private boolean allowPipelining = true;
     private boolean useServerPrepStmts = false;
-    private IsolationLevel isolationLevel = null;
     private Boolean autocommit = Boolean.TRUE;
     private boolean permitRedirect = true;
     private boolean skipPostCommands = false;
@@ -911,7 +883,6 @@ public final class MariadbConnectionConfiguration {
           this.cachingRsaPublicKey,
           this.allowPublicKeyRetrieval,
           this.useServerPrepStmts,
-          this.isolationLevel,
           this.autocommit,
           this.permitRedirect,
           this.skipPostCommands,
@@ -1185,17 +1156,6 @@ public final class MariadbConnectionConfiguration {
     }
 
     /**
-     * Permit to set default isolation level
-     *
-     * @param isolationLevel transaction isolation level
-     * @return this {@link Builder}
-     */
-    public Builder isolationLevel(IsolationLevel isolationLevel) {
-      this.isolationLevel = isolationLevel;
-      return this;
-    }
-
-    /**
      * Permit to indicate default autocommit value. Default value True.
      *
      * @param autocommit use autocommit
@@ -1227,7 +1187,6 @@ public final class MariadbConnectionConfiguration {
      * <ul>
      *   <li>connection exchanges to be UT8(mb3/mb4)
      *   <li>autocommit set to true
-     *   <li>transaction isolation defaulting to REPEATABLE-READ
      * </ul>
      *
      * Default value False.
@@ -1385,8 +1344,6 @@ public final class MariadbConnectionConfiguration {
           + ", timezone="
           + timezone
           + ", prepareCacheSize="
-          + isolationLevel
-          + ", isolationLevel="
           + prepareCacheSize
           + ", tlsProtocol="
           + tlsProtocol

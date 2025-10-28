@@ -134,27 +134,10 @@ public class FailoverClient implements Client {
               .then();
     }
 
-    // sync transaction isolation
-    Mono<Void> monoIsolationLevel;
-    if (currentClient.getContext().getIsolationLevel() == oldCtx.getIsolationLevel()) {
-      monoIsolationLevel = Mono.empty();
-    } else if (oldCtx.getIsolationLevel() != null) {
-      String sql =
-          String.format(
-              "SET SESSION TRANSACTION ISOLATION LEVEL %s", oldCtx.getIsolationLevel().asSql());
-      ExceptionFactory exceptionFactory = ExceptionFactory.withSql(sql);
-      monoIsolationLevel =
-          currentClient
-              .sendCommand(new QueryPacket(sql), true)
-              .handle(exceptionFactory::handleErrorResponse)
-              .then();
-    } else monoIsolationLevel = Mono.empty();
-
     // sync autoCommit
     return currentClient
         .setAutoCommit(oldCli.isAutoCommit())
         .then(monoDatabase)
-        .then(monoIsolationLevel)
         .then();
   }
 

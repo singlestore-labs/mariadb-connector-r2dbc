@@ -4,7 +4,6 @@
 package org.mariadb.r2dbc.message.server;
 
 import io.netty.buffer.ByteBuf;
-import io.r2dbc.spi.IsolationLevel;
 import io.r2dbc.spi.Result;
 import org.mariadb.r2dbc.message.Context;
 import org.mariadb.r2dbc.message.ServerMessage;
@@ -60,32 +59,9 @@ public class OkPacket implements ServerMessage, Result.UpdateCount {
                 String value = BufferUtils.readLengthEncodedString(sessionVariableBuf);
                 logger.debug("System variable change :  {} = {}", variable, value);
 
-                switch (variable) {
-                  case "transaction_isolation":
-                  case "tx_isolation":
-                    switch (value) {
-                      case "REPEATABLE-READ":
-                        context.setIsolationLevel(IsolationLevel.REPEATABLE_READ);
-                        break;
-
-                      case "READ-UNCOMMITTED":
-                        context.setIsolationLevel(IsolationLevel.READ_UNCOMMITTED);
-                        break;
-
-                      case "SERIALIZABLE":
-                        context.setIsolationLevel(IsolationLevel.SERIALIZABLE);
-                        break;
-
-                      default:
-                        context.setIsolationLevel(IsolationLevel.READ_COMMITTED);
-                        break;
-                    }
-                    break;
-
-                  case "redirect_url":
-                    context.setRedirect(value.isEmpty() ? null : value);
-                    break;
-                }
+                  if (variable.equals("redirect_url")) {
+                      context.setRedirect(value.isEmpty() ? null : value);
+                  }
               } while (sessionVariableBuf.readableBytes() > 0);
               break;
 
