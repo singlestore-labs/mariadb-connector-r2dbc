@@ -601,7 +601,7 @@ public class ConnectionTest extends BaseConnectionTest {
     MariadbConnection connection =
         new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
     try {
-      IsolationLevel defaultValue = IsolationLevel.REPEATABLE_READ;
+      IsolationLevel defaultValue = IsolationLevel.READ_COMMITTED;
       Assertions.assertEquals(defaultValue, connection.getTransactionIsolationLevel());
       connection.setTransactionIsolationLevel(IsolationLevel.READ_COMMITTED).block();
       connection.createStatement("BEGIN").execute().blockLast();
@@ -758,8 +758,8 @@ public class ConnectionTest extends BaseConnectionTest {
     assertEquals(IsolationLevel.READ_COMMITTED, connection.getTransactionIsolationLevel());
     connection.close().block();
     Assertions.assertThrows(
-        R2dbcNonTransientResourceException.class,
-        () -> connection.setTransactionIsolationLevel(IsolationLevel.READ_COMMITTED).block());
+        java.lang.IllegalArgumentException.class,
+        () -> connection.setTransactionIsolationLevel(IsolationLevel.READ_UNCOMMITTED).block());
   }
 
   @Test
