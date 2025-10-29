@@ -41,11 +41,6 @@ public final class MariadbConnectionFactoryProvider implements ConnectionFactory
   public static final Option<Boolean> TCP_ABORTIVE_CLOSE = Option.valueOf("tcpAbortiveClose");
   public static final Option<String> SESSION_VARIABLES = Option.valueOf("sessionVariables");
   public static final Option<LoopResources> LOOP_RESOURCES = Option.valueOf("loopResources");
-  public static final Option<Boolean> ALLOW_PUBLIC_KEY_RETRIEVAL =
-      Option.valueOf("allowPublicKeyRetrieval");
-
-  public static final Option<String> CACHING_RSA_PUBLIC_KEY = Option.valueOf("cachingRsaPublicKey");
-  public static final Option<String> RSA_PUBLIC_KEY = Option.valueOf("rsaPublicKey");
 
   public static final Option<String> RESTRICTED_AUTH = Option.valueOf("restrictedAuth");
 

@@ -58,7 +58,6 @@ public class ErrorTest extends BaseConnectionTest {
     MariadbConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
-            .allowPublicKeyRetrieval(true)
             .username("userWithoutRight")
             .password("")
             .build();
@@ -75,7 +74,6 @@ public class ErrorTest extends BaseConnectionTest {
     conf =
         TestConfiguration.defaultBuilder
             .clone()
-            .allowPublicKeyRetrieval(true)
             .username("userWithoutRight")
             .password("wrongpassword")
             .build();

@@ -44,9 +44,6 @@ public final class MariadbConnectionConfiguration {
   private final Map<String, String> connectionAttributes;
   private final Map<String, Object> sessionVariables;
   private final SslConfig sslConfig;
-  private final String rsaPublicKey;
-  private final String cachingRsaPublicKey;
-  private final boolean allowPublicKeyRetrieval;
   private final boolean useServerPrepStmts;
   private final Boolean autocommit;
   private final boolean permitRedirect;
@@ -80,9 +77,6 @@ public final class MariadbConnectionConfiguration {
       @Nullable String clientSslKey,
       @Nullable CharSequence clientSslPassword,
       SslMode sslMode,
-      @Nullable String rsaPublicKey,
-      @Nullable String cachingRsaPublicKey,
-      boolean allowPublicKeyRetrieval,
       boolean useServerPrepStmts,
       Boolean autocommit,
       boolean permitRedirect,
@@ -129,9 +123,6 @@ public final class MariadbConnectionConfiguration {
               sslTunnelDisableHostVerification,
               sslContextBuilderCustomizer);
     }
-    this.rsaPublicKey = rsaPublicKey;
-    this.cachingRsaPublicKey = cachingRsaPublicKey;
-    this.allowPublicKeyRetrieval = allowPublicKeyRetrieval;
     this.prepareCacheSize = (prepareCacheSize == null) ? 250 : prepareCacheSize;
     this.pamOtherPwd = pamOtherPwd;
     this.autocommit = (autocommit != null) ? autocommit : Boolean.TRUE;
@@ -163,9 +154,6 @@ public final class MariadbConnectionConfiguration {
       Map<String, String> connectionAttributes,
       Map<String, Object> sessionVariables,
       SslConfig sslConfig,
-      String rsaPublicKey,
-      String cachingRsaPublicKey,
-      boolean allowPublicKeyRetrieval,
       boolean useServerPrepStmts,
       Boolean autocommit,
       boolean permitRedirect,
@@ -193,9 +181,6 @@ public final class MariadbConnectionConfiguration {
     this.connectionAttributes = connectionAttributes;
     this.sessionVariables = sessionVariables;
     this.sslConfig = sslConfig;
-    this.rsaPublicKey = rsaPublicKey;
-    this.cachingRsaPublicKey = cachingRsaPublicKey;
-    this.allowPublicKeyRetrieval = allowPublicKeyRetrieval;
     this.useServerPrepStmts = useServerPrepStmts;
     this.autocommit = (autocommit != null) ? autocommit : Boolean.TRUE;
     this.permitRedirect = permitRedirect;
@@ -230,9 +215,6 @@ public final class MariadbConnectionConfiguration {
         this.connectionAttributes,
         this.sessionVariables,
         this.sslConfig,
-        this.rsaPublicKey,
-        this.cachingRsaPublicKey,
-        this.allowPublicKeyRetrieval,
         this.useServerPrepStmts,
         this.autocommit,
         this.skipPostCommands,
@@ -294,28 +276,6 @@ public final class MariadbConnectionConfiguration {
       builder.tcpKeepAlive(
           boolValue(
               connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.TCP_KEEP_ALIVE)));
-    }
-
-    if (connectionFactoryOptions.hasOption(
-        MariadbConnectionFactoryProvider.ALLOW_PUBLIC_KEY_RETRIEVAL)) {
-      builder.allowPublicKeyRetrieval(
-          boolValue(
-              connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.ALLOW_PUBLIC_KEY_RETRIEVAL)));
-    }
-
-    if (connectionFactoryOptions.hasOption(
-        MariadbConnectionFactoryProvider.CACHING_RSA_PUBLIC_KEY)) {
-      builder.cachingRsaPublicKey(
-          (String)
-              connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.CACHING_RSA_PUBLIC_KEY));
-    }
-
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.RSA_PUBLIC_KEY)) {
-      builder.rsaPublicKey(
-          (String)
-              connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.RSA_PUBLIC_KEY));
     }
 
     if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.TCP_ABORTIVE_CLOSE)) {
@@ -573,18 +533,6 @@ public final class MariadbConnectionConfiguration {
     return sslConfig;
   }
 
-  public String getRsaPublicKey() {
-    return rsaPublicKey;
-  }
-
-  public String getCachingRsaPublicKey() {
-    return cachingRsaPublicKey;
-  }
-
-  public boolean allowPublicKeyRetrieval() {
-    return allowPublicKeyRetrieval;
-  }
-
   public boolean useServerPrepStmts() {
     return useServerPrepStmts;
   }
@@ -793,9 +741,6 @@ public final class MariadbConnectionConfiguration {
 
     @Nullable Integer prepareCacheSize;
     @Nullable private String haMode;
-    @Nullable private String rsaPublicKey;
-    @Nullable private String cachingRsaPublicKey;
-    private boolean allowPublicKeyRetrieval;
     @Nullable private String username;
     @Nullable private Duration connectTimeout;
     @Nullable private Boolean tcpKeepAlive;
@@ -879,9 +824,6 @@ public final class MariadbConnectionConfiguration {
           this.clientSslKey,
           this.clientSslPassword,
           this.sslMode,
-          this.rsaPublicKey,
-          this.cachingRsaPublicKey,
-          this.allowPublicKeyRetrieval,
           this.useServerPrepStmts,
           this.autocommit,
           this.permitRedirect,
@@ -1112,39 +1054,6 @@ public final class MariadbConnectionConfiguration {
     }
 
     /**
-     * Indicate path to MySQL server RSA public key
-     *
-     * @param rsaPublicKey path
-     * @return this {@link Builder}
-     */
-    public Builder rsaPublicKey(String rsaPublicKey) {
-      this.rsaPublicKey = rsaPublicKey;
-      return this;
-    }
-
-    /**
-     * Indicate path to MySQL server caching RSA public key
-     *
-     * @param cachingRsaPublicKey path
-     * @return this {@link Builder}
-     */
-    public Builder cachingRsaPublicKey(String cachingRsaPublicKey) {
-      this.cachingRsaPublicKey = cachingRsaPublicKey;
-      return this;
-    }
-
-    /**
-     * Permit to get MySQL server key retrieval.
-     *
-     * @param allowPublicKeyRetrieval indicate if permit
-     * @return this {@link Builder}
-     */
-    public Builder allowPublicKeyRetrieval(boolean allowPublicKeyRetrieval) {
-      this.allowPublicKeyRetrieval = allowPublicKeyRetrieval;
-      return this;
-    }
-
-    /**
      * Permit to indicate to use text or binary protocol.
      *
      * @param useServerPrepStmts use server param
@@ -1298,14 +1207,8 @@ public final class MariadbConnectionConfiguration {
       }
 
       return "Builder{"
-          + "rsaPublicKey="
-          + rsaPublicKey
           + ", haMode="
           + haMode
-          + ", cachingRsaPublicKey="
-          + cachingRsaPublicKey
-          + ", allowPublicKeyRetrieval="
-          + allowPublicKeyRetrieval
           + ", username="
           + username
           + ", connectTimeout="
