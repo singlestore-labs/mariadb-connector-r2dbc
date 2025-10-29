@@ -60,10 +60,8 @@ public class BitParseTest extends BaseConnectionTest {
   }
 
   @Test
-  void defaultValueNoTiny() throws Throwable {
-    MariadbConnectionConfiguration conf =
-        TestConfiguration.defaultBuilder.clone().tinyInt1isBit(false).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+  void defaultValueNoTiny() {
+    MariadbConnection connection = new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
     try {
       connection
           .createStatement("SELECT t1 FROM BitTable2 WHERE 1 = ? ORDER BY t4")
@@ -109,7 +107,7 @@ public class BitParseTest extends BaseConnectionTest {
         .execute()
         .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
         .as(StepVerifier::create)
-        .expectNext(Optional.of(Boolean.FALSE), Optional.of(Boolean.TRUE), Optional.empty())
+        .expectNext(Optional.of(BitSet.valueOf(new byte[] {(byte) 0})), Optional.of(BitSet.valueOf(new byte[] {(byte) 1})), Optional.empty())
         .verifyComplete();
   }
 
@@ -512,7 +510,7 @@ public class BitParseTest extends BaseConnectionTest {
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
         .as(StepVerifier::create)
-        .expectNextMatches(c -> c.equals(MariadbType.BOOLEAN))
+        .expectNextMatches(c -> c.equals(MariadbType.BIT))
         .verifyComplete();
   }
 }

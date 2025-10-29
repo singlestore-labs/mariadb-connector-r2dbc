@@ -337,7 +337,7 @@ public class ConfigurationTest extends BaseConnectionTest {
   @Test
   void confStringValue() {
     String connectionUrl =
-        "r2dbc:mariadb://admin:pass@localhost:3306/dbname?allowMultiQueries=blabla&autoCommit=1&tinyInt1isBit=0";
+        "r2dbc:mariadb://admin:pass@localhost:3306/dbname?allowMultiQueries=blabla&autoCommit=1";
     ConnectionFactoryOptions options = ConnectionFactoryOptions.parse(connectionUrl);
     MariadbConnectionConfiguration.Builder builder =
         MariadbConnectionConfiguration.fromOptions(options);
@@ -356,7 +356,7 @@ public class ConfigurationTest extends BaseConnectionTest {
             + " allowPipelining=true, useServerPrepStmts=false, timezone=null,"
             + " prepareCacheSize=null, tlsProtocol=null, serverSslCert=null,"
             + " clientSslCert=null, clientSslKey=null, clientSslPassword=null, sslMode=TRUST,"
-            + " sslTunnelDisableHostVerification=false, pamOtherPwd=*,*, tinyInt1isBit=false,"
+            + " sslTunnelDisableHostVerification=false, pamOtherPwd=*,*,"
             + " autoCommit=true, permitRedirect=true}",
         builder.toString());
     builder.tlsProtocol((String) null);
@@ -369,7 +369,7 @@ public class ConfigurationTest extends BaseConnectionTest {
             + " allowPipelining=true, useServerPrepStmts=false, timezone=null,"
             + " prepareCacheSize=null, tlsProtocol=null, serverSslCert=null,"
             + " clientSslCert=null, clientSslKey=null, clientSslPassword=null, sslMode=TRUST,"
-            + " sslTunnelDisableHostVerification=false, pamOtherPwd=*,*, tinyInt1isBit=false,"
+            + " sslTunnelDisableHostVerification=false, pamOtherPwd=*,*,"
             + " autoCommit=true, permitRedirect=true}",
         builder.toString());
     MariadbConnectionConfiguration conf = builder.build();

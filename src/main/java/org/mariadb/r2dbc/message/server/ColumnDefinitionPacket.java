@@ -196,8 +196,6 @@ public final class ColumnDefinitionPacket
   public MariadbType getType() {
     switch (dataType) {
       case TINYINT:
-        // TINYINT(1) are considered as boolean
-        if (length == 1 && conf.tinyInt1isBit()) return MariadbType.BOOLEAN;
         return isSigned() ? MariadbType.TINYINT : MariadbType.UNSIGNED_TINYINT;
       case YEAR:
         return MariadbType.SMALLINT;
@@ -235,8 +233,6 @@ public final class ColumnDefinitionPacket
       case DECIMAL:
         return MariadbType.DECIMAL;
       case BIT:
-        // BIT(1) are considered as boolean
-        if (length == 1 && conf.tinyInt1isBit()) return MariadbType.BOOLEAN;
         return MariadbType.BIT;
       case TINYBLOB:
       case MEDIUMBLOB:
