@@ -50,7 +50,6 @@ public final class MariadbConnectionConfiguration {
   private final boolean useServerPrepStmts;
   private final Boolean autocommit;
   private final boolean permitRedirect;
-  private final boolean tinyInt1isBit;
   private final String[] restrictedAuth;
   private final LoopResources loopResources;
   private final UnaryOperator<SslContextBuilder> sslContextBuilderCustomizer;
@@ -89,7 +88,6 @@ public final class MariadbConnectionConfiguration {
       boolean skipPostCommands,
       @Nullable Integer prepareCacheSize,
       @Nullable CharSequence[] pamOtherPwd,
-      boolean tinyInt1isBit,
       String restrictedAuth,
       @Nullable LoopResources loopResources,
       @Nullable UnaryOperator<SslContextBuilder> sslContextBuilderCustomizer,
@@ -137,7 +135,6 @@ public final class MariadbConnectionConfiguration {
     this.autocommit = (autocommit != null) ? autocommit : Boolean.TRUE;
     this.permitRedirect = permitRedirect;
     this.skipPostCommands = skipPostCommands;
-    this.tinyInt1isBit = tinyInt1isBit;
     this.loopResources = loopResources != null ? loopResources : TcpResources.get();
     this.useServerPrepStmts = !this.allowMultiQueries && useServerPrepStmts;
     this.sslContextBuilderCustomizer = sslContextBuilderCustomizer;
@@ -170,7 +167,6 @@ public final class MariadbConnectionConfiguration {
       Boolean autocommit,
       boolean permitRedirect,
       boolean skipPostCommands,
-      boolean tinyInt1isBit,
       String[] restrictedAuth,
       LoopResources loopResources,
       UnaryOperator<SslContextBuilder> sslContextBuilderCustomizer) {
@@ -200,7 +196,6 @@ public final class MariadbConnectionConfiguration {
     this.autocommit = (autocommit != null) ? autocommit : Boolean.TRUE;
     this.permitRedirect = permitRedirect;
     this.skipPostCommands = skipPostCommands;
-    this.tinyInt1isBit = tinyInt1isBit;
     this.restrictedAuth = restrictedAuth;
     this.loopResources = loopResources;
     this.sslContextBuilderCustomizer = sslContextBuilderCustomizer;
@@ -237,7 +232,6 @@ public final class MariadbConnectionConfiguration {
         this.autocommit,
         this.skipPostCommands,
         false,
-        this.tinyInt1isBit,
         this.restrictedAuth,
         this.loopResources,
         this.sslContextBuilderCustomizer);
@@ -381,12 +375,6 @@ public final class MariadbConnectionConfiguration {
           boolValue(
               connectionFactoryOptions.getValue(
                   MariadbConnectionFactoryProvider.SKIP_POST_COMMANDS)));
-    }
-
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.TINY_IS_BIT)) {
-      builder.tinyInt1isBit(
-          boolValue(
-              connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.TINY_IS_BIT)));
     }
 
     if (connectionFactoryOptions.hasOption(
@@ -601,10 +589,6 @@ public final class MariadbConnectionConfiguration {
     return skipPostCommands;
   }
 
-  public boolean tinyInt1isBit() {
-    return tinyInt1isBit;
-  }
-
   public int getPrepareCacheSize() {
     return prepareCacheSize;
   }
@@ -816,7 +800,6 @@ public final class MariadbConnectionConfiguration {
     private Boolean autocommit = Boolean.TRUE;
     private boolean permitRedirect = true;
     private boolean skipPostCommands = false;
-    private boolean tinyInt1isBit = true;
     @Nullable private List<String> tlsProtocol;
     @Nullable private String serverSslCert;
     @Nullable private String clientSslCert;
@@ -888,7 +871,6 @@ public final class MariadbConnectionConfiguration {
           this.skipPostCommands,
           this.prepareCacheSize,
           this.pamOtherPwd,
-          this.tinyInt1isBit,
           this.restrictedAuth,
           this.loopResources,
           this.sslContextBuilderCustomizer,
@@ -1200,18 +1182,6 @@ public final class MariadbConnectionConfiguration {
     }
 
     /**
-     * Permit to indicate how BIT(1) must return as boolean or byte . Default value True (returns
-     * boolean).
-     *
-     * @param tinyInt1isBit return boolean for BIT(1)
-     * @return this {@link Builder}
-     */
-    public Builder tinyInt1isBit(boolean tinyInt1isBit) {
-      this.tinyInt1isBit = tinyInt1isBit;
-      return this;
-    }
-
-    /**
      * Permit pipelining (sending request before resolution of previous one).
      *
      * @param allowPipelining indicate if pipelining is permit
@@ -1361,8 +1331,6 @@ public final class MariadbConnectionConfiguration {
           + sslTunnelDisableHostVerification
           + ", pamOtherPwd="
           + hiddenPamPwd
-          + ", tinyInt1isBit="
-          + tinyInt1isBit
           + ", autoCommit="
           + autocommit
           + ", permitRedirect="

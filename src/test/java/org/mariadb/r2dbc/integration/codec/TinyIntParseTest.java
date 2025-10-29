@@ -77,25 +77,6 @@ public class TinyIntParseTest extends BaseConnectionTest {
     defaultValue(sharedConnPrepare);
   }
 
-  @Test
-  void defaultValueNoTiny() throws Throwable {
-    MariadbConnectionConfiguration conf =
-        TestConfiguration.defaultBuilder.clone().tinyInt1isBit(false).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
-    try {
-      connection
-          .createStatement("SELECT t1 FROM tinyIntTable1 WHERE 1 = ? ORDER BY t2")
-          .bind(0, 1)
-          .execute()
-          .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
-          .as(StepVerifier::create)
-          .expectNext(Optional.of((byte) 0), Optional.of((byte) 1), Optional.empty())
-          .verifyComplete();
-    } finally {
-      connection.close().block();
-    }
-  }
-
   private void defaultValue(MariadbConnection connection) {
     connection
         .createStatement("SELECT t1 FROM tinyIntTable WHERE 1 = ? ORDER BY t2")
