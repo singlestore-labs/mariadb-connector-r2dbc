@@ -1177,7 +1177,7 @@ public final class MariadbConnectionConfiguration {
       }
 
       return "Builder{"
-          + ", haMode="
+          + "haMode="
           + haMode
           + ", username="
           + username
