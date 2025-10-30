@@ -148,7 +148,7 @@ public final class MariadbConnection implements org.mariadb.r2dbc.api.MariadbCon
     Assert.requireNonNull(timeout, "timeout must not be null");
     long msValue = timeout.toMillis();
 
-    String sql = String.format("SET lock_wait_timeout=%s", Math.max(msValue / 1000, 1));
+    String sql = String.format("SET lock_wait_timeout=%s", (long) Math.ceil(msValue / 1000.0));
     ExceptionFactory exceptionFactory = ExceptionFactory.withSql(sql);
 
     return client
