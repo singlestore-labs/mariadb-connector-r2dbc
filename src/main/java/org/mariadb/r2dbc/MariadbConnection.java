@@ -145,42 +145,21 @@ public final class MariadbConnection implements org.mariadb.r2dbc.api.MariadbCon
 
   @Override
   public Mono<Void> setLockWaitTimeout(Duration timeout) {
-    return Mono.empty();
-  }
-
-  @Override
-  public Mono<Void> setStatementTimeout(Duration timeout) {
     Assert.requireNonNull(timeout, "timeout must not be null");
-    boolean serverSupportTimeout =
-        (client.getVersion().isMariaDBServer()
-                && client.getVersion().versionGreaterOrEqual(10, 1, 1)
-            || (!client.getVersion().isMariaDBServer()
-                && client.getVersion().versionGreaterOrEqual(5, 7, 4)));
-    if (!serverSupportTimeout) {
-      return Mono.error(
-          ExceptionFactory.createException(
-              "query timeout not supported by server. (required MariaDB 10.1.1+ | MySQL 5.7.4+)",
-              "HY000",
-              -1,
-              "SET max_statement_time"));
-    }
-
     long msValue = timeout.toMillis();
 
-    // MariaDB did implement max_statement_time in seconds, MySQL copied feature but in ms ...
-
-    String sql;
-    if (client.getVersion().isMariaDBServer()) {
-      sql = String.format("SET max_statement_time=%s", (double) msValue / 1000);
-    } else {
-      sql = String.format("SET SESSION MAX_EXECUTION_TIME=%s", msValue);
-    }
-
+    String sql = String.format("SET lock_wait_timeout=%s", (long) Math.ceil(msValue / 1000.0));
     ExceptionFactory exceptionFactory = ExceptionFactory.withSql(sql);
+
     return client
         .sendCommand(new QueryPacket(sql), true)
         .handle(exceptionFactory::handleErrorResponse)
         .then();
+  }
+
+  @Override
+  public Mono<Void> setStatementTimeout(Duration timeout) {
+    return Mono.error(new UnsupportedOperationException("Statement timeout is not supported"));
   }
 
   @Override
