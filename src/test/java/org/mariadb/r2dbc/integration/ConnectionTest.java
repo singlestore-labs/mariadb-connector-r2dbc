@@ -884,43 +884,21 @@ public class ConnectionTest extends BaseConnectionTest {
   }
 
   @Test
-  @Disabled // TODO: PLAT-7664
   public void queryTimeout() throws Throwable {
-    Assumptions.assumeTrue(
-        !isMaxscale()
-            && !"skysql".equals(System.getenv("srv"))
-            && !"skysql-ha".equals(System.getenv("srv"))
-            && !isXpand());
     MariadbConnection connection =
         new MariadbConnectionFactory(TestConfiguration.defaultBuilder.clone().build())
             .create()
             .block();
-    connection.setStatementTimeout(Duration.ofMillis(500)).block();
-
-    try {
-      connection
-          .createStatement(
-              "select * from information_schema.columns as c1, "
-                  + "information_schema.tables, information_schema.tables as t2")
-          .execute()
-          .flatMap(r -> r.map((rows, meta) -> ""))
-          .blockLast();
-      Assertions.fail();
-    } catch (R2dbcTimeoutException e) {
-      assertTrue(
-          e.getMessage().contains("Query execution was interrupted (max_statement_time exceeded)")
-              || e.getMessage()
-                  .contains(
-                      "Query execution was interrupted, maximum statement execution time"
-                          + " exceeded"));
-    } finally {
-      connection.close().block();
-    }
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> connection.setStatementTimeout(Duration.ofMillis(500)).block(),
+        "Statement timeout is not supported");
   }
 
   @Test
   public void setLockWaitTimeout() {
     sharedConn.setLockWaitTimeout(Duration.ofMillis(1)).block();
+    sharedConn.setLockWaitTimeout(Duration.ofMillis(10000)).block();
   }
 
   @Test
