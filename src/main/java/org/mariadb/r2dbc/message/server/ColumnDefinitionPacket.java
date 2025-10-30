@@ -6,7 +6,6 @@ package org.mariadb.r2dbc.message.server;
 import io.netty.buffer.ByteBuf;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Nullability;
-import io.r2dbc.spi.OutParameterMetadata;
 import java.nio.charset.StandardCharsets;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.codec.DataType;
@@ -16,7 +15,7 @@ import org.mariadb.r2dbc.util.MariadbType;
 import org.mariadb.r2dbc.util.constants.ColumnFlags;
 
 public final class ColumnDefinitionPacket
-    implements ServerMessage, ColumnMetadata, OutParameterMetadata {
+    implements ServerMessage, ColumnMetadata {
   private final byte[] meta;
   private final int charset;
   private final long length;
