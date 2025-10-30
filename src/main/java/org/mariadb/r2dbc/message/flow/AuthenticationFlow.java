@@ -12,7 +12,6 @@ import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.SslMode;
 import org.mariadb.r2dbc.authentication.AuthenticationFlowPluginLoader;
 import org.mariadb.r2dbc.authentication.AuthenticationPlugin;
-import org.mariadb.r2dbc.authentication.standard.CachingSha2PasswordFlow;
 import org.mariadb.r2dbc.client.Client;
 import org.mariadb.r2dbc.client.DecoderState;
 import org.mariadb.r2dbc.client.SimpleClient;
@@ -200,16 +199,6 @@ public final class AuthenticationFlow {
       Mono<State> handle(AuthenticationFlow flow) {
         flow.seed = flow.initialHandshakePacket.getSeed();
         flow.sequencer = flow.initialHandshakePacket.getSequencer();
-
-        if (flow.initialHandshakePacket
-            .getAuthenticationPluginType()
-            .equals(CachingSha2PasswordFlow.TYPE)) {
-          AuthenticationPlugin authPlugin =
-              AuthenticationFlowPluginLoader.get(CachingSha2PasswordFlow.TYPE);
-          ((CachingSha2PasswordFlow) authPlugin).setStateFastAuth();
-          flow.authMoreDataPacket = null;
-          flow.pluginHandler = authPlugin;
-        }
 
         return flow.client
             .sendCommand(

@@ -24,8 +24,5 @@ module r2dbc.mariadb {
     provides org.mariadb.r2dbc.authentication.AuthenticationPlugin with
             org.mariadb.r2dbc.authentication.standard.NativePasswordPluginFlow,
             org.mariadb.r2dbc.authentication.addon.ClearPasswordPluginFlow,
-            org.mariadb.r2dbc.authentication.standard.Ed25519PasswordPluginFlow,
-            org.mariadb.r2dbc.authentication.standard.Sha256PasswordPluginFlow,
-            org.mariadb.r2dbc.authentication.standard.CachingSha2PasswordFlow,
             org.mariadb.r2dbc.authentication.standard.PamPluginFlow;
 }

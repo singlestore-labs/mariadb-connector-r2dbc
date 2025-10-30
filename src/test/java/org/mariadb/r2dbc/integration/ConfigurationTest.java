@@ -44,9 +44,8 @@ public class ConfigurationTest extends BaseConnectionTest {
                     TestConfiguration.port,
                     TestConfiguration.database,
                     TestConfiguration.other == null
-                        ? "?allowPublicKeyRetrieval=true"
-                        : "?" + TestConfiguration.other.replace("\n", "\\n"))
-                + "&allowPublicKeyRetrieval=true");
+                        ? ""
+                        : "?" + TestConfiguration.other.replace("\n", "\\n")));
     Connection connection = Mono.from(factory.create()).block();
     Flux.from(connection.createStatement("SELECT * FROM myTable").execute())
         .flatMap(r -> r.map((row, metadata) -> row.get(0, String.class)));
@@ -349,8 +348,8 @@ public class ConfigurationTest extends BaseConnectionTest {
     builder.pamOtherPwd(new String[] {"fff", "ddd"});
     builder.tlsProtocol((String[]) null);
     Assertions.assertEquals(
-        "Builder{rsaPublicKey=null, haMode=null, cachingRsaPublicKey=null,"
-            + " allowPublicKeyRetrieval=false, username=admin, connectTimeout=null,"
+        "Builder{haMode=null,"
+            + " username=admin, connectTimeout=null,"
             + " tcpKeepAlive=null, tcpAbortiveClose=null, transactionReplay=null, database=dbname,"
             + " host=localhost, sessionVariables=null, connectionAttributes=null, password=*,"
             + " restrictedAuth=null, port=3306, hosts={}, socket=null, allowMultiQueries=false,"
@@ -362,8 +361,8 @@ public class ConfigurationTest extends BaseConnectionTest {
         builder.toString());
     builder.tlsProtocol((String) null);
     Assertions.assertEquals(
-        "Builder{rsaPublicKey=null, haMode=null, cachingRsaPublicKey=null,"
-            + " allowPublicKeyRetrieval=false, username=admin, connectTimeout=null,"
+        "Builder{haMode=null,"
+            + " username=admin, connectTimeout=null,"
             + " tcpKeepAlive=null, tcpAbortiveClose=null, transactionReplay=null, database=dbname,"
             + " host=localhost, sessionVariables=null, connectionAttributes=null, password=*,"
             + " restrictedAuth=null, port=3306, hosts={}, socket=null, allowMultiQueries=false,"

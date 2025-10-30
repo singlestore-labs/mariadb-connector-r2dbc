@@ -85,14 +85,10 @@ public class TestConfiguration {
       MariadbConnection connection =
           new MariadbConnectionFactory(
                   MariadbConnectionConfiguration.fromOptions(options)
-                      .allowPublicKeyRetrieval(true)
                       .build())
               .create()
               .block();
       MariadbConnectionMetadata meta = connection.getMetadata();
-      if (!meta.isMariaDBServer()) {
-        defaultBuilder.allowPublicKeyRetrieval(true);
-      }
       connection.close().block();
     } catch (Exception e) {
       // eat
