@@ -350,7 +350,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
 
   @Test
   public void returningBefore105() {
-    Assumptions.assumeFalse((isMariaDBServer() && minVersion(10, 5, 1)));
+    Assumptions.assumeFalse((isMariaDBServer() && minVersion(9, 1, 0)));
 
     sharedConnPrepare
         .createStatement(
@@ -370,7 +370,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
     } catch (IllegalArgumentException e) {
       Assertions.assertTrue(
           e.getMessage()
-              .contains("returnGeneratedValues can have only one column before MariaDB 10.5.1"));
+              .contains("returnGeneratedValues can have only one column"));
     }
 
     sharedConnPrepare
