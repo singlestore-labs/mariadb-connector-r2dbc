@@ -643,8 +643,8 @@ public class StatementTest extends BaseConnectionTest {
   }
 
   @Test
-  @Disabled // TODO: PLAT-7672
   public void prepareReturning() {
+    Assumptions.assumeTrue(minVersion(9, 1, 0));
     sharedConn.beginTransaction().block();
     sharedConn
         .createStatement("INSERT INTO prepareReturning(test) VALUES (?), (?)")

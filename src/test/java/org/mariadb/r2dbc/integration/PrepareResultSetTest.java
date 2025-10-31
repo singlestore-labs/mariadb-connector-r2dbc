@@ -302,8 +302,8 @@ public class PrepareResultSetTest extends BaseConnectionTest {
   }
 
   @Test
-  @Disabled // TODO: PLAT-7672
   public void returning() {
+    Assumptions.assumeTrue(minVersion(9, 1, 0));
     sharedConnPrepare
         .createStatement(
             "CREATE TEMPORARY TABLE INSERT_RETURNING (id int not null primary key auto_increment,"
