@@ -46,7 +46,6 @@ public final class MariadbConnectionConfiguration {
   private final SslConfig sslConfig;
   private final boolean useServerPrepStmts;
   private final Boolean autocommit;
-  private final boolean permitRedirect;
   private final String[] restrictedAuth;
   private final LoopResources loopResources;
   private final UnaryOperator<SslContextBuilder> sslContextBuilderCustomizer;
@@ -78,7 +77,6 @@ public final class MariadbConnectionConfiguration {
       SslMode sslMode,
       boolean useServerPrepStmts,
       Boolean autocommit,
-      boolean permitRedirect,
       boolean skipPostCommands,
       @Nullable Integer prepareCacheSize,
       @Nullable CharSequence[] pamOtherPwd,
@@ -124,7 +122,6 @@ public final class MariadbConnectionConfiguration {
     this.prepareCacheSize = (prepareCacheSize == null) ? 250 : prepareCacheSize;
     this.pamOtherPwd = pamOtherPwd;
     this.autocommit = (autocommit != null) ? autocommit : Boolean.TRUE;
-    this.permitRedirect = permitRedirect;
     this.skipPostCommands = skipPostCommands;
     this.loopResources = loopResources != null ? loopResources : TcpResources.get();
     this.useServerPrepStmts = !this.allowMultiQueries && useServerPrepStmts;
@@ -153,7 +150,6 @@ public final class MariadbConnectionConfiguration {
       SslConfig sslConfig,
       boolean useServerPrepStmts,
       Boolean autocommit,
-      boolean permitRedirect,
       boolean skipPostCommands,
       String[] restrictedAuth,
       LoopResources loopResources,
@@ -179,44 +175,10 @@ public final class MariadbConnectionConfiguration {
     this.sslConfig = sslConfig;
     this.useServerPrepStmts = useServerPrepStmts;
     this.autocommit = (autocommit != null) ? autocommit : Boolean.TRUE;
-    this.permitRedirect = permitRedirect;
     this.skipPostCommands = skipPostCommands;
     this.restrictedAuth = restrictedAuth;
     this.loopResources = loopResources;
     this.sslContextBuilderCustomizer = sslContextBuilderCustomizer;
-  }
-
-  public MariadbConnectionConfiguration redirectConf(
-      HostAddress hostAddress, String user, CharSequence password) {
-    // same connection, but with hostAddress, user and password changed
-    // + redirection disabled to avoid redirection loop
-    return new MariadbConnectionConfiguration(
-        this.database,
-        Collections.singletonList(hostAddress),
-        this.haMode,
-        this.connectTimeout,
-        this.tcpKeepAlive,
-        this.tcpAbortiveClose,
-        this.transactionReplay,
-        password,
-        this.timezone,
-        this.pamOtherPwd,
-        hostAddress.getPort(),
-        this.prepareCacheSize,
-        this.socket,
-        user,
-        this.allowMultiQueries,
-        this.allowPipelining,
-        this.connectionAttributes,
-        this.sessionVariables,
-        this.sslConfig,
-        this.useServerPrepStmts,
-        this.autocommit,
-        this.skipPostCommands,
-        false,
-        this.restrictedAuth,
-        this.loopResources,
-        this.sslContextBuilderCustomizer);
   }
 
   static boolean boolValue(Object value) {
@@ -325,11 +287,6 @@ public final class MariadbConnectionConfiguration {
       }
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.PERMIT_REDIRECT)) {
-      builder.permitRedirect(
-          boolValue(
-              connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.PERMIT_REDIRECT)));
-    }
     if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.SKIP_POST_COMMANDS)) {
       builder.skipPostCommands(
           boolValue(
@@ -527,10 +484,6 @@ public final class MariadbConnectionConfiguration {
 
   public Boolean autocommit() {
     return autocommit;
-  }
-
-  public boolean permitRedirect() {
-    return permitRedirect;
   }
 
   public boolean skipPostCommands() {
@@ -743,7 +696,6 @@ public final class MariadbConnectionConfiguration {
     private boolean allowPipelining = true;
     private boolean useServerPrepStmts = false;
     private Boolean autocommit = Boolean.TRUE;
-    private boolean permitRedirect = true;
     private boolean skipPostCommands = false;
     @Nullable private List<String> tlsProtocol;
     @Nullable private String serverSslCert;
@@ -809,7 +761,6 @@ public final class MariadbConnectionConfiguration {
           this.sslMode,
           this.useServerPrepStmts,
           this.autocommit,
-          this.permitRedirect,
           this.skipPostCommands,
           this.prepareCacheSize,
           this.pamOtherPwd,
@@ -1058,17 +1009,6 @@ public final class MariadbConnectionConfiguration {
     }
 
     /**
-     * Permit to indicate if redirection are allowed. Default value True.
-     *
-     * @param permitRedirect use permitRedirect
-     * @return this {@link Builder}
-     */
-    public Builder permitRedirect(boolean permitRedirect) {
-      this.permitRedirect = permitRedirect;
-      return this;
-    }
-
-    /**
      * Permit to indicate that commands after connections must be skipped. This permit to avoid
      * unnecessary command on connection creation, and when using RDV proxy not to have session
      * pinning
@@ -1236,8 +1176,6 @@ public final class MariadbConnectionConfiguration {
           + hiddenPamPwd
           + ", autoCommit="
           + autocommit
-          + ", permitRedirect="
-          + permitRedirect
           + '}';
     }
   }

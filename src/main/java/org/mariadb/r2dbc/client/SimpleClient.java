@@ -59,10 +59,6 @@ import reactor.util.concurrent.Queues;
 public class SimpleClient implements Client {
 
   private static final Logger logger = Loggers.getLogger(SimpleClient.class);
-  private static final Pattern REDIRECT_URL_FORMAT =
-      Pattern.compile(
-          "(mariadb|mysql)://(([^/@:]+)?(:([^/]+))?@)?(([^/:]+)(:([0-9]+))?)(/([^?]+)(/?(.*))?)?$",
-          Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
   protected MariadbConnectionConfiguration configuration;
   protected final ReentrantLock lock;
@@ -142,70 +138,6 @@ public class SimpleClient implements Client {
         .onErrorResume(this::sendResumeError)
         .doAfterTerminate(this::closeChannelIfNeeded)
         .subscribe();
-  }
-
-  public Mono<Void> redirect() {
-    if (configuration.permitRedirect() && context.getRedirectValue() != null) {
-      // redirect only if :
-      // * when pipelining, having received all waiting responses.
-      // * not in a transaction
-      if (this.exchangeQueue.size() <= 1
-          && (this.context.getServerStatus() & ServerStatus.IN_TRANSACTION) == 0) {
-        String redirectValue = context.getRedirectValue();
-        context.setRedirect(null);
-        // redirection required
-        Matcher matcher = REDIRECT_URL_FORMAT.matcher(redirectValue);
-        if (!matcher.matches()) {
-          return Mono.error(
-              new SQLSyntaxErrorException(
-                  "error parsing redirection string '"
-                      + redirectValue
-                      + "'. format must be"
-                      + " 'mariadb/mysql://[<user>[:<password>]@]<host>[:<port>]/[<db>[?<opt1>=<value1>[&<opt2>=<value2>]]]'"));
-        }
-
-        try {
-          String host =
-              matcher.group(7) != null
-                  ? URLDecoder.decode(matcher.group(7), "UTF-8")
-                  : matcher.group(6);
-          int port = matcher.group(9) != null ? Integer.parseInt(matcher.group(9)) : 3306;
-          HostAddress hostAddress = new HostAddress(host, port);
-
-          // actually only options accepted are user and password
-          // there might be additional possible options in the future
-          String user = (matcher.group(3) != null) ? matcher.group(3) : configuration.getUsername();
-          CharSequence password =
-              (matcher.group(5) != null) ? matcher.group(5) : configuration.getPassword();
-
-          MariadbConnectionConfiguration redirectConf =
-              configuration.redirectConf(hostAddress, user, password);
-
-          return SimpleClient.connect(
-                  ConnectionProvider.newConnection(),
-                  InetSocketAddress.createUnresolved(hostAddress.getHost(), hostAddress.getPort()),
-                  hostAddress,
-                  redirectConf,
-                  lock)
-              .delayUntil(client -> AuthenticationFlow.exchange(client, redirectConf, hostAddress))
-              .doOnError(e -> HaMode.failHost(hostAddress))
-              .onErrorComplete()
-              .flatMap(client -> MariadbConnectionFactory.retrieveSingleStoreVersion(redirectConf, client))
-              .cast(SimpleClient.class)
-              .flatMap(
-                  client ->
-                      MariadbConnectionFactory.setSessionVariables(redirectConf, client)
-                          .then(Mono.just(client)))
-              .flatMap(this::refreshClient)
-              .then();
-        } catch (UnsupportedEncodingException e) {
-          // "UTF-8" is known, but String decode(String s, Charset charset) requires java 10+ to get
-          // rid of catching error
-          return Mono.error(e);
-        }
-      }
-    }
-    return Mono.empty();
   }
 
   public Mono<Void> refreshClient(SimpleClient client) {
@@ -420,7 +352,6 @@ public class SimpleClient implements Client {
         return messages
             .doOnDiscard(ReferenceCounted.class, ReferenceCountUtil::release)
             .handle(ExceptionFactory.withSql(sql)::handleErrorResponse)
-            .flatMap(m -> redirect().then(Mono.just(m)))
             .then();
       }
       return Mono.empty();
@@ -438,7 +369,6 @@ public class SimpleClient implements Client {
         return messages
             .doOnDiscard(ReferenceCounted.class, ReferenceCountUtil::release)
             .handle(ExceptionFactory.withSql(sql)::handleErrorResponse)
-            .flatMap(m -> redirect().then(Mono.just(m)))
             .then();
       }
       return Mono.empty();
@@ -481,7 +411,6 @@ public class SimpleClient implements Client {
                         null,
                         true,
                         configuration))
-            .flatMap(m -> redirect().then(Mono.just(m)))
             .cast(org.mariadb.r2dbc.api.MariadbResult.class)
             .then();
       }

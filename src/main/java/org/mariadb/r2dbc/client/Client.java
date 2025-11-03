@@ -77,6 +77,4 @@ public interface Client {
   long getThreadId();
 
   HostAddress getHostAddress();
-
-  Mono<Void> redirect();
 }

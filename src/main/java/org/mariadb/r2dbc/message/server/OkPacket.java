@@ -58,10 +58,6 @@ public class OkPacket implements ServerMessage, Result.UpdateCount {
                 String variable = BufferUtils.readLengthEncodedString(sessionVariableBuf);
                 String value = BufferUtils.readLengthEncodedString(sessionVariableBuf);
                 logger.debug("System variable change :  {} = {}", variable, value);
-
-                  if (variable.equals("redirect_url")) {
-                      context.setRedirect(value.isEmpty() ? null : value);
-                  }
               } while (sessionVariableBuf.readableBytes() > 0);
               break;
 

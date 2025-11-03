@@ -19,10 +19,6 @@ public interface Context {
 
   void setServerStatus(short serverStatus);
 
-  void setRedirect(String redirectValue);
-
-  String getRedirectValue();
-
   String getDatabase();
 
   void setDatabase(String database);
