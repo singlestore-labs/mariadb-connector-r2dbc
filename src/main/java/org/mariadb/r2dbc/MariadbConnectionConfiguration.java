@@ -33,7 +33,6 @@ public final class MariadbConnectionConfiguration {
   private final boolean tcpAbortiveClose;
   private final boolean transactionReplay;
   private final CharSequence password;
-  private final String timezone;
   private final CharSequence[] pamOtherPwd;
   private final int port;
   private final int prepareCacheSize;
@@ -63,7 +62,6 @@ public final class MariadbConnectionConfiguration {
       @Nullable Map<String, String> connectionAttributes,
       @Nullable Map<String, Object> sessionVariables,
       @Nullable CharSequence password,
-      @Nullable String timezone,
       int port,
       @Nullable List<HostAddress> hostAddresses,
       @Nullable String socket,
@@ -101,7 +99,6 @@ public final class MariadbConnectionConfiguration {
     this.connectionAttributes = connectionAttributes;
     this.sessionVariables = sessionVariables;
     this.password = password != null && !password.toString().isEmpty() ? password : null;
-    this.timezone = timezone == null ? "disable" : timezone;
     this.port = port;
     this.socket = socket;
     this.username = username;
@@ -140,7 +137,6 @@ public final class MariadbConnectionConfiguration {
       boolean tcpAbortiveClose,
       boolean transactionReplay,
       CharSequence password,
-      String timezone,
       CharSequence[] pamOtherPwd,
       int port,
       int prepareCacheSize,
@@ -166,7 +162,6 @@ public final class MariadbConnectionConfiguration {
     this.tcpAbortiveClose = tcpAbortiveClose;
     this.transactionReplay = transactionReplay;
     this.password = password;
-    this.timezone = timezone;
     this.pamOtherPwd = pamOtherPwd;
     this.port = port;
     this.prepareCacheSize = prepareCacheSize;
@@ -199,7 +194,6 @@ public final class MariadbConnectionConfiguration {
         this.tcpAbortiveClose,
         this.transactionReplay,
         password,
-        this.timezone,
         this.pamOtherPwd,
         hostAddress.getPort(),
         this.prepareCacheSize,
@@ -383,8 +377,6 @@ public final class MariadbConnectionConfiguration {
       builder.haMode((String) connectionFactoryOptions.getValue(ConnectionFactoryOptions.PROTOCOL));
     }
     builder.password((CharSequence) connectionFactoryOptions.getValue(PASSWORD));
-    builder.timezone(
-        (String) connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.TIMEZONE));
 
     builder.username((String) connectionFactoryOptions.getRequiredValue(USER));
     if (connectionFactoryOptions.hasOption(PORT)) {
@@ -490,10 +482,6 @@ public final class MariadbConnectionConfiguration {
   @Nullable
   public CharSequence getPassword() {
     return this.password;
-  }
-
-  public String getTimezone() {
-    return this.timezone;
   }
 
   public int getPort() {
@@ -736,7 +724,6 @@ public final class MariadbConnectionConfiguration {
     @Nullable private Map<String, Object> sessionVariables;
     @Nullable private Map<String, String> connectionAttributes;
     @Nullable private CharSequence password;
-    @Nullable private String timezone;
     private int port = DEFAULT_PORT;
     @Nullable private String socket;
     private boolean allowMultiQueries = false;
@@ -794,7 +781,6 @@ public final class MariadbConnectionConfiguration {
           this.connectionAttributes,
           this.sessionVariables,
           this.password,
-          this.timezone,
           this.port,
           this.hostAddresses,
           this.socket,
@@ -912,23 +898,6 @@ public final class MariadbConnectionConfiguration {
      */
     public Builder password(@Nullable CharSequence password) {
       this.password = password;
-      return this;
-    }
-
-    /**
-     * Configure the timezone. The option `timezone` can have 3 types of value:
-     *
-     * <ul>
-     *   <li>'disabled' (default) : connector doesn't change time_zone
-     *   <li>'auto': client will use client default timezone
-     *   <li>'a timezone': connector will set connection variable to value
-     * </ul>
-     *
-     * @param timezone 'disabled'/'auto'/'a timezone' value
-     * @return this {@link Builder}
-     */
-    public Builder timezone(@Nullable String timezone) {
-      this.timezone = timezone;
       return this;
     }
 
@@ -1214,8 +1183,6 @@ public final class MariadbConnectionConfiguration {
           + allowPipelining
           + ", useServerPrepStmts="
           + useServerPrepStmts
-          + ", timezone="
-          + timezone
           + ", prepareCacheSize="
           + prepareCacheSize
           + ", tlsProtocol="
