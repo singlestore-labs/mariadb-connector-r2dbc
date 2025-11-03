@@ -114,7 +114,7 @@ public class ConfigurationTest extends BaseConnectionTest {
                     + clientSslCert
                     + "&clientSslKey="
                     + clientSslKey
-                    + "&allowPipelining=true&useServerPrepStmts"
+                    + "&useServerPrepStmts"
                     + "=true&prepareCacheSize=2560&connectTimeout=PT10S&tcpKeepAlive=true"
                     + "&tcpAbortiveClose=true&sslMode=TRUST"
                     + "&connectionAttributes"
@@ -353,7 +353,7 @@ public class ConfigurationTest extends BaseConnectionTest {
             + " tcpKeepAlive=null, tcpAbortiveClose=null, transactionReplay=null, database=dbname,"
             + " host=localhost, sessionVariables=null, connectionAttributes=null, password=*,"
             + " restrictedAuth=null, port=3306, hosts={}, socket=null, allowMultiQueries=false,"
-            + " allowPipelining=true, useServerPrepStmts=false, timezone=null,"
+            + " useServerPrepStmts=false, timezone=null,"
             + " prepareCacheSize=null, tlsProtocol=null, serverSslCert=null,"
             + " clientSslCert=null, clientSslKey=null, clientSslPassword=null, sslMode=TRUST,"
             + " sslTunnelDisableHostVerification=false, pamOtherPwd=*,*,"
@@ -366,7 +366,7 @@ public class ConfigurationTest extends BaseConnectionTest {
             + " tcpKeepAlive=null, tcpAbortiveClose=null, transactionReplay=null, database=dbname,"
             + " host=localhost, sessionVariables=null, connectionAttributes=null, password=*,"
             + " restrictedAuth=null, port=3306, hosts={}, socket=null, allowMultiQueries=false,"
-            + " allowPipelining=true, useServerPrepStmts=false, timezone=null,"
+            + " useServerPrepStmts=false, timezone=null,"
             + " prepareCacheSize=null, tlsProtocol=null, serverSslCert=null,"
             + " clientSslCert=null, clientSslKey=null, clientSslPassword=null, sslMode=TRUST,"
             + " sslTunnelDisableHostVerification=false, pamOtherPwd=*,*,"

@@ -130,33 +130,21 @@ final class MariadbServerParameterizedQueryStatement extends MariadbCommonStatem
                   prepareResult.set(null);
                 }
               }
-              Flux<ServerMessage> messages;
-              if (configuration.allowPipelining()
-                  && client.getVersion().isMariaDBServer()
-                  && client.getVersion().versionGreaterOrEqual(10, 2, 0)) {
-                messages =
-                    this.client.sendCommand(
-                        new PreparePacket(sql),
-                        new ExecutePacket(sql, null, binding.getBinds()),
-                        false);
-              } else {
-                messages =
-                    client
-                        .sendPrepare(new PreparePacket(sql), factory, sql)
-                        .flatMapMany(
-                            serverPrepareResult -> {
-                              prepareResult.set(serverPrepareResult);
-                              return this.client.sendCommand(
-                                  new ExecutePacket(
-                                      sql,
-                                      prepareResult.get(),
-                                      binding.getBindResultParameters(
-                                          prepareResult.get().getNumParams())),
-                                  DecoderState.QUERY_RESPONSE,
-                                  sql,
-                                  false);
-                            });
-              }
+              Flux<ServerMessage> messages = client
+                      .sendPrepare(new PreparePacket(sql), factory, sql)
+                      .flatMapMany(
+                          serverPrepareResult -> {
+                            prepareResult.set(serverPrepareResult);
+                            return this.client.sendCommand(
+                                new ExecutePacket(
+                                    sql,
+                                    prepareResult.get(),
+                                    binding.getBindResultParameters(
+                                        prepareResult.get().getNumParams())),
+                                DecoderState.QUERY_RESPONSE,
+                                sql,
+                                false);
+                          });
               return toResult(Protocol.BINARY, messages, factory, prepareResult)
                   .doFinally(
                       s -> {

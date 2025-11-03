@@ -24,7 +24,6 @@ public final class MariadbConnectionFactoryProvider implements ConnectionFactory
   public static final Option<String> CLIENT_SSL_PWD = Option.valueOf("clientSslPassword");
   public static final Option<String> TIMEZONE = Option.valueOf("timezone");
 
-  public static final Option<Boolean> ALLOW_PIPELINING = Option.valueOf("allowPipelining");
   public static final Option<Boolean> USE_SERVER_PREPARE = Option.valueOf("useServerPrepStmts");
   public static final Option<Boolean> AUTO_COMMIT = Option.valueOf("autocommit");
   public static final Option<Boolean> PERMIT_REDIRECT = Option.valueOf("permitRedirect");
