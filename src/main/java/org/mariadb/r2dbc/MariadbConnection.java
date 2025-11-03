@@ -214,17 +214,11 @@ public final class MariadbConnection implements org.mariadb.r2dbc.api.MariadbCon
 
   @Override
   public String getDatabase() {
-    if ((client.getContext().getClientCapabilities() | Capabilities.CLIENT_SESSION_TRACK) > 0)
-      return client.getContext().getDatabase();
     return this.database;
   }
 
   public Mono<Void> setDatabase(String database) {
     Assert.requireNonNull(database, "database must not be null");
-
-    if ((client.getContext().getClientCapabilities() | Capabilities.CLIENT_SESSION_TRACK) > 0
-        && client.getContext().getDatabase() != null
-        && client.getContext().getDatabase().equals(database)) return Mono.empty();
 
     ExceptionFactory exceptionFactory = ExceptionFactory.withSql("COM_INIT_DB");
     final String newDatabase = database;
