@@ -123,18 +123,11 @@ public enum DecoderState implements DecoderStateInterface {
   EOF_INTERMEDIATE_RESPONSE {
     @Override
     public ServerMessage decode(ByteBuf body, Sequencer sequencer, MariadbFrameDecoder decoder) {
-      EofPacket eof = EofPacket.decode(body, decoder.getContext(), false);
-      decoder.setStateCounter((eof.getServerStatus() & ServerStatus.PS_OUT_PARAMETERS) > 0 ? 1 : 0);
-      return eof;
+      return EofPacket.decode(body, decoder.getContext(), false);
     }
 
     @Override
     public DecoderState next(MariadbFrameDecoder decoder) {
-      // mysql has a broken protocol for output parameter, then driver need to know state
-      if (decoder.getStateCounter() > 0) {
-        decoder.setStateCounter(0);
-        return ROW_RESPONSE_OUT_PARAM;
-      }
       return ROW_RESPONSE;
     }
   },
@@ -185,25 +178,6 @@ public enum DecoderState implements DecoderStateInterface {
     }
   },
 
-  ROW_RESPONSE_OUT_PARAM {
-    @Override
-    public DecoderState decoder(short val, int len) {
-      switch (val) {
-        case 254:
-          if (len < 0xffffff) {
-            return EOF_END_OUT_PARAM;
-          } else {
-            // normal ROW
-            return ROW_OUTPUT_PARAM;
-          }
-        case 255: // 0xFF
-          return ERROR;
-        default:
-          return ROW_OUTPUT_PARAM;
-      }
-    }
-  },
-
   ROW {
     @Override
     public ServerMessage decode(ByteBuf body, Sequencer sequencer, MariadbFrameDecoder decoder) {
@@ -213,18 +187,6 @@ public enum DecoderState implements DecoderStateInterface {
     @Override
     public DecoderState next(MariadbFrameDecoder decoder) {
       return ROW_RESPONSE;
-    }
-  },
-
-  ROW_OUTPUT_PARAM {
-    @Override
-    public ServerMessage decode(ByteBuf body, Sequencer sequencer, MariadbFrameDecoder decoder) {
-      return new RowPacket(body);
-    }
-
-    @Override
-    public DecoderState next(MariadbFrameDecoder decoder) {
-      return ROW_RESPONSE_OUT_PARAM;
     }
   },
 
