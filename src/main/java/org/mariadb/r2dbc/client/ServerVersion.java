@@ -23,7 +23,7 @@ public class ServerVersion {
     this.supportReturning =
         mariaDBServer
             && versionGreaterOrEqual(
-                this.majorVersion, this.minorVersion, this.patchVersion, 10, 5, 1);
+                this.majorVersion, this.minorVersion, this.patchVersion, 9, 1, 0);
   }
 
   public boolean isMariaDBServer() {

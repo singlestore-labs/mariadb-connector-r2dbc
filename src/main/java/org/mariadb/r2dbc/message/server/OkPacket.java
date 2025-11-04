@@ -8,9 +8,7 @@ import io.r2dbc.spi.Result;
 import org.mariadb.r2dbc.message.Context;
 import org.mariadb.r2dbc.message.ServerMessage;
 import org.mariadb.r2dbc.util.BufferUtils;
-import org.mariadb.r2dbc.util.constants.Capabilities;
 import org.mariadb.r2dbc.util.constants.ServerStatus;
-import org.mariadb.r2dbc.util.constants.StateChange;
 import reactor.util.Logger;
 import reactor.util.Loggers;
 
@@ -44,37 +42,6 @@ public class OkPacket implements ServerMessage, Result.UpdateCount {
     short warningCount = buf.readShortLE();
     context.setServerStatus(serverStatus);
 
-    if ((context.getClientCapabilities() & Capabilities.CLIENT_SESSION_TRACK) != 0
-        && buf.isReadable()) {
-      BufferUtils.skipLengthEncode(buf); // skip info
-      while (buf.isReadable()) {
-        ByteBuf stateInfo = BufferUtils.readLengthEncodedBuffer(buf);
-        while (stateInfo.isReadable()) {
-          switch (stateInfo.readByte()) {
-            case StateChange.SESSION_TRACK_SYSTEM_VARIABLES:
-              ByteBuf sessionVariableBuf;
-              do {
-                sessionVariableBuf = BufferUtils.readLengthEncodedBuffer(stateInfo);
-                String variable = BufferUtils.readLengthEncodedString(sessionVariableBuf);
-                String value = BufferUtils.readLengthEncodedString(sessionVariableBuf);
-                logger.debug("System variable change :  {} = {}", variable, value);
-              } while (sessionVariableBuf.readableBytes() > 0);
-              break;
-
-            case StateChange.SESSION_TRACK_SCHEMA:
-              ByteBuf sessionSchemaBuf = BufferUtils.readLengthEncodedBuffer(stateInfo);
-              String schema = BufferUtils.readLengthEncodedString(sessionSchemaBuf);
-              context.setDatabase(schema);
-              logger.debug("Schema change : now is '{}'", schema);
-              break;
-
-            default:
-              stateInfo.skipBytes((int) BufferUtils.readLengthEncodedInt(stateInfo));
-              break;
-          }
-        }
-      }
-    }
     return new OkPacket(
         affectedRows,
         lastInsertId,

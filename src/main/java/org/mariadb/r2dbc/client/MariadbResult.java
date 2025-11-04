@@ -165,7 +165,7 @@ public class MariadbResult extends AbstractReferenceCounted
                 sink.error(
                     this.factory.createException(
                         "Connector cannot get generated ID (using returnGeneratedValues) multiple"
-                            + " rows before MariaDB 10.5.1",
+                            + " rows",
                         "HY000",
                         -1));
                 return;

@@ -8,13 +8,8 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ReferenceCounted;
 import io.r2dbc.spi.*;
 import java.net.SocketAddress;
-import java.time.DateTimeException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.concurrent.locks.ReentrantLock;
 import org.mariadb.r2dbc.client.Client;
 import org.mariadb.r2dbc.client.FailoverClient;
@@ -76,75 +71,6 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
         .thenReturn(client);
     }
 
-  private static Mono<String> setTimezoneIfNeeded(
-      final MariadbConnectionConfiguration configuration, Client client) {
-    if (!"disable".equalsIgnoreCase(configuration.getTimezone())) {
-      return client
-          .sendCommand(new QueryPacket("SELECT @@time_zone, @@system_time_zone"), true)
-          .doOnDiscard(ReferenceCounted.class, ReferenceCountUtil::release)
-          .windowUntil(ServerMessage::resultSetEnd)
-          .map(
-              dataRow ->
-                  new MariadbResult(
-                      Protocol.TEXT,
-                      null,
-                      dataRow,
-                      ExceptionFactory.INSTANCE,
-                      null,
-                      false,
-                      configuration))
-          .flatMap(
-              r ->
-                  r.map(
-                      (row, metadata) -> {
-                        String serverTz = row.get(0, String.class);
-                        if ("SYSTEM".equals(serverTz)) {
-                          serverTz = row.get(1, String.class);
-                        }
-                        boolean mustSetTimezone = true;
-                        TimeZone connectionTz =
-                            "auto".equalsIgnoreCase(configuration.getTimezone())
-                                ? TimeZone.getDefault()
-                                : TimeZone.getTimeZone(
-                                    ZoneId.of(configuration.getTimezone()).normalized());
-                        ZoneId clientZoneId = connectionTz.toZoneId();
-
-                        // try to avoid timezone consideration if server use the same one
-                        try {
-                          assert serverTz != null;
-                          ZoneId serverZoneId = ZoneId.of(serverTz);
-                          if (serverZoneId.normalized().equals(clientZoneId)
-                              || ZoneId.of(serverTz, ZoneId.SHORT_IDS).equals(clientZoneId)) {
-                            mustSetTimezone = false;
-                          }
-                        } catch (DateTimeException e) {
-                          // eat
-                        }
-
-                        if (mustSetTimezone) {
-                          if (clientZoneId.getRules().isFixedOffset()) {
-                            ZoneOffset zoneOffset =
-                                clientZoneId.getRules().getOffset(Instant.now());
-                            if (zoneOffset.getTotalSeconds() == 0) {
-                              // specific for UTC timezone, server permitting only SYSTEM/UTC offset
-                              // or named time
-                              // zone
-                              // not 'UTC'/'Z'
-                              return ",time_zone='+00:00'";
-                            } else {
-                              return ",time_zone='" + zoneOffset.getId() + "'";
-                            }
-                          } else {
-                            return ",time_zone='" + clientZoneId.normalized() + "'";
-                          }
-                        }
-                        return "";
-                      }))
-          .last();
-    }
-    return Mono.just("");
-  }
-
   public static Mono<Void> setSessionVariables(
       final MariadbConnectionConfiguration configuration, Client client) {
     if (configuration.skipPostCommands()) return Mono.empty();
@@ -153,33 +79,6 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
     sql.append(" names UTF8MB4");
     if (configuration.autocommit() != null) {
       sql.append(",autocommit=").append((configuration.autocommit() ? "1" : "0"));
-    }
-
-    // set default transaction isolation
-    String txIsolation = "tx_isolation";
-
-    // set session tracking
-    if ((client.getContext().getClientCapabilities() & Capabilities.CLIENT_SESSION_TRACK) > 0) {
-      sql.append(",session_track_schema=1,session_track_system_variables=");
-      if (!client.getContext().getVersion().isMariaDBServer()) {
-        // MySQL only support 8 version that always have autocommit and doesn't permit adding
-        // autocommit value if already present
-        sql.append(
-                "IF(@@session_track_system_variables = '*', '*',"
-                    + " IF(@@session_track_system_variables = '', '")
-            .append(txIsolation)
-            .append("', CONCAT(@@session_track_system_variables,',")
-            .append(txIsolation)
-            .append("')))");
-      } else {
-        sql.append(
-                "IF(@@session_track_system_variables = '*', '*',"
-                    + " IF(@@session_track_system_variables = '', 'autocommit,")
-            .append(txIsolation)
-            .append("', CONCAT(@@session_track_system_variables,',autocommit,")
-            .append(txIsolation)
-            .append("')))");
-      }
     }
 
     // set session variables if defined
@@ -214,25 +113,22 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
         }
       }
     }
-    return setTimezoneIfNeeded(configuration, client)
-        .map(sql::append)
-        .flatMap(
-            sqlcmd ->
-                client
-                    .sendCommand(new QueryPacket(sqlcmd.toString()), true)
-                    .doOnDiscard(ReferenceCounted.class, ReferenceCountUtil::release)
-                    .windowUntil(ServerMessage::resultSetEnd)
-                    .map(
-                        dataRow ->
-                            new MariadbResult(
-                                Protocol.TEXT,
-                                null,
-                                dataRow,
-                                ExceptionFactory.INSTANCE,
-                                null,
-                                false,
-                                configuration))
-                    .last())
+
+    return client
+        .sendCommand(new QueryPacket(sql.toString()), true)
+        .doOnDiscard(ReferenceCounted.class, ReferenceCountUtil::release)
+        .windowUntil(ServerMessage::resultSetEnd)
+        .map(
+            dataRow ->
+                new MariadbResult(
+                    Protocol.TEXT,
+                    null,
+                    dataRow,
+                    ExceptionFactory.INSTANCE,
+                    null,
+                    false,
+                    configuration))
+        .last()
         .then();
   }
 

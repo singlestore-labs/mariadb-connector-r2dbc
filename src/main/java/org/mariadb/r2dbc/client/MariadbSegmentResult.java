@@ -51,7 +51,6 @@ public final class MariadbSegmentResult extends AbstractReferenceCounted impleme
     final AtomicReference<MariadbRow.MariadbRowConstructor> rowConstructor =
         new AtomicReference<>();
     final AtomicReference<MariadbRowMetadata> meta = new AtomicReference<>();
-    final AtomicBoolean isOutputParameter = new AtomicBoolean();
     this.segments =
         messages.handle(
             (message, sink) -> {
@@ -87,9 +86,6 @@ public final class MariadbSegmentResult extends AbstractReferenceCounted impleme
                   if (prepareResult != null && prepareResult.get() != null && metaFollows.get()) {
                     prepareResult.get().setColumns(columnsArray);
                   }
-
-                  isOutputParameter.set(
-                      (eof.getServerStatus() & ServerStatus.PS_OUT_PARAMETERS) > 0);
                 }
                 return;
               }
@@ -112,7 +108,7 @@ public final class MariadbSegmentResult extends AbstractReferenceCounted impleme
                     sink.error(
                         factory.createException(
                             "Connector cannot get generated ID (using returnGeneratedValues)"
-                                + " multiple rows before MariaDB 10.5.1",
+                                + " multiple rows",
                             "HY000",
                             -1));
                     return;
@@ -133,16 +129,9 @@ public final class MariadbSegmentResult extends AbstractReferenceCounted impleme
 
               if (message instanceof RowPacket) {
                 RowPacket row = ((RowPacket) message);
-                if (isOutputParameter.get()) {
-                  org.mariadb.r2dbc.api.MariadbOutParameters outParameters =
-                      new MariadbOutParameters(
-                          row.getRaw(), new MariadbOutParametersMetadata(columns), factory);
-                  sink.next(new MariadbOutSegment(outParameters, (RowPacket) message));
-                } else {
-                  org.mariadb.r2dbc.api.MariadbRow rowSegment =
-                      rowConstructor.get().create(row.getRaw(), meta.get(), factory);
-                  sink.next(new MariadbRowSegment(rowSegment, (RowPacket) message));
-                }
+                org.mariadb.r2dbc.api.MariadbRow rowSegment =
+                    rowConstructor.get().create(row.getRaw(), meta.get(), factory);
+                sink.next(new MariadbRowSegment(rowSegment, (RowPacket) message));
               }
             });
   }
@@ -279,33 +268,6 @@ public final class MariadbSegmentResult extends AbstractReferenceCounted impleme
     @Override
     public Row row() {
       return this.row;
-    }
-
-    @Override
-    protected void deallocate() {
-      ReferenceCountUtil.release(this.releaseable);
-    }
-
-    @Override
-    public ReferenceCounted touch(Object hint) {
-      return this;
-    }
-  }
-
-  static class MariadbOutSegment extends AbstractReferenceCounted implements Result.OutSegment {
-
-    private final OutParameters outParameters;
-
-    private final ReferenceCounted releaseable;
-
-    public MariadbOutSegment(OutParameters outParameters, ReferenceCounted releaseable) {
-      this.outParameters = outParameters;
-      this.releaseable = releaseable;
-    }
-
-    @Override
-    public OutParameters outParameters() {
-      return outParameters;
     }
 
     @Override
