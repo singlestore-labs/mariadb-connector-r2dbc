@@ -39,7 +39,6 @@ public final class MariadbConnectionConfiguration {
   private final String socket;
   private final String username;
   private final boolean allowMultiQueries;
-  private final boolean allowPipelining;
   private final Map<String, String> connectionAttributes;
   private final Map<String, Object> sessionVariables;
   private final SslConfig sslConfig;
@@ -67,7 +66,6 @@ public final class MariadbConnectionConfiguration {
       @Nullable String socket,
       @Nullable String username,
       boolean allowMultiQueries,
-      boolean allowPipelining,
       @Nullable List<String> tlsProtocol,
       @Nullable String serverSslCert,
       @Nullable String clientSslCert,
@@ -103,7 +101,6 @@ public final class MariadbConnectionConfiguration {
     this.socket = socket;
     this.username = username;
     this.allowMultiQueries = allowMultiQueries;
-    this.allowPipelining = allowPipelining;
     if (sslMode == SslMode.DISABLE) {
       this.sslConfig = SslConfig.DISABLE_INSTANCE;
     } else {
@@ -143,7 +140,6 @@ public final class MariadbConnectionConfiguration {
       String socket,
       String username,
       boolean allowMultiQueries,
-      boolean allowPipelining,
       Map<String, String> connectionAttributes,
       Map<String, Object> sessionVariables,
       SslConfig sslConfig,
@@ -168,7 +164,6 @@ public final class MariadbConnectionConfiguration {
     this.socket = socket;
     this.username = username;
     this.allowMultiQueries = allowMultiQueries;
-    this.allowPipelining = allowPipelining;
     this.connectionAttributes = connectionAttributes;
     this.sessionVariables = sessionVariables;
     this.sslConfig = sslConfig;
@@ -200,7 +195,6 @@ public final class MariadbConnectionConfiguration {
         this.socket,
         user,
         this.allowMultiQueries,
-        this.allowPipelining,
         this.connectionAttributes,
         this.sessionVariables,
         this.sslConfig,
@@ -291,13 +285,6 @@ public final class MariadbConnectionConfiguration {
       String haMode =
           (String) connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.HAMODE);
       builder.haMode(haMode);
-    }
-
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.ALLOW_PIPELINING)) {
-      builder.allowPipelining(
-          boolValue(
-              connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.ALLOW_PIPELINING)));
     }
 
     if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.USE_SERVER_PREPARE)) {
@@ -499,10 +486,6 @@ public final class MariadbConnectionConfiguration {
 
   public boolean allowMultiQueries() {
     return allowMultiQueries;
-  }
-
-  public boolean allowPipelining() {
-    return allowPipelining;
   }
 
   public SslConfig getSslConfig() {
@@ -727,7 +710,6 @@ public final class MariadbConnectionConfiguration {
     private int port = DEFAULT_PORT;
     @Nullable private String socket;
     private boolean allowMultiQueries = false;
-    private boolean allowPipelining = true;
     private boolean useServerPrepStmts = false;
     private Boolean autocommit = Boolean.TRUE;
     private boolean permitRedirect = true;
@@ -786,7 +768,6 @@ public final class MariadbConnectionConfiguration {
           this.socket,
           this.username,
           this.allowMultiQueries,
-          this.allowPipelining,
           this.tlsProtocol,
           this.serverSslCert,
           this.clientSslCert,
@@ -1060,17 +1041,6 @@ public final class MariadbConnectionConfiguration {
     }
 
     /**
-     * Permit pipelining (sending request before resolution of previous one).
-     *
-     * @param allowPipelining indicate if pipelining is permit
-     * @return this {@link Builder}
-     */
-    public Builder allowPipelining(boolean allowPipelining) {
-      this.allowPipelining = allowPipelining;
-      return this;
-    }
-
-    /**
      * Configure the port. Defaults to {@code 3306}.
      *
      * @param port the port
@@ -1179,8 +1149,6 @@ public final class MariadbConnectionConfiguration {
           + socket
           + ", allowMultiQueries="
           + allowMultiQueries
-          + ", allowPipelining="
-          + allowPipelining
           + ", useServerPrepStmts="
           + useServerPrepStmts
           + ", prepareCacheSize="

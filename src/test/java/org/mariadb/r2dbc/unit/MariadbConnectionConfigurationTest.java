@@ -44,7 +44,6 @@ public class MariadbConnectionConfigurationTest {
             .sslMode(SslMode.TRUST)
             .useServerPrepStmts(true)
             .autocommit(false)
-            .allowPipelining(false)
             .allowMultiQueries(false)
             .socket("/path/to/mysocket")
             .username("MyUSer")
@@ -53,7 +52,7 @@ public class MariadbConnectionConfigurationTest {
             .sslTunnelDisableHostVerification(true)
             .build();
     Assertions.assertEquals(
-        "r2dbc:mariadb:loadbalance://localhost/MyDB?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=MyUSer&allowPipelining=false&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone=Europe/Paris&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&useServerPrepStmts=true&autocommit=false&restrictedAuth=mysql_native_password,client_ed25519",
+        "r2dbc:mariadb:loadbalance://localhost/MyDB?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=MyUSer&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone=Europe/Paris&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&useServerPrepStmts=true&autocommit=false&restrictedAuth=mysql_native_password,client_ed25519",
         conf.toString());
   }
 
@@ -95,7 +94,6 @@ public class MariadbConnectionConfigurationTest {
                 + "&sslMode=TRUST"
                 + "&useServerPrepStmts=true"
                 + "&autocommit=false"
-                + "&allowPipelining=false"
                 + "&allowMultiQueries=true"
                 + "&socket=/path/to/mysocket"
                 + "&sslTunnelDisableHostVerification=true");
@@ -112,7 +110,6 @@ public class MariadbConnectionConfigurationTest {
             + "&socket=/path/to/mysocket"
             + "&username=ro:ot"
             + "&allowMultiQueries=true"
-            + "&allowPipelining=false"
             + "&connectionAttributes=entry1=val1,entry2=val2"
             + "&sessionVariables=timezone='Europe/Paris'"
             + "&sslMode=trust"
@@ -158,14 +155,13 @@ public class MariadbConnectionConfigurationTest {
                 + "&sslMode=TRUST"
                 + "&useServerPrepStmts=true"
                 + "&autocommit=false"
-                + "&allowPipelining=false"
                 + "&allowMultiQueries=true"
                 + "&socket=/path/to/mysocket"
                 + "&sslTunnelDisableHostVerification=true");
     MariadbConnectionConfiguration conf =
         MariadbConnectionConfiguration.fromOptions(options).build();
     Assertions.assertEquals(
-        "r2dbc:mariadb:loadbalance://localhost/db?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=ro:ot&allowMultiQueries=true&allowPipelining=false&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone='Europe/Paris'&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&autocommit=false&restrictedAuth=mysql_native_password,client_ed25519",
+        "r2dbc:mariadb:loadbalance://localhost/db?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=ro:ot&allowMultiQueries=true&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone='Europe/Paris'&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&autocommit=false&restrictedAuth=mysql_native_password,client_ed25519",
         conf.toString());
   }
 
