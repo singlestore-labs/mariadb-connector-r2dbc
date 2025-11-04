@@ -112,7 +112,7 @@ public final class MariadbSegmentResult extends AbstractReferenceCounted impleme
                     sink.error(
                         factory.createException(
                             "Connector cannot get generated ID (using returnGeneratedValues)"
-                                + " multiple rows before MariaDB 10.5.1",
+                                + " multiple rows",
                             "HY000",
                             -1));
                     return;

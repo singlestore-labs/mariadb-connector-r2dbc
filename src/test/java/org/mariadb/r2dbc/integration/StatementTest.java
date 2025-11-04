@@ -322,7 +322,7 @@ public class StatementTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectNext(2L)
         .verifyComplete();
-    if (isMariaDBServer() && minVersion(10, 5, 1)) {
+    if (isMariaDBServer() && minVersion(9, 1, 0)) {
       sharedConn
           .createStatement("INSERT INTO dupplicate(test) VALUES ('test3'), ('test4') RETURNING *")
           .execute()
@@ -457,7 +457,7 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void returning() {
-    if (!minVersion(10, 5, 1)) {
+    if (!minVersion(9, 1, 0)) {
       Assertions.assertThrows(
           IllegalArgumentException.class,
           () ->
@@ -475,7 +475,7 @@ public class StatementTest extends BaseConnectionTest {
         .expectNext("1")
         .verifyComplete();
 
-    if (minVersion(10, 5, 1)) {
+    if (minVersion(9, 1, 0)) {
 
       sharedConn
           .createStatement("INSERT INTO INSERT_RETURNING(test) VALUES ('test3'), ('test4')")
@@ -510,7 +510,7 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void returningBefore105() {
-    Assumptions.assumeFalse((isMariaDBServer() && minVersion(10, 5, 1)));
+    Assumptions.assumeFalse((isMariaDBServer() && minVersion(9, 1, 0)));
     sharedConn.beginTransaction().block();
     try {
       sharedConn
@@ -521,7 +521,7 @@ public class StatementTest extends BaseConnectionTest {
     } catch (IllegalArgumentException e) {
       Assertions.assertTrue(
           e.getMessage()
-              .contains("returnGeneratedValues can have only one column before MariaDB 10.5.1"));
+              .contains("returnGeneratedValues can have only one column"));
     }
 
     sharedConn
@@ -568,7 +568,7 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void returningBefore105WithParameter() {
-    Assumptions.assumeFalse((isMariaDBServer() && minVersion(10, 5, 1)));
+    Assumptions.assumeFalse((isMariaDBServer() && minVersion(9, 1, 0)));
     try {
       sharedConn
           .createStatement("INSERT INTO returningBefore105WithParameter(test) VALUES (?), (?)")
@@ -580,7 +580,7 @@ public class StatementTest extends BaseConnectionTest {
     } catch (IllegalArgumentException e) {
       Assertions.assertTrue(
           e.getMessage()
-              .contains("returnGeneratedValues can have only one column before MariaDB 10.5.1"));
+              .contains("returnGeneratedValues can have only one column"));
     }
 
     sharedConn
@@ -643,8 +643,8 @@ public class StatementTest extends BaseConnectionTest {
   }
 
   @Test
-  @Disabled // TODO: PLAT-7672
   public void prepareReturning() {
+    Assumptions.assumeTrue(minVersion(9, 1, 0));
     sharedConn.beginTransaction().block();
     sharedConn
         .createStatement("INSERT INTO prepareReturning(test) VALUES (?), (?)")
@@ -741,7 +741,7 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void prepareReturningBefore105() {
-    Assumptions.assumeFalse((isMariaDBServer() && minVersion(10, 5, 1)));
+    Assumptions.assumeFalse((isMariaDBServer() && minVersion(9, 1, 0)));
     sharedConn.beginTransaction().block();
     try {
       sharedConn
@@ -754,7 +754,7 @@ public class StatementTest extends BaseConnectionTest {
     } catch (IllegalArgumentException e) {
       Assertions.assertTrue(
           e.getMessage()
-              .contains("returnGeneratedValues can have only one column before MariaDB 10.5.1"));
+              .contains("returnGeneratedValues can have only one column"));
     }
 
     sharedConn
