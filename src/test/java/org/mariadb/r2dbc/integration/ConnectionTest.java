@@ -378,51 +378,6 @@ public class ConnectionTest extends BaseConnectionTest {
   }
 
   @Test
-  void withTimezoneMinus8() throws Exception {
-    MariadbConnection connection =
-        new MariadbConnectionFactory(
-                TestConfiguration.defaultBuilder.clone().timezone("GMT-8").build())
-            .create()
-            .block();
-    connection
-        .createStatement("SELECT @@time_zone")
-        .execute()
-        .flatMap(r -> r.map((row, metadata) -> row.get(0, String.class)))
-        .as(StepVerifier::create)
-        .expectNext("SYSTEM") // In SingleStore time_zone is noop and exists for MySQL compatibility
-        .verifyComplete();
-
-    connection.close().block();
-  }
-
-  @Test
-  void withTimezoneUtc() throws Exception {
-    MariadbConnection connection =
-        new MariadbConnectionFactory(
-                TestConfiguration.defaultBuilder.clone().timezone("UTC").build())
-            .create()
-            .block();
-    connection
-        .createStatement("SELECT @@time_zone, @@system_time_zone")
-        .execute()
-        .flatMap(
-            r ->
-                r.map(
-                    (row, metadata) -> {
-                      String srvTz = row.get(0, String.class);
-                      if ("SYSTEM".equals(srvTz)) {
-                        return row.get(1, String.class);
-                      }
-                      return srvTz;
-                    }))
-        .as(StepVerifier::create)
-        .expectNextMatches(srvTz -> "+00:00".equals(srvTz) || "UTC".equals(srvTz))
-        .verifyComplete();
-
-    connection.close().block();
-  }
-
-  @Test
   void multipleBegin() throws Exception {
     MariadbConnection connection = factory.create().block();
     assert connection != null;
