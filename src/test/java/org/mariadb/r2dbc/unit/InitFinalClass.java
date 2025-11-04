@@ -9,7 +9,6 @@ import org.mariadb.r2dbc.util.BufferUtils;
 import org.mariadb.r2dbc.util.constants.Capabilities;
 import org.mariadb.r2dbc.util.constants.ColumnFlags;
 import org.mariadb.r2dbc.util.constants.ServerStatus;
-import org.mariadb.r2dbc.util.constants.StateChange;
 
 public class InitFinalClass {
 
@@ -20,7 +19,6 @@ public class InitFinalClass {
     Capabilities c = new Capabilities();
     ColumnFlags c2 = new ColumnFlags();
     ServerStatus c3 = new ServerStatus();
-    StateChange c4 = new StateChange();
     System.out.println(codecs.hashCode() + buf.hashCode());
   }
 }

@@ -108,7 +108,6 @@ public final class AuthenticationFlow {
             | Capabilities.PLUGIN_AUTH
             | Capabilities.CONNECT_ATTRS
             | Capabilities.PLUGIN_AUTH_LENENC_CLIENT_DATA
-            | Capabilities.CLIENT_SESSION_TRACK
             | Capabilities.FOUND_ROWS
             | Capabilities.MARIADB_CLIENT_CACHE_METADATA;
 
