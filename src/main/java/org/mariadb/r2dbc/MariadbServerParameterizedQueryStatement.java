@@ -73,7 +73,7 @@ final class MariadbServerParameterizedQueryStatement extends MariadbCommonStatem
 
     if (!client.getVersion().supportReturning() && columns.length > 1) {
       throw new IllegalArgumentException(
-          "returnGeneratedValues can have only one column before MariaDB 10.5.1");
+          "returnGeneratedValues can have only one column");
     }
     this.generatedColumns = columns;
     return this;

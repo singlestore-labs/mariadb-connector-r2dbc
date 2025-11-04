@@ -120,19 +120,12 @@ public class FailoverClient implements Client {
     Context oldCtx = oldCli.getContext();
 
     // sync database
-    Mono<Void> monoDatabase;
-    if ((oldCtx.getClientCapabilities() | Capabilities.CLIENT_SESSION_TRACK) > 0
-        && oldCtx.getDatabase() != null
-        && oldCtx.getDatabase().equals(conf.getDatabase())) {
-      monoDatabase = Mono.empty();
-    } else {
-      ExceptionFactory exceptionFactory = ExceptionFactory.withSql("COM_INIT_DB");
-      monoDatabase =
-          currentClient
-              .sendCommand(new ChangeSchemaPacket(oldCtx.getDatabase()), true)
-              .handle(exceptionFactory::handleErrorResponse)
-              .then();
-    }
+    ExceptionFactory exceptionFactory = ExceptionFactory.withSql("COM_INIT_DB");
+    Mono<Void> monoDatabase =
+        currentClient
+            .sendCommand(new ChangeSchemaPacket(oldCtx.getDatabase()), true)
+            .handle(exceptionFactory::handleErrorResponse)
+            .then();
 
     // sync autoCommit
     return currentClient
