@@ -13,7 +13,6 @@ public class SimpleContext implements Context {
   private final long clientCapabilities;
   private final ServerVersion version;
   private final ByteBufAllocator byteBufAllocator;
-  private String redirectValue;
   private short serverStatus;
   private String database;
 
@@ -34,7 +33,6 @@ public class SimpleContext implements Context {
     this.version = new ServerVersion(serverVersion, mariaDBServer);
     this.database = database;
     this.byteBufAllocator = byteBufAllocator;
-    this.redirectValue = null;
   }
 
   public long getThreadId() {
@@ -71,15 +69,6 @@ public class SimpleContext implements Context {
 
   public ByteBufAllocator getByteBufAllocator() {
     return byteBufAllocator;
-  }
-
-  @Override
-  public void setRedirect(String redirectValue) {
-    this.redirectValue = redirectValue;
-  }
-
-  public String getRedirectValue() {
-    return redirectValue;
   }
 
   @Override

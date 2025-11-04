@@ -155,7 +155,6 @@ public abstract class MariadbCommonStatement implements MariadbStatement {
                     generatedColumns,
                     client.getVersion().supportReturning(),
                     configuration))
-        .flatMap(m -> client.redirect().then(Mono.just(m)))
         .cast(org.mariadb.r2dbc.api.MariadbResult.class);
   }
 
