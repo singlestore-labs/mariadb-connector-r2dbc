@@ -42,7 +42,7 @@ public class NoPipelineTest extends BaseConnectionTest {
   @Test
   void noPipelineConnect() throws Exception {
     MariadbConnectionConfiguration confPipeline =
-        TestConfiguration.defaultBuilder.clone().allowPipelining(true).build();
+        TestConfiguration.defaultBuilder.clone().build();
     MariadbConnection connection = new MariadbConnectionFactory(confPipeline).create().block();
 
     try {

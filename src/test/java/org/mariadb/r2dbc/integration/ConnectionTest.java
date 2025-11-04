@@ -285,7 +285,6 @@ public class ConnectionTest extends BaseConnectionTest {
     MariadbConnectionConfiguration noPipeline =
         TestConfiguration.defaultBuilder
             .clone()
-            .allowPipelining(false)
             .useServerPrepStmts(true)
             .prepareCacheSize(1)
             .build();
@@ -386,7 +385,7 @@ public class ConnectionTest extends BaseConnectionTest {
 
     connection =
         new MariadbConnectionFactory(
-                TestConfiguration.defaultBuilder.clone().allowPipelining(false).build())
+                TestConfiguration.defaultBuilder.clone().build())
             .create()
             .block();
     assert connection != null;
@@ -410,7 +409,7 @@ public class ConnectionTest extends BaseConnectionTest {
 
     connection =
         new MariadbConnectionFactory(
-                TestConfiguration.defaultBuilder.clone().allowPipelining(false).build())
+                TestConfiguration.defaultBuilder.clone().build())
             .create()
             .block();
     assert connection != null;
@@ -617,7 +616,7 @@ public class ConnectionTest extends BaseConnectionTest {
 
     connection =
         new MariadbConnectionFactory(
-                TestConfiguration.defaultBuilder.clone().allowPipelining(false).build())
+                TestConfiguration.defaultBuilder.clone().build())
             .create()
             .block();
     commitTransaction(connection);
@@ -658,7 +657,7 @@ public class ConnectionTest extends BaseConnectionTest {
 
     connection =
         new MariadbConnectionFactory(
-                TestConfiguration.defaultBuilder.clone().allowPipelining(false).build())
+                TestConfiguration.defaultBuilder.clone().build())
             .create()
             .block();
     useTransaction(connection);
