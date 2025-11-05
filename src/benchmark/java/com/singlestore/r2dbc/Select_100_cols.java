@@ -3,7 +3,7 @@
 
 package com.singlestore.r2dbc;
 
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import org.openjdk.jmh.annotations.Benchmark;
 
 public class Select_100_cols extends Common {
@@ -18,9 +18,9 @@ public class Select_100_cols extends Common {
         return consumePrepare(state.r2dbcPrepare);
     }
 
-    private int[] consume(MariadbConnection connection) {
+    private int[] consume(SingleStoreConnection connection) {
 
-        MariadbStatement statement =
+        SingleStoreStatement statement =
                 connection.createStatement("select * FROM test100");
         return
                 statement.execute()
@@ -37,9 +37,9 @@ public class Select_100_cols extends Common {
                         .blockLast();
     }
 
-    private int[] consumePrepare(MariadbConnection connection) {
+    private int[] consumePrepare(SingleStoreConnection connection) {
 
-        MariadbStatement statement =
+        SingleStoreStatement statement =
                 connection.createStatement("select * FROM test100 WHERE 1 = ?").bind(0, 1);
         return
                 statement.execute()

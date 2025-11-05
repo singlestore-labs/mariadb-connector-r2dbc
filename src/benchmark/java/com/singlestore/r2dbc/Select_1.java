@@ -3,7 +3,7 @@
 
 package com.singlestore.r2dbc;
 
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import org.openjdk.jmh.annotations.Benchmark;
 
 public class Select_1 extends Common {
@@ -18,9 +18,9 @@ public class Select_1 extends Common {
         return consume(state.r2dbcPrepare);
     }
 
-    private Integer consume(MariadbConnection connection) {
+    private Integer consume(SingleStoreConnection connection) {
         int rnd = (int) (Math.random() * 1000);
-        MariadbStatement statement = connection.createStatement("select " + rnd);
+        SingleStoreStatement statement = connection.createStatement("select " + rnd);
         return
                 statement.execute()
                         .flatMap(it -> it.map((row, rowMetadata) -> row.get(0, Integer.class)))

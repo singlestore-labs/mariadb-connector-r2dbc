@@ -55,11 +55,11 @@ public class BlobCodec implements Codec<Blob> {
               String.format(
                   "Data type %s (not binary) cannot be decoded as Blob", column.getDataType()));
         }
-        return new MariaDbBlob(buf.readRetainedSlice(length));
+        return new SingleStoreBlob(buf.readRetainedSlice(length));
 
       default:
         // BIT, TINYBLOB, MEDIUMBLOB, LONGBLOB, BLOB, GEOMETRY
-        return new MariaDbBlob(buf.readRetainedSlice(length));
+        return new SingleStoreBlob(buf.readRetainedSlice(length));
     }
   }
 
@@ -77,7 +77,7 @@ public class BlobCodec implements Codec<Blob> {
       case LONGBLOB:
       case BLOB:
       case GEOMETRY:
-        return new MariaDbBlob(buf.readRetainedSlice(length));
+        return new SingleStoreBlob(buf.readRetainedSlice(length));
 
       default:
         // STRING, VARCHAR, VARSTRING:
@@ -87,7 +87,7 @@ public class BlobCodec implements Codec<Blob> {
               String.format(
                   "Data type %s (not binary) cannot be decoded as Blob", column.getDataType()));
         }
-        return new MariaDbBlob(buf.readRetainedSlice(length));
+        return new SingleStoreBlob(buf.readRetainedSlice(length));
     }
   }
 
@@ -131,10 +131,10 @@ public class BlobCodec implements Codec<Blob> {
     return DataType.BLOB;
   }
 
-  private class MariaDbBlob implements Blob {
+  private class SingleStoreBlob implements Blob {
     private ByteBuf data;
 
-    public MariaDbBlob(ByteBuf data) {
+    public SingleStoreBlob(ByteBuf data) {
       this.data = data;
     }
 

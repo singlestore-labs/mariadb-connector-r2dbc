@@ -14,7 +14,7 @@ import com.singlestore.r2dbc.util.Assert;
 import reactor.netty.resources.LoopResources;
 
 public final class SingleStoreConnectionFactoryProvider implements ConnectionFactoryProvider {
-  public static final String MARIADB_DRIVER = "mariadb";
+  public static final String SINGLESTORE_DRIVER = "singlestore";
   public static final Option<String> SOCKET = Option.valueOf("socket");
   public static final Option<Boolean> ALLOW_MULTI_QUERIES = Option.valueOf("allowMultiQueries");
   public static final Option<String> TLS_PROTOCOL = Option.valueOf("tlsProtocol");
@@ -58,7 +58,7 @@ public final class SingleStoreConnectionFactoryProvider implements ConnectionFac
 
   @Override
   public String getDriver() {
-    return MARIADB_DRIVER;
+    return SINGLESTORE_DRIVER;
   }
 
   @Override
@@ -66,6 +66,6 @@ public final class SingleStoreConnectionFactoryProvider implements ConnectionFac
     Assert.requireNonNull(connectionFactoryOptions, "connectionFactoryOptions must not be null");
 
     String driver = (String) connectionFactoryOptions.getValue(DRIVER);
-    return MARIADB_DRIVER.equals(driver);
+    return SINGLESTORE_DRIVER.equals(driver);
   }
 }

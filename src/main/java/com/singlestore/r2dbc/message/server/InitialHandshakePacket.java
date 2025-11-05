@@ -10,8 +10,6 @@ import com.singlestore.r2dbc.util.constants.Capabilities;
 
 public final class InitialHandshakePacket implements ServerMessage {
 
-  private static final String MARIADB_RPL_HACK_PREFIX = "5.5.5-";
-
   private final Sequencer sequencer;
   private final String serverVersion;
   private final long threadId;
@@ -19,7 +17,6 @@ public final class InitialHandshakePacket implements ServerMessage {
   private final long capabilities;
   private final short defaultCollation;
   private final short serverStatus;
-  private final boolean mariaDBServer;
   private final String authenticationPluginType;
   private int majorVersion;
   private int minorVersion;
@@ -33,7 +30,6 @@ public final class InitialHandshakePacket implements ServerMessage {
       long capabilities,
       short defaultCollation,
       short serverStatus,
-      boolean mariaDBServer,
       String authenticationPluginType) {
 
     this.sequencer = sequencer;
@@ -43,7 +39,6 @@ public final class InitialHandshakePacket implements ServerMessage {
     this.capabilities = capabilities;
     this.defaultCollation = defaultCollation;
     this.serverStatus = serverStatus;
-    this.mariaDBServer = mariaDBServer;
     this.authenticationPluginType = authenticationPluginType;
     parseVersion(serverVersion);
   }
@@ -99,24 +94,11 @@ public final class InitialHandshakePacket implements ServerMessage {
     }
     buffer.skipBytes(1);
 
-    /*
-     * check for MariaDB 10.x replication hack , remove fake prefix if needed
-     *  (see comments about MARIADB_RPL_HACK_PREFIX)
-     */
-    boolean serverMariaDb;
-    if (serverVersion.startsWith(MARIADB_RPL_HACK_PREFIX)) {
-      serverMariaDb = true;
-      serverVersion = serverVersion.substring(MARIADB_RPL_HACK_PREFIX.length());
-    } else {
-      serverMariaDb = serverVersion.contains("MariaDB");
-    }
-
     // since MariaDB 10.2
     long serverCapabilities;
     if ((serverCapabilities4FirstBytes & Capabilities.CLIENT_MYSQL) == 0) {
       serverCapabilities =
           (serverCapabilities4FirstBytes & 0xffffffffL) + (mariaDbAdditionalCapacities << 32);
-      serverMariaDb = true;
     } else {
       serverCapabilities = serverCapabilities4FirstBytes & 0xffffffffL;
     }
@@ -137,7 +119,6 @@ public final class InitialHandshakePacket implements ServerMessage {
         serverCapabilities,
         defaultCollation,
         serverStatus,
-        serverMariaDb,
         authenticationPluginType);
   }
 
@@ -163,10 +144,6 @@ public final class InitialHandshakePacket implements ServerMessage {
 
   public short getServerStatus() {
     return serverStatus;
-  }
-
-  public boolean isMariaDBServer() {
-    return mariaDBServer;
   }
 
   public String getAuthenticationPluginType() {

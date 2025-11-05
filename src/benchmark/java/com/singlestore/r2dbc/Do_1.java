@@ -17,7 +17,7 @@ public class Do_1 extends Common {
         return consume(state.r2dbcPrepare);
     }
 
-    private Long consume(MariadbConnection connection) {
+    private Long consume(SingleStoreConnection connection) {
         return connection.createStatement("DO 1").execute()
                 .flatMap(it -> it.getRowsUpdated())
                 .blockLast();

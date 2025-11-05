@@ -102,7 +102,7 @@ final class SingleStoreClientParameterizedQueryStatement extends SingleStoreComm
 
                       return toResult(Protocol.TEXT, messages, factory, null);
                     })
-                .flatMap(mariadbResultFlux -> mariadbResultFlux)
+                .flatMap(singlestoreResultFlux -> singlestoreResultFlux)
                 .doOnCancel(() -> clearBindings(iterator, canceled))
                 .doOnError(e -> clearBindings(iterator, canceled))
                 .doOnSubscribe(
@@ -142,7 +142,7 @@ final class SingleStoreClientParameterizedQueryStatement extends SingleStoreComm
     tmpBindings.addAll(bindings);
     tmpBindings.add(getCurrentBinding());
 
-    return "MariadbClientParameterizedQueryStatement{"
+    return "SingleStoreClientParameterizedQueryStatement{"
         + "client="
         + client
         + ", sql='"

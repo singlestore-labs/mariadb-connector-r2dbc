@@ -16,7 +16,7 @@ import com.singlestore.r2dbc.TestConfiguration;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-public class MariadbBinaryTestKit implements TestKit<String> {
+public class SingleStoreBinaryTestKit implements TestKit<String> {
   private static final DataSource jdbcDatasource;
 
   static {
@@ -71,7 +71,7 @@ public class MariadbBinaryTestKit implements TestKit<String> {
 
   @Override
   public JdbcOperations getJdbcOperations() {
-    return new JdbcTemplate(MariadbBinaryTestKit.jdbcDatasource);
+    return new JdbcTemplate(SingleStoreBinaryTestKit.jdbcDatasource);
   }
 
   @Override

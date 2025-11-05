@@ -5,29 +5,21 @@ package com.singlestore.r2dbc.client;
 
 public class ServerVersion {
 
-  public static final ServerVersion UNKNOWN_VERSION = new ServerVersion("0.0.0", true);
+  public static final ServerVersion UNKNOWN_VERSION = new ServerVersion("0.0.0");
   private final String serverVersion;
   private final int majorVersion;
   private final int minorVersion;
   private final int patchVersion;
-  private final boolean mariaDBServer;
   private final boolean supportReturning;
 
-  public ServerVersion(String serverVersion, boolean mariaDBServer) {
+  public ServerVersion(String serverVersion) {
     this.serverVersion = serverVersion;
-    this.mariaDBServer = mariaDBServer;
     int[] parsed = parseVersion(serverVersion);
     this.majorVersion = parsed[0];
     this.minorVersion = parsed[1];
     this.patchVersion = parsed[2];
-    this.supportReturning =
-        mariaDBServer
-            && versionGreaterOrEqual(
+    this.supportReturning = versionGreaterOrEqual(
                 this.majorVersion, this.minorVersion, this.patchVersion, 9, 1, 0);
-  }
-
-  public boolean isMariaDBServer() {
-    return mariaDBServer;
   }
 
   public int getMajorVersion() {

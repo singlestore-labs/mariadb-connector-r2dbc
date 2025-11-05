@@ -175,6 +175,6 @@ public final class SingleStoreConnectionFactory implements ConnectionFactory {
 
   @Override
   public String toString() {
-    return "MariadbConnectionFactory{configuration=" + this.configuration + '}';
+    return "SingleStoreConnectionFactory{configuration=" + this.configuration + '}';
   }
 }

@@ -6,5 +6,5 @@
 # Keep empty directories: >> .gitignore/.git*
 /target/
 .idea
-/r2dbc-mariadb.iml
+/r2dbc-singlestore.iml
 scripts/ssl

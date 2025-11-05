@@ -192,21 +192,19 @@ class BufferUtilsTest {
   void write() {
     Context ctxNoBackSlash =
         new SimpleContext(
-            "10.5.5-mariadb",
+            "10.5.5-singlestore",
             1,
             1,
             ServerStatus.NO_BACKSLASH_ESCAPES,
-            true,
             1,
             "testr2",
             null);
     Context ctx =
         new SimpleContext(
-            "10.5.5-mariadb",
+            "10.5.5-singlestore",
             1,
             1,
             (short) 0,
-            true,
             1,
             "testr2",
             null);

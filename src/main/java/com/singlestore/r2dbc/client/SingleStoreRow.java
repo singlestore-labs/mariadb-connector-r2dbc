@@ -78,7 +78,7 @@ public abstract class SingleStoreRow {
   }
 
   @FunctionalInterface
-  public interface MariadbRowConstructor {
+  public interface SingleStoreRowConstructor {
 
     com.singlestore.r2dbc.api.SingleStoreRow create(
         ByteBuf buf, SingleStoreRowMetadata meta, ExceptionFactory factory);

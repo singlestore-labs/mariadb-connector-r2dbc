@@ -443,7 +443,6 @@ public class SimpleClient implements Client {
                 handshake.getThreadId(),
                 handshake.getCapabilities(),
                 handshake.getServerStatus(),
-                handshake.isMariaDBServer(),
                 clientCapabilities,
                 configuration.getDatabase(),
                 byteBufAllocator)
@@ -452,7 +451,6 @@ public class SimpleClient implements Client {
                 handshake.getThreadId(),
                 handshake.getCapabilities(),
                 handshake.getServerStatus(),
-                handshake.isMariaDBServer(),
                 clientCapabilities,
                 configuration.getDatabase(),
                 byteBufAllocator);
@@ -740,6 +738,6 @@ public class SimpleClient implements Client {
   }
 
   public void setVersion(String version) {
-    this.singlestoreVersion = new ServerVersion(version, false);
+    this.singlestoreVersion = new ServerVersion(version);
   }
 }

@@ -127,7 +127,7 @@ public class SingleStoreResult extends AbstractReferenceCounted
   public <T> Flux<T> map(BiFunction<Row, RowMetadata, ? extends T> f) {
     final List<ColumnDefinitionPacket> columns = new ArrayList<>();
     final AtomicBoolean metaFollows = new AtomicBoolean(true);
-    final AtomicReference<SingleStoreRow.MariadbRowConstructor> rowConstructor =
+    final AtomicReference<SingleStoreRow.SingleStoreRowConstructor> rowConstructor =
         new AtomicReference<>();
     final AtomicReference<SingleStoreRowMetadata> meta = new AtomicReference<>();
 
@@ -245,6 +245,6 @@ public class SingleStoreResult extends AbstractReferenceCounted
 
   @Override
   public String toString() {
-    return "MariadbResult{}";
+    return "SingleStoreResult{}";
   }
 }

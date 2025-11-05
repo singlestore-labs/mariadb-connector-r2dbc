@@ -293,18 +293,13 @@ public class TinyIntParameterTest extends BaseConnectionTest {
             .bind(1, LocalDateTime.now())
             .bind(2, LocalDateTime.now())
             .execute();
-    if ((isMariaDBServer() && !minVersion(10, 2, 0))
-        || (!isMariaDBServer() && !minVersion(5, 7, 0))) {
-      f.blockLast();
-    } else {
-      f.flatMap(r -> r.getRowsUpdated())
-          .as(StepVerifier::create)
-          .expectErrorMatches(
-              throwable ->
-                  throwable instanceof R2dbcBadGrammarException
-                      && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22003"))
-          .verify();
-    }
+    f.flatMap(r -> r.getRowsUpdated())
+        .as(StepVerifier::create)
+        .expectErrorMatches(
+            throwable ->
+                throwable instanceof R2dbcBadGrammarException
+                    && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22003"))
+        .verify();
   }
 
   @Test
@@ -325,18 +320,13 @@ public class TinyIntParameterTest extends BaseConnectionTest {
             .bind(1, LocalDate.now())
             .bind(2, LocalDate.now())
             .execute();
-    if ((isMariaDBServer() && !minVersion(10, 2, 0))
-        || (!isMariaDBServer() && !minVersion(5, 7, 0))) {
-      f.blockLast();
-    } else {
-      f.flatMap(r -> r.getRowsUpdated())
-          .as(StepVerifier::create)
-          .expectErrorMatches(
-              throwable ->
-                  throwable instanceof R2dbcBadGrammarException
-                      && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22003"))
-          .verify();
-    }
+    f.flatMap(r -> r.getRowsUpdated())
+        .as(StepVerifier::create)
+        .expectErrorMatches(
+            throwable ->
+                throwable instanceof R2dbcBadGrammarException
+                    && ((R2dbcBadGrammarException) throwable).getSqlState().equals("22003"))
+        .verify();
   }
 
   @Test

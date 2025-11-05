@@ -493,7 +493,7 @@ public final class SingleStoreConnectionConfiguration {
 
     SingleStoreConnectionConfiguration defaultConf = new Builder().build(false);
     StringBuilder sb = new StringBuilder();
-    sb.append("r2dbc:mariadb:");
+    sb.append("r2dbc:singlestore:");
     if (this.haMode != HaMode.NONE) {
       sb.append(this.haMode.toString().toLowerCase(Locale.ROOT)).append(":");
     }

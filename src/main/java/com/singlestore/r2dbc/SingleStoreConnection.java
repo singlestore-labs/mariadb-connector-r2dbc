@@ -175,7 +175,7 @@ public final class SingleStoreConnection implements com.singlestore.r2dbc.api.Si
 
   @Override
   public String toString() {
-    return "MariadbConnection{client="
+    return "SingleStoreConnection{client="
         + client
         + '}';
   }

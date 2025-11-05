@@ -195,7 +195,7 @@ final class SingleStoreServerParameterizedQueryStatement extends SingleStoreComm
                             })
                         .doOnCancel(() -> clearBindings(iterator, canceled))
                         .doOnError(e -> clearBindings(iterator, canceled)))
-                .flatMap(mariadbResultFlux -> mariadbResultFlux);
+                .flatMap(singlestoreResultFlux -> singlestoreResultFlux);
           });
     } else {
       return Flux.defer(
@@ -227,7 +227,7 @@ final class SingleStoreServerParameterizedQueryStatement extends SingleStoreComm
     List<Binding> tmpBindings = new ArrayList<>();
     tmpBindings.addAll(bindings);
     tmpBindings.add(getCurrentBinding());
-    return "MariadbServerParameterizedQueryStatement{"
+    return "SingleStoreServerParameterizedQueryStatement{"
         + "client="
         + client
         + ", sql='"

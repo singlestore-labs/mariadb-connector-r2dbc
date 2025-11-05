@@ -202,7 +202,7 @@ public class RowMetadataTest extends BaseConnectionTest {
                 r.map(
                     (row, metadata) -> {
                       assertEquals(
-                          "MariadbRowMetadata{columnNames=[t1, t2, t3, t4, t5, t6]}",
+                          "SingleStoreRowMetadata{columnNames=[t1, t2, t3, t4, t5, t6]}",
                           metadata.toString());
                       return Optional.ofNullable(row.get(0));
                     }))

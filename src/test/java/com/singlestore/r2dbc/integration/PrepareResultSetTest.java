@@ -218,13 +218,6 @@ public class PrepareResultSetTest extends BaseConnectionTest {
   @Test
   void parameterLengthEncodedLong() {
     Assumptions.assumeTrue(maxAllowedPacket() >= 20 * 1024 * 1024 + 500);
-    Assumptions.assumeTrue(
-        !sharedConn.getMetadata().getDatabaseVersion().contains("maxScale-6.1.")
-            && !isMaxscale()
-            && !"skysql-ha".equals(System.getenv("srv")));
-    // out of memory on travis and 10.1
-    Assumptions.assumeFalse(
-        "mariadb:10.1".equals(System.getenv("DB")) || "mysql:5.6".equals(System.getenv("DB")));
 
     char[] arr = new char[20_000_000];
     for (int i = 0; i < arr.length; i++) {
@@ -350,7 +343,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
 
   @Test
   public void returningBefore105() {
-    Assumptions.assumeFalse((isMariaDBServer() && minVersion(9, 1, 0)));
+    Assumptions.assumeFalse((minVersion(9, 1, 0)));
 
     sharedConnPrepare
         .createStatement(
@@ -561,8 +554,6 @@ public class PrepareResultSetTest extends BaseConnectionTest {
 
   @Test
   void prepareReuse() {
-    // https://jira.mariadb.org/browse/XPT-599 XPand doesn't support DO
-    Assumptions.assumeFalse(isXpand());
     SingleStoreStatement stmt = sharedConnPrepare.createStatement("DO 1 = ?");
     assertThrows(
         IndexOutOfBoundsException.class,

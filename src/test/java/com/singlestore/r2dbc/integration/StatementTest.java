@@ -218,7 +218,7 @@ public class StatementTest extends BaseConnectionTest {
       Assertions.assertTrue(
           e.getMessage()
               .contains(
-                  "No encoder for class com.singlestore.r2dbc.MariadbConnection (parameter at index"
+                  "No encoder for class com.singlestore.r2dbc.SingleStoreConnection (parameter at index"
                       + " 0)"));
     }
   }
@@ -251,11 +251,11 @@ public class StatementTest extends BaseConnectionTest {
   void statementToString() {
     String st = sharedConn.createStatement("SELECT 1").toString();
     Assertions.assertTrue(
-        st.contains("MariadbClientParameterizedQueryStatement{") && st.contains("sql='SELECT 1'"),
+        st.contains("SingleStoreParameterizedQueryStatement{") && st.contains("sql='SELECT 1'"),
         st);
     String st2 = sharedConn.createStatement("SELECT ?").toString();
     Assertions.assertTrue(
-        st2.contains("MariadbClientParameterizedQueryStatement{") && st2.contains("sql='SELECT ?'"),
+        st2.contains("SingleStoreParameterizedQueryStatement{") && st2.contains("sql='SELECT ?'"),
         st2);
   }
 
@@ -322,7 +322,7 @@ public class StatementTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectNext(2L)
         .verifyComplete();
-    if (isMariaDBServer() && minVersion(9, 1, 0)) {
+    if (minVersion(9, 1, 0)) {
       sharedConn
           .createStatement("INSERT INTO dupplicate(test) VALUES ('test3'), ('test4') RETURNING *")
           .execute()
@@ -510,7 +510,7 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void returningBefore105() {
-    Assumptions.assumeFalse((isMariaDBServer() && minVersion(9, 1, 0)));
+    Assumptions.assumeFalse((minVersion(9, 1, 0)));
     sharedConn.beginTransaction().block();
     try {
       sharedConn
@@ -568,7 +568,7 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void returningBefore105WithParameter() {
-    Assumptions.assumeFalse((isMariaDBServer() && minVersion(9, 1, 0)));
+    Assumptions.assumeFalse((minVersion(9, 1, 0)));
     try {
       sharedConn
           .createStatement("INSERT INTO returningBefore105WithParameter(test) VALUES (?), (?)")
@@ -741,7 +741,7 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   public void prepareReturningBefore105() {
-    Assumptions.assumeFalse((isMariaDBServer() && minVersion(9, 1, 0)));
+    Assumptions.assumeFalse((minVersion(9, 1, 0)));
     sharedConn.beginTransaction().block();
     try {
       sharedConn

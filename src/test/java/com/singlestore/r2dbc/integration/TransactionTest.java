@@ -10,8 +10,8 @@ import reactor.test.StepVerifier;
 
 public class TransactionTest extends BaseConnectionTest {
   private static final String insertCmd =
-      "INSERT INTO `users` (`first_name`, `last_name`, `email`) VALUES ('MariaDB', 'Row',"
-          + " 'mariadb@test.com')";
+      "INSERT INTO `users` (`first_name`, `last_name`, `email`) VALUES ('SingleStore', 'Row',"
+          + " 'singlestore@test.com')";
 
   @BeforeAll
   public static void before2() {

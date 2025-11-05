@@ -16,11 +16,7 @@ public final class SingleStoreConnectionMetadata
 
   @Override
   public String getDatabaseProductName() {
-    return this.version.isMariaDBServer() ? "MariaDB" : "MySQL";
-  }
-
-  public boolean isMariaDBServer() {
-    return this.version.isMariaDBServer();
+    return "SingleStore";
   }
 
   public boolean minVersion(int major, int minor, int patch) {

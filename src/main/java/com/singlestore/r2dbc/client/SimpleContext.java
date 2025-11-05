@@ -21,7 +21,6 @@ public class SimpleContext implements Context {
       long threadId,
       long capabilities,
       short serverStatus,
-      boolean mariaDBServer,
       long clientCapabilities,
       String database,
       ByteBufAllocator byteBufAllocator) {
@@ -30,7 +29,7 @@ public class SimpleContext implements Context {
     this.serverCapabilities = capabilities;
     this.clientCapabilities = clientCapabilities;
     this.serverStatus = serverStatus;
-    this.version = new ServerVersion(serverVersion, mariaDBServer);
+    this.version = new ServerVersion(serverVersion);
     this.database = database;
     this.byteBufAllocator = byteBufAllocator;
   }

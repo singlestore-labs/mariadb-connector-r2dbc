@@ -78,18 +78,13 @@ public class TimeParameterTest extends BaseConnectionTest {
             .bind(1, new BigInteger("9223372036854775807"))
             .bind(2, new BigInteger("-9"))
             .execute();
-    if ((isMariaDBServer() && !minVersion(10, 2, 0))
-        || (!isMariaDBServer() && !minVersion(5, 7, 0))) {
-      f.blockLast();
-    } else {
-      f.flatMap(r -> r.getRowsUpdated())
-          .as(StepVerifier::create)
-          .expectErrorMatches(
-              throwable ->
-                  throwable instanceof R2dbcTransientResourceException
-                      && ((R2dbcTransientResourceException) throwable).getSqlState().equals("HY000"))
-          .verify();
-    }
+    f.flatMap(r -> r.getRowsUpdated())
+        .as(StepVerifier::create)
+        .expectErrorMatches(
+            throwable ->
+                throwable instanceof R2dbcTransientResourceException
+                    && ((R2dbcTransientResourceException) throwable).getSqlState().equals("HY000"))
+        .verify();
   }
 
   @Test
@@ -110,18 +105,13 @@ public class TimeParameterTest extends BaseConnectionTest {
             .bind(1, "9223372036854775807")
             .bind(2, "-9")
             .execute();
-    if ((isMariaDBServer() && !minVersion(10, 2, 0))
-        || (!isMariaDBServer() && !minVersion(5, 7, 0))) {
-      f.blockLast();
-    } else {
-      f.flatMap(r -> r.getRowsUpdated())
-          .as(StepVerifier::create)
-          .expectErrorMatches(
-              throwable ->
-                  throwable instanceof R2dbcTransientResourceException
-                      && ((R2dbcTransientResourceException) throwable).getSqlState().equals("HY000"))
-          .verify();
-    }
+    f.flatMap(r -> r.getRowsUpdated())
+        .as(StepVerifier::create)
+        .expectErrorMatches(
+            throwable ->
+                throwable instanceof R2dbcTransientResourceException
+                    && ((R2dbcTransientResourceException) throwable).getSqlState().equals("HY000"))
+        .verify();
   }
 
   @Test
@@ -142,18 +132,13 @@ public class TimeParameterTest extends BaseConnectionTest {
             .bind(1, new BigDecimal("9223372036854775807"))
             .bind(2, new BigDecimal("-9"))
             .execute();
-    if ((isMariaDBServer() && !minVersion(10, 2, 0))
-        || (!isMariaDBServer() && !minVersion(5, 7, 0))) {
-      f.blockLast();
-    } else {
-      f.flatMap(r -> r.getRowsUpdated())
-          .as(StepVerifier::create)
-          .expectErrorMatches(
-              throwable ->
-                  throwable instanceof R2dbcTransientResourceException
-                      && ((R2dbcTransientResourceException) throwable).getSqlState().equals("HY000"))
-          .verify();
-    }
+    f.flatMap(r -> r.getRowsUpdated())
+        .as(StepVerifier::create)
+        .expectErrorMatches(
+            throwable ->
+                throwable instanceof R2dbcTransientResourceException
+                    && ((R2dbcTransientResourceException) throwable).getSqlState().equals("HY000"))
+        .verify();
   }
 
   @Test

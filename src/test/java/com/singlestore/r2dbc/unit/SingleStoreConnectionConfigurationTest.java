@@ -47,12 +47,12 @@ public class SingleStoreConnectionConfigurationTest {
             .allowMultiQueries(false)
             .socket("/path/to/mysocket")
             .username("MyUSer")
-            .loopResources(LoopResources.create("mariadb"))
+            .loopResources(LoopResources.create("singlestore"))
             .sslContextBuilderCustomizer((b) -> b)
             .sslTunnelDisableHostVerification(true)
             .build();
     Assertions.assertEquals(
-        "r2dbc:mariadb:loadbalance://localhost/MyDB?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=MyUSer&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone=Europe/Paris&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&useServerPrepStmts=true&autocommit=false&restrictedAuth=mysql_native_password,client_ed25519",
+        "r2dbc:singlestore:loadbalance://localhost/MyDB?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=MyUSer&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone=Europe/Paris&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&useServerPrepStmts=true&autocommit=false&restrictedAuth=mysql_native_password,client_ed25519",
         conf.toString());
   }
 
@@ -69,7 +69,7 @@ public class SingleStoreConnectionConfigurationTest {
             .connectionAttributes(connectionAttributes)
             .build();
     Assertions.assertEquals(
-        "r2dbc:mariadb://localhost/?username=user&connectionAttributes=entry1=val1,entry2=val2",
+        "r2dbc:singlestore://localhost/?username=user&connectionAttributes=entry1=val1,entry2=val2",
         conf.toString());
   }
 
@@ -77,7 +77,7 @@ public class SingleStoreConnectionConfigurationTest {
   public void connectionString() {
     ConnectionFactoryOptions options =
         ConnectionFactoryOptions.parse(
-            "r2dbc:mariadb://ro%3Aot:pw%3Ad@localhost:3306/db?connectTimeout=PT0.15S"
+            "r2dbc:singlestore://ro%3Aot:pw%3Ad@localhost:3306/db?connectTimeout=PT0.15S"
                 + "&haMode=LOADBALANCE"
                 + "&restrictedAuth=mysql_native_password,client_ed25519"
                 + "&tcpKeepAlive=true"
@@ -100,7 +100,7 @@ public class SingleStoreConnectionConfigurationTest {
     SingleStoreConnectionConfiguration conf =
         SingleStoreConnectionConfiguration.fromOptions(options).build();
     Assertions.assertEquals(
-        "r2dbc:mariadb:loadbalance://localhost/db?connectTimeout=PT0.15S"
+        "r2dbc:singlestore:loadbalance://localhost/db?connectTimeout=PT0.15S"
             + "&tcpKeepAlive=true"
             + "&tcpAbortiveClose=true"
             + "&transactionReplay=true"
@@ -127,11 +127,11 @@ public class SingleStoreConnectionConfigurationTest {
   public void connectionSessionVariablesString() {
     ConnectionFactoryOptions options =
         ConnectionFactoryOptions.parse(
-            "r2dbc:mariadb://ro%3Aot:pw%3Ad@localhost:3306/db?sessionVariables=wait_timeout=1,sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'");
+            "r2dbc:singlestore://ro%3Aot:pw%3Ad@localhost:3306/db?sessionVariables=wait_timeout=1,sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'");
     SingleStoreConnectionConfiguration conf =
         SingleStoreConnectionConfiguration.fromOptions(options).build();
     Assertions.assertEquals(
-        "r2dbc:mariadb://localhost/db?password=***&username=ro:ot&sessionVariables=sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY',wait_timeout=1",
+        "r2dbc:singlestore://localhost/db?password=***&username=ro:ot&sessionVariables=sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY',wait_timeout=1",
         conf.toString());
   }
 
@@ -139,7 +139,7 @@ public class SingleStoreConnectionConfigurationTest {
   public void connectionStringLoadBalance() {
     ConnectionFactoryOptions options =
         ConnectionFactoryOptions.parse(
-            "r2dbc:mariadb:loadbalancing://ro%3Aot:pw%3Ad@localhost:3306/db?connectTimeout=PT0.15S"
+            "r2dbc:singlestore:loadbalancing://ro%3Aot:pw%3Ad@localhost:3306/db?connectTimeout=PT0.15S"
                 + "&restrictedAuth=mysql_native_password,client_ed25519"
                 + "&tcpKeepAlive=true"
                 + "&tcpAbortiveClose=true"
@@ -161,7 +161,7 @@ public class SingleStoreConnectionConfigurationTest {
     SingleStoreConnectionConfiguration conf =
         SingleStoreConnectionConfiguration.fromOptions(options).build();
     Assertions.assertEquals(
-        "r2dbc:mariadb:loadbalance://localhost/db?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=ro:ot&allowMultiQueries=true&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone='Europe/Paris'&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&autocommit=false&restrictedAuth=mysql_native_password,client_ed25519",
+        "r2dbc:singlestore:loadbalance://localhost/db?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=ro:ot&allowMultiQueries=true&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone='Europe/Paris'&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&autocommit=false&restrictedAuth=mysql_native_password,client_ed25519",
         conf.toString());
   }
 

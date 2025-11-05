@@ -119,7 +119,7 @@ public class LocalTimeCodec implements Codec<LocalTime> {
         String val = buf.readCharSequence(length, StandardCharsets.UTF_8).toString();
         try {
           if (val.contains(" ")) {
-            return LocalDateTime.parse(val, LocalDateTimeCodec.MARIADB_LOCAL_DATE_TIME)
+            return LocalDateTime.parse(val, LocalDateTimeCodec.SINGLESTORE_LOCAL_DATE_TIME)
                 .toLocalTime();
           } else {
             return LocalTime.parse(val);
@@ -186,7 +186,7 @@ public class LocalTimeCodec implements Codec<LocalTime> {
         String val = buf.readCharSequence(length, StandardCharsets.UTF_8).toString();
         try {
           if (val.contains(" ")) {
-            return LocalDateTime.parse(val, LocalDateTimeCodec.MARIADB_LOCAL_DATE_TIME)
+            return LocalDateTime.parse(val, LocalDateTimeCodec.SINGLESTORE_LOCAL_DATE_TIME)
                 .toLocalTime();
           } else {
             return LocalTime.parse(val);

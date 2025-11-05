@@ -145,7 +145,7 @@ public final class HandshakeResponse implements ClientMessage {
   private void writeConnectAttributes(
       ByteBuf buf, Map<String, String> connectionAttributes, HostAddress hostAddress) {
     BufferUtils.writeLengthEncode("_client_name", buf);
-    BufferUtils.writeLengthEncode(SingleStoreConnectionFactoryProvider.MARIADB_DRIVER, buf);
+    BufferUtils.writeLengthEncode(SingleStoreConnectionFactoryProvider.SINGLESTORE_DRIVER, buf);
 
     String clientVersion = VersionFactory.getInstance();
     if (clientVersion != null) {

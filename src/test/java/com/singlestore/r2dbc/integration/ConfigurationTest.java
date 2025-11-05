@@ -37,7 +37,7 @@ public class ConfigurationTest extends BaseConnectionTest {
     ConnectionFactory factory =
         ConnectionFactories.get(
             String.format(
-                    "r2dbc:mariadb://%s:%s@%s:%s/%s%s",
+                    "r2dbc:singlestore://%s:%s@%s:%s/%s%s",
                     encodedUser,
                     encodedPwd,
                     TestConfiguration.host,
@@ -57,11 +57,11 @@ public class ConfigurationTest extends BaseConnectionTest {
     SingleStoreConnectionFactory factory =
         (SingleStoreConnectionFactory)
             ConnectionFactories.get(
-                "r2dbc:mariadb://root%40%C3%A5:p%40ssword@localhost:3305/%D1" + "%88db");
+                "r2dbc:singlestore://root%40%C3%A5:p%40ssword@localhost:3305/%D1" + "%88db");
     Assertions.assertTrue(
         factory
             .toString()
-            .contains("r2dbc:mariadb://localhost:3305/шdb?password=***&username=root@å"));
+            .contains("r2dbc:singlestore://localhost:3305/шdb?password=***&username=root@å"));
   }
 
   @Test
@@ -69,14 +69,14 @@ public class ConfigurationTest extends BaseConnectionTest {
     SingleStoreConnectionFactory factory =
         (SingleStoreConnectionFactory)
             ConnectionFactories.get(
-                "r2dbc:mariadb:loadbalance://root:password@localhost:3305/db");
+                "r2dbc:singlestore:loadbalance://root:password@localhost:3305/db");
     Assertions.assertTrue(factory.toString().contains("username=root"));
     Assertions.assertTrue(factory.toString().contains("/db"));
     assertThrows(
         Exception.class,
         () ->
             ConnectionFactories.get(
-                "r2dbc:mariadb:failover://root:password@localhost:3305/db"),
+                "r2dbc:singlestore:failover://root:password@localhost:3305/db"),
         "Wrong argument value 'failover' for HaMode");
   }
 
@@ -106,7 +106,7 @@ public class ConfigurationTest extends BaseConnectionTest {
     SingleStoreConnectionFactory factory =
         (SingleStoreConnectionFactory)
             ConnectionFactories.get(
-                "r2dbc:mariadb://root:pwd@localhost:3306/db?socket=ff&allowMultiQueries=true"
+                "r2dbc:singlestore://root:pwd@localhost:3306/db?socket=ff&allowMultiQueries=true"
                     + "&tlsProtocol=TLSv1.2"
                     + "&serverSslCert="
                     + serverSslCert
@@ -124,7 +124,7 @@ public class ConfigurationTest extends BaseConnectionTest {
         factory
             .toString()
             .contains(
-                "r2dbc:mariadb://localhost/db?tcpKeepAlive=true&tcpAbortiveClose=true&password=***&pamOtherPwd=p@ssword,pwd&prepareCacheSize=2560&socket=ff&username=root&allowMultiQueries=true&connectionAttributes=test=2,h=4&sslMode=trust&serverSslCert="));
+                "r2dbc:singlestore://localhost/db?tcpKeepAlive=true&tcpAbortiveClose=true&password=***&pamOtherPwd=p@ssword,pwd&prepareCacheSize=2560&socket=ff&username=root&allowMultiQueries=true&connectionAttributes=test=2,h=4&sslMode=trust&serverSslCert="));
     Assertions.assertTrue(factory.toString().contains("&clientSslCert="));
     Assertions.assertTrue(factory.toString().contains("&tlsProtocol=TLSv1.2"));
   }
@@ -142,7 +142,7 @@ public class ConfigurationTest extends BaseConnectionTest {
   @Test
   void checkDecoded() {
     ConnectionFactoryOptions options =
-        ConnectionFactoryOptions.parse("r2dbc:mariadb://ro%3Aot:pw%3Ad@localhost:3306/db");
+        ConnectionFactoryOptions.parse("r2dbc:singlestore://ro%3Aot:pw%3Ad@localhost:3306/db");
     SingleStoreConnectionConfiguration conf =
         SingleStoreConnectionConfiguration.fromOptions(options).build();
     Assertions.assertEquals("ro:ot", conf.getUsername());
@@ -161,7 +161,7 @@ public class ConfigurationTest extends BaseConnectionTest {
 
     ConnectionFactoryOptions options =
         ConnectionFactoryOptions.builder()
-            .option(ConnectionFactoryOptions.DRIVER, "mariadb")
+            .option(ConnectionFactoryOptions.DRIVER, "singlestore")
             .option(ConnectionFactoryOptions.HOST, "someHost")
             .option(ConnectionFactoryOptions.PORT, 43306)
             .option(ConnectionFactoryOptions.USER, "myUser")
@@ -178,19 +178,19 @@ public class ConfigurationTest extends BaseConnectionTest {
         factory
             .toString()
             .contains(
-                "r2dbc:mariadb://someHost:43306/myDb?tcpKeepAlive=true&tcpAbortiveClose=true&username=myUser&allowMultiQueries=true"));
+                "r2dbc:singlestore://someHost:43306/myDb?tcpKeepAlive=true&tcpAbortiveClose=true&username=myUser&allowMultiQueries=true"));
   }
 
   @Test
   void provider() {
-    Assertions.assertEquals("mariadb", new SingleStoreConnectionFactoryProvider().getDriver());
+    Assertions.assertEquals("singlestore", new SingleStoreConnectionFactoryProvider().getDriver());
   }
 
   @Test
   void confError() {
     ConnectionFactoryOptions options =
         ConnectionFactoryOptions.builder()
-            .option(ConnectionFactoryOptions.DRIVER, "mariadb")
+            .option(ConnectionFactoryOptions.DRIVER, "singlestore")
             .option(ConnectionFactoryOptions.PORT, 43306)
             .option(ConnectionFactoryOptions.USER, "myUser")
             .option(ConnectionFactoryOptions.DATABASE, "myDb")
@@ -207,7 +207,7 @@ public class ConfigurationTest extends BaseConnectionTest {
   void checkOptionsPerOption() {
     ConnectionFactoryOptions options =
         ConnectionFactoryOptions.builder()
-            .option(ConnectionFactoryOptions.DRIVER, "mariadb")
+            .option(ConnectionFactoryOptions.DRIVER, "singlestore")
             .option(ConnectionFactoryOptions.HOST, "someHost")
             .option(ConnectionFactoryOptions.PORT, 43306)
             .option(ConnectionFactoryOptions.USER, "myUser")
@@ -222,7 +222,7 @@ public class ConfigurationTest extends BaseConnectionTest {
 
     final ConnectionFactoryOptions optionsWithoutUser =
         ConnectionFactoryOptions.builder()
-            .option(ConnectionFactoryOptions.DRIVER, "mariadb")
+            .option(ConnectionFactoryOptions.DRIVER, "singlestore")
             .option(ConnectionFactoryOptions.HOST, "someHost")
             .option(ConnectionFactoryOptions.PORT, 43306)
             .option(SingleStoreConnectionFactoryProvider.ALLOW_MULTI_QUERIES, true)
@@ -323,7 +323,7 @@ public class ConfigurationTest extends BaseConnectionTest {
   @Test
   void sessionVariablesParsing() {
     String connectionUrl =
-        "r2dbc:mariadb://admin:pass@localhost:3306/dbname?sessionVariables=sql_mode='ANSI'";
+        "r2dbc:singlestore://admin:pass@localhost:3306/dbname?sessionVariables=sql_mode='ANSI'";
     ConnectionFactoryOptions factoryOptions = ConnectionFactoryOptions.parse(connectionUrl);
     Assertions.assertTrue(factoryOptions.toString().contains("sessionVariables=sql_mode='ANSI'"));
     ConnectionFactory connectionFactory = ConnectionFactories.get(factoryOptions);
@@ -331,13 +331,13 @@ public class ConfigurationTest extends BaseConnectionTest {
         connectionFactory
             .toString()
             .contains(
-                "r2dbc:mariadb://localhost/dbname?password=***&username=admin&sessionVariables=sql_mode='ANSI'"));
+                "r2dbc:singlestore://localhost/dbname?password=***&username=admin&sessionVariables=sql_mode='ANSI'"));
   }
 
   @Test
   void confStringValue() {
     String connectionUrl =
-        "r2dbc:mariadb://admin:pass@localhost:3306/dbname?allowMultiQueries=blabla&autoCommit=1";
+        "r2dbc:singlestore://admin:pass@localhost:3306/dbname?allowMultiQueries=blabla&autoCommit=1";
     ConnectionFactoryOptions options = ConnectionFactoryOptions.parse(connectionUrl);
     SingleStoreConnectionConfiguration.Builder builder =
         SingleStoreConnectionConfiguration.fromOptions(options);

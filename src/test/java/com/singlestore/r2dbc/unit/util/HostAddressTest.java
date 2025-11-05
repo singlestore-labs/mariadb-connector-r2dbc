@@ -72,7 +72,7 @@ public class HostAddressTest {
 
     final ConnectionFactoryOptions option1s =
         ConnectionFactoryOptions.parse(
-            "r2dbc:mariadb://someUser:pwd@host1:3303,host2,host3:3305,host4/");
+            "r2dbc:singlestore://someUser:pwd@host1:3303,host2,host3:3305,host4/");
 
     SingleStoreConnectionConfiguration conf =
         SingleStoreConnectionConfiguration.fromOptions(option1s).build();
@@ -83,7 +83,7 @@ public class HostAddressTest {
     Assertions.assertEquals(new HostAddress("host4", 3306), conf.getHostAddresses().get(3));
 
     final ConnectionFactoryOptions option2s =
-        ConnectionFactoryOptions.parse("r2dbc:mariadb://someUser:pwd@host1:3303,host2:3305/");
+        ConnectionFactoryOptions.parse("r2dbc:singlestore://someUser:pwd@host1:3303,host2:3305/");
 
     conf = SingleStoreConnectionConfiguration.fromOptions(option2s).build();
     Assertions.assertEquals(2, conf.getHostAddresses().size());
@@ -91,7 +91,7 @@ public class HostAddressTest {
     Assertions.assertEquals(new HostAddress("host2", 3305), conf.getHostAddresses().get(1));
 
     final ConnectionFactoryOptions option3s =
-        ConnectionFactoryOptions.parse("r2dbc:mariadb://someUser:pwd@host1:3303,host2,host3:3309/");
+        ConnectionFactoryOptions.parse("r2dbc:singlestore://someUser:pwd@host1:3303,host2,host3:3309/");
     conf = SingleStoreConnectionConfiguration.fromOptions(option3s).build();
     Assertions.assertEquals(3, conf.getHostAddresses().size());
     Assertions.assertEquals(new HostAddress("host1", 3303), conf.getHostAddresses().get(0));

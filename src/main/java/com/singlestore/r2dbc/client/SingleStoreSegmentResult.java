@@ -47,7 +47,7 @@ public final class SingleStoreSegmentResult extends AbstractReferenceCounted imp
 
     final List<ColumnDefinitionPacket> columns = new ArrayList<>();
     final AtomicBoolean metaFollows = new AtomicBoolean(true);
-    final AtomicReference<SingleStoreRow.MariadbRowConstructor> rowConstructor =
+    final AtomicReference<SingleStoreRow.SingleStoreRowConstructor> rowConstructor =
         new AtomicReference<>();
     final AtomicReference<SingleStoreRowMetadata> meta = new AtomicReference<>();
     this.segments =
@@ -90,7 +90,7 @@ public final class SingleStoreSegmentResult extends AbstractReferenceCounted imp
               }
 
               if (message instanceof ErrorPacket) {
-                sink.next(new MariadbErrorSegment((ErrorPacket) message, factory));
+                sink.next(new SingleStoreErrorSegment((ErrorPacket) message, factory));
                 return;
               }
 
@@ -116,12 +116,12 @@ public final class SingleStoreSegmentResult extends AbstractReferenceCounted imp
                       com.singlestore.r2dbc.client.SingleStoreResult.getLongTextEncoded(
                           ((OkPacket) message).getLastInsertId());
                   com.singlestore.r2dbc.api.SingleStoreRow row = new SingleStoreRowText(buf, tmpMeta, factory);
-                  sink.next(new MariadbRowSegment(row, buf));
+                  sink.next(new SingleStoreRowSegment(row, buf));
                 }
 
                 Long rowCount = ((OkPacket) message).value();
                 if (rowCount != null) {
-                  sink.next(new MariadbUpdateCountSegment(rowCount));
+                  sink.next(new SingleStoreUpdateCountSegment(rowCount));
                 }
                 return;
               }
@@ -130,7 +130,7 @@ public final class SingleStoreSegmentResult extends AbstractReferenceCounted imp
                 RowPacket row = ((RowPacket) message);
                 com.singlestore.r2dbc.api.SingleStoreRow rowSegment =
                     rowConstructor.get().create(row.getRaw(), meta.get(), factory);
-                sink.next(new MariadbRowSegment(rowSegment, (RowPacket) message));
+                sink.next(new SingleStoreRowSegment(rowSegment, (RowPacket) message));
               }
             });
   }
@@ -153,8 +153,8 @@ public final class SingleStoreSegmentResult extends AbstractReferenceCounted imp
         .<Integer>handle(
             (segment, sink) -> {
               try {
-                if (segment instanceof MariadbErrorSegment) {
-                  sink.error(((MariadbErrorSegment) segment).exception());
+                if (segment instanceof SingleStoreErrorSegment) {
+                  sink.error(((SingleStoreErrorSegment) segment).exception());
                   return;
                 }
 
@@ -190,8 +190,8 @@ public final class SingleStoreSegmentResult extends AbstractReferenceCounted imp
     return this.segments.handle(
         (segment, sink) -> {
           try {
-            if (segment instanceof MariadbErrorSegment) {
-              sink.error(((MariadbErrorSegment) segment).exception());
+            if (segment instanceof SingleStoreErrorSegment) {
+              sink.error(((SingleStoreErrorSegment) segment).exception());
               return;
             }
 
@@ -252,14 +252,14 @@ public final class SingleStoreSegmentResult extends AbstractReferenceCounted imp
 
   @Override
   public String toString() {
-    return "MariadbSegmentResult{segments=" + this.segments + '}';
+    return "SingleStoreSegmentResult{segments=" + this.segments + '}';
   }
 
-  static class MariadbRowSegment extends AbstractReferenceCounted implements Result.RowSegment {
+  static class SingleStoreRowSegment extends AbstractReferenceCounted implements Result.RowSegment {
     private final Row row;
     private final ReferenceCounted releaseable;
 
-    public MariadbRowSegment(Row row, ReferenceCounted releaseable) {
+    public SingleStoreRowSegment(Row row, ReferenceCounted releaseable) {
       this.row = row;
       this.releaseable = releaseable;
     }
@@ -280,11 +280,11 @@ public final class SingleStoreSegmentResult extends AbstractReferenceCounted imp
     }
   }
 
-  static class MariadbUpdateCountSegment implements Result.UpdateCount {
+  static class SingleStoreUpdateCountSegment implements Result.UpdateCount {
 
     private final long value;
 
-    public MariadbUpdateCountSegment(long value) {
+    public SingleStoreUpdateCountSegment(long value) {
       this.value = value;
     }
 
@@ -294,13 +294,13 @@ public final class SingleStoreSegmentResult extends AbstractReferenceCounted imp
     }
   }
 
-  static class MariadbErrorSegment implements Result.Message {
+  static class SingleStoreErrorSegment implements Result.Message {
 
     private final ExceptionFactory factory;
 
     private final ErrorPacket error;
 
-    public MariadbErrorSegment(ErrorPacket error, ExceptionFactory factory) {
+    public SingleStoreErrorSegment(ErrorPacket error, ExceptionFactory factory) {
       this.factory = factory;
       this.error = error;
     }

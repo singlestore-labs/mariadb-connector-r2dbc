@@ -41,21 +41,14 @@ public class FailoverConnectionTest extends BaseConnectionTest {
             .blockLast()
         != 1000) {
       sharedConn.createStatement("TRUNCATE TABLE sequence_0_to_999").execute().blockLast();
-      if (isMariaDBServer()) {
-        sharedConn
-            .createStatement("INSERT INTO sequence_0_to_999 SELECT * from seq_0_to_999")
-            .execute()
-            .blockLast();
-      } else {
-        SingleStoreStatement stmt =
-            sharedConn.createStatement("INSERT INTO sequence_0_to_999 VALUES (?)");
-        stmt.bind(0, 0);
-        for (int i = 1; i < 1000; i++) {
-          stmt.add();
-          stmt.bind(0, i);
-        }
-        stmt.execute().blockLast();
+      SingleStoreStatement stmt =
+          sharedConn.createStatement("INSERT INTO sequence_0_to_999 VALUES (?)");
+      stmt.bind(0, 0);
+      for (int i = 1; i < 1000; i++) {
+        stmt.add();
+        stmt.bind(0, i);
       }
+      stmt.execute().blockLast();
     }
   }
 

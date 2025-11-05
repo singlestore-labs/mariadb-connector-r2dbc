@@ -46,31 +46,6 @@ public class BaseConnectionTest {
     SingleStoreConnectionConfiguration confPipeline =
         TestConfiguration.defaultBuilder.clone().useServerPrepStmts(true).build();
     sharedConnPrepare = new SingleStoreConnectionFactory(confPipeline).create().block();
-    String sqlModeAddition = "";
-    SingleStoreConnectionMetadata meta = sharedConn.getMetadata();
-    if ((meta.isMariaDBServer() && !meta.minVersion(10, 2, 4)) || !meta.isMariaDBServer()) {
-      sqlModeAddition += ",STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO";
-    }
-    if ((meta.isMariaDBServer() && !meta.minVersion(10, 1, 7)) || !meta.isMariaDBServer()) {
-      sqlModeAddition += ",NO_ENGINE_SUBSTITUTION";
-    }
-    if ((meta.isMariaDBServer() && !meta.minVersion(10, 1, 7))) {
-      sqlModeAddition += "NO_AUTO_CREATE_USER";
-    }
-
-    if (backslashEscape) {
-      sqlModeAddition += ",NO_BACKSLASH_ESCAPES";
-    }
-    if (!"".equals(sqlModeAddition)) {
-      sharedConn
-          .createStatement("SET @@sql_mode = concat(@@sql_mode,'" + sqlModeAddition + "')")
-          .execute()
-          .blockLast();
-      sharedConnPrepare
-          .createStatement("set sql_mode= concat(@@sql_mode,'" + sqlModeAddition + "')")
-          .execute()
-          .blockLast();
-    }
   }
 
   @AfterAll
@@ -91,11 +66,6 @@ public class BaseConnectionTest {
       Class<? extends Exception> expectedType, Executable executable, String expected) {
     Exception e = Assertions.assertThrows(expectedType, executable);
     Assertions.assertTrue(e.getMessage().contains(expected), "real message:" + e.getMessage());
-  }
-
-  public static boolean isMariaDBServer() {
-    SingleStoreConnectionMetadata meta = sharedConn.getMetadata();
-    return meta.isMariaDBServer();
   }
 
   public static boolean isXpand() {

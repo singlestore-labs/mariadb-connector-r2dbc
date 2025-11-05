@@ -14,14 +14,6 @@ public interface SingleStoreConnectionMetadata extends ConnectionMetadata {
   String getDatabaseVersion();
 
   /**
-   * Short cut to indicate that database server is a MariaDB. i.e. equals to
-   * "MariaDB".equals(getDatabaseProductName())
-   *
-   * @return true if database server is a MariaDB server.
-   */
-  boolean isMariaDBServer();
-
-  /**
    * Indicate if server does have required version.
    *
    * @param major major version

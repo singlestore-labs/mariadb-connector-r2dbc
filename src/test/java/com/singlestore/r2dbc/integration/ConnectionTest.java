@@ -694,7 +694,7 @@ public class ConnectionTest extends BaseConnectionTest {
           connection
               .toString()
               .contains(
-                  "MariadbConnection{client=Client{isClosed=false, "
+                  "SingleStoreConnection{client=Client{isClosed=false, "
                       + "context=ConnectionContext{"));
     } finally {
       connection.close().block();
@@ -858,32 +858,32 @@ public class ConnectionTest extends BaseConnectionTest {
   @Test
   public void testPools() throws Throwable {
     boolean hasReactorTcp = false;
-    boolean hasMariaDbThreads = false;
+    boolean hasSingleStoreThreads = false;
     Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
     for (Thread thread : threadSet) {
       if (thread.getName().contains("reactor-tcp")) hasReactorTcp = true;
-      if (thread.getName().contains("mariadb")) hasMariaDbThreads = true;
+      if (thread.getName().contains("singlestore")) hasSingleStoreThreads = true;
     }
     assertTrue(hasReactorTcp);
-    assertFalse(hasMariaDbThreads);
+    assertFalse(hasSingleStoreThreads);
 
     SingleStoreConnection connection =
         new SingleStoreConnectionFactory(
                 TestConfiguration.defaultBuilder
                     .clone()
-                    .loopResources(LoopResources.create("mariadb"))
+                    .loopResources(LoopResources.create("singlestore"))
                     .build())
             .create()
             .block();
 
     threadSet = Thread.getAllStackTraces().keySet();
     for (Thread thread : threadSet) {
-      if (thread.getName().contains("mariadb")) {
-        hasMariaDbThreads = true;
+      if (thread.getName().contains("singlestore")) {
+        hasSingleStoreThreads = true;
         break;
       }
     }
-    assertTrue(hasMariaDbThreads);
+    assertTrue(hasSingleStoreThreads);
 
     connection.close().block();
   }

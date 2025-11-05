@@ -51,7 +51,7 @@ public final class SingleStoreRowMetadata implements RowMetadata {
     if (this.columnNames == null) {
       this.columnNames = getColumnNames(this.metadataList);
     }
-    return "MariadbRowMetadata{columnNames=" + columnNames + "}";
+    return "SingleStoreRowMetadata{columnNames=" + columnNames + "}";
   }
 
   @Override

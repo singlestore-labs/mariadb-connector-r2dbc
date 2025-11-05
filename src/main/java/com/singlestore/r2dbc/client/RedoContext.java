@@ -17,7 +17,6 @@ public class RedoContext extends SimpleContext {
       long threadId,
       long capabilities,
       short serverStatus,
-      boolean mariaDBServer,
       long clientCapabilities,
       String database,
       ByteBufAllocator byteBufAllocator) {
@@ -26,7 +25,6 @@ public class RedoContext extends SimpleContext {
         threadId,
         capabilities,
         serverStatus,
-        mariaDBServer,
         clientCapabilities,
         database,
         byteBufAllocator);

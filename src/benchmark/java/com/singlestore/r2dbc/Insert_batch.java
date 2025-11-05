@@ -3,7 +3,7 @@
 
 package com.singlestore.r2dbc;
 
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.infra.Blackhole;
 
@@ -39,10 +39,10 @@ public class Insert_batch extends Common {
         return consume(state.r2dbcPrepare, blackhole);
     }
 
-    private Long consume(MariadbConnection connection, Blackhole blackhole) {
+    private Long consume(SingleStoreConnection connection, Blackhole blackhole) {
         String s = randomString(100);
 
-        MariadbStatement statement = connection.createStatement("INSERT INTO perfTestTextBatch(t0) VALUES (?)");
+        SingleStoreStatement statement = connection.createStatement("INSERT INTO perfTestTextBatch(t0) VALUES (?)");
         for (int i = 0; i < 100; i++) {
             if (i != 0) statement.add();
             statement.bind(0, s);

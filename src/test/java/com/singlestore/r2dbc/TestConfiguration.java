@@ -71,7 +71,7 @@ public class TestConfiguration {
     }
     String connString =
         String.format(
-            "r2dbc:mariadb://%s:%s@%s:%s/%s%s",
+            "r2dbc:singlestore://%s:%s@%s:%s/%s%s",
             encodedUser,
             encodedPwd,
             host,

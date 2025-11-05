@@ -326,7 +326,7 @@ public class TlsTest extends BaseConnectionTest {
             .clone()
             .port(sslPort)
             .sslMode(SslMode.VERIFY_FULL)
-            .host("mariadb2.example.com")
+            .host("singlestore2.example.com")
             .serverSslCert(serverSslCert)
             .build();
 

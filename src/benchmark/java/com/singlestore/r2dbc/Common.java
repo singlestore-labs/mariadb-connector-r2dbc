@@ -37,22 +37,22 @@ public class Common {
     @State(Scope.Thread)
     public static class MyState {
 
-        protected MariadbConnection r2dbc;
-        protected MariadbConnection r2dbcPrepare;
+        protected SingleStoreConnection r2dbc;
+        protected SingleStoreConnection r2dbcPrepare;
 
         @Setup(Level.Trial)
         @SuppressWarnings("unchecked")
         public void doSetup() throws Exception {
             String url =
                     String.format(
-                            "r2dbc:mariadb://%s:%s@%s:%s/%s", username, password, host, port, database);
+                            "r2dbc:singlestore://%s:%s@%s:%s/%s", username, password, host, port, database);
 
             String urlPrepare =
                     String.format(
-                            "r2dbc:mariadb://%s:%s@%s:%s/%s?useServerPrepStmts=true", username, password, host, port, database);
+                            "r2dbc:singlestore://%s:%s@%s:%s/%s?useServerPrepStmts=true", username, password, host, port, database);
 
-            r2dbc = ((Mono<com.singlestore.r2dbc.MariadbConnection>) ConnectionFactories.get(url).create()).block();
-            r2dbcPrepare = ((Mono<com.singlestore.r2dbc.MariadbConnection>) ConnectionFactories.get(urlPrepare).create()).block();
+            r2dbc = ((Mono<com.singlestore.r2dbc.SingleStoreConnection>) ConnectionFactories.get(url).create()).block();
+            r2dbcPrepare = ((Mono<com.singlestore.r2dbc.SingleStoreConnection>) ConnectionFactories.get(urlPrepare).create()).block();
         }
 
         @TearDown(Level.Trial)

@@ -3,7 +3,7 @@
 
 package com.singlestore.r2dbc;
 
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import org.openjdk.jmh.annotations.Benchmark;
 
 public class Do_1000_param extends Common {
@@ -27,8 +27,8 @@ public class Do_1000_param extends Common {
         return consume(state.r2dbcPrepare);
     }
 
-    private Long consume(MariadbConnection connection) {
-        MariadbStatement statement = connection.createStatement(sql);
+    private Long consume(SingleStoreConnection connection) {
+        SingleStoreStatement statement = connection.createStatement(sql);
         for (int i = 0; i < 1000; i++)
             statement.bind(i, i);
         return statement.execute()

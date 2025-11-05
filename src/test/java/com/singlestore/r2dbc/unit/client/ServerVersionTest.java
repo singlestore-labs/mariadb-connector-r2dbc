@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ServerVersionTest {
   @Test
   void testMinVersion() {
-    ServerVersion sv = new ServerVersion("10.2.25-mariadb", true);
+    ServerVersion sv = new ServerVersion("10.2.25-singlestore");
     assertEquals(10, sv.getMajorVersion());
     assertEquals(2, sv.getMinorVersion());
     assertEquals(25, sv.getPatchVersion());
@@ -25,7 +25,7 @@ public class ServerVersionTest {
     assertFalse(sv.versionGreaterOrEqual(10, 3, 8));
     assertFalse(sv.versionGreaterOrEqual(10, 2, 30));
 
-    ServerVersion sv2 = new ServerVersion("10.2.25", true);
+    ServerVersion sv2 = new ServerVersion("10.2.25");
     assertEquals(10, sv2.getMajorVersion());
     assertEquals(2, sv2.getMinorVersion());
     assertEquals(25, sv2.getPatchVersion());

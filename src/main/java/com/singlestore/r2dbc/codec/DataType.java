@@ -38,14 +38,14 @@ public enum DataType {
   static {
     typeMap = new DataType[256];
     for (DataType v : values()) {
-      typeMap[v.mariadbType] = v;
+      typeMap[v.singlestoreType] = v;
     }
   }
 
-  private final short mariadbType;
+  private final short singlestoreType;
 
-  DataType(int mariadbType) {
-    this.mariadbType = (short) mariadbType;
+  DataType(int singlestoreType) {
+    this.singlestoreType = (short) singlestoreType;
   }
 
   /**
@@ -53,14 +53,14 @@ public enum DataType {
    *
    * @param typeValue type value
    * @param charsetNumber charset
-   * @return MariaDb type
+   * @return SingleStore type
    */
   public static DataType fromServer(int typeValue, int charsetNumber) {
 
     DataType dataType = typeMap[typeValue];
 
     if (charsetNumber != 63 && typeValue >= 249 && typeValue <= 252) {
-      // MariaDB Text dataType
+      // SingleStore Text dataType
       return DataType.TEXT;
     }
 
@@ -68,6 +68,6 @@ public enum DataType {
   }
 
   public short get() {
-    return mariadbType;
+    return singlestoreType;
   }
 }

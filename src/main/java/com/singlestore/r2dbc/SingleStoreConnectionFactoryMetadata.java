@@ -7,7 +7,7 @@ import io.r2dbc.spi.ConnectionFactoryMetadata;
 
 final class SingleStoreConnectionFactoryMetadata implements ConnectionFactoryMetadata {
 
-  public static final String NAME = "MariaDB";
+  public static final String NAME = "SingleStore";
 
   static final SingleStoreConnectionFactoryMetadata INSTANCE = new SingleStoreConnectionFactoryMetadata();
 

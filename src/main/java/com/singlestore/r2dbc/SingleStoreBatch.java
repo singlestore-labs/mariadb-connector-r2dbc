@@ -104,7 +104,7 @@ final class SingleStoreBatch implements com.singlestore.r2dbc.api.SingleStoreBat
                                   client.getVersion().supportReturning(),
                                   configuration))
                       .cast(SingleStoreResult.class))
-          .flatMap(mariadbResultFlux -> mariadbResultFlux)
+          .flatMap(singlestoreResultFlux -> singlestoreResultFlux)
           .doOnCancel(() -> canceled.set(true))
           .doOnSubscribe(
               it -> commandsSink.emitNext(iterator.next(), Sinks.EmitFailureHandler.FAIL_FAST));

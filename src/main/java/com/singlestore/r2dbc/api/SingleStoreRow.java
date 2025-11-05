@@ -7,7 +7,7 @@ import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
 import com.singlestore.r2dbc.client.SingleStoreRowMetadata;
 
-/** A {@link Row} for a MariaDB/MySQL database. */
+/** A {@link Row} for a SingleStore/MySQL database. */
 public interface SingleStoreRow extends Row {
 
   /**

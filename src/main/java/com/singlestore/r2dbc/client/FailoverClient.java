@@ -226,7 +226,7 @@ public class FailoverClient implements Client {
                     .doOnComplete(() -> tryNextCommand(endedCmdQueue, cmdSink, canceled, request));
               }
             })
-        .flatMap(mariadbResultFlux -> mariadbResultFlux)
+        .flatMap(singlestoreResultFlux -> singlestoreResultFlux)
         .doOnCancel(() -> canceled.set(true))
         .doOnDiscard(RowPacket.class, RowPacket::release)
         .doOnError(e -> canceled.set(true))
