@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.MariadbConnectionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
 import com.singlestore.r2dbc.TestConfiguration;
-import com.singlestore.r2dbc.api.MariadbBatch;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbResult;
+import com.singlestore.r2dbc.api.SingleStoreBatch;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.api.SingleStoreResult;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -27,7 +27,7 @@ public class BatchTest extends BaseConnectionTest {
         .execute()
         .blockLast();
     sharedConn.beginTransaction().block(); // if MAXSCALE ensure using WRITER
-    MariadbBatch batch = sharedConn.createBatch();
+    SingleStoreBatch batch = sharedConn.createBatch();
     int[] res = new int[20];
     for (int i = 0; i < 20; i++) {
       batch.add("INSERT INTO basicBatch VALUES (" + i + ", 'test" + i + "')");
@@ -59,24 +59,24 @@ public class BatchTest extends BaseConnectionTest {
         !sharedConn.getMetadata().getDatabaseVersion().contains("maxScale-6.1.")
             && !isMaxscale()
             && !"skysql-ha".equals(System.getenv("srv")));
-    MariadbConnectionConfiguration confMulti =
+    SingleStoreConnectionConfiguration confMulti =
         TestConfiguration.defaultBuilder.clone().allowMultiQueries(true).build();
     batchTest(confMulti);
-    MariadbConnectionConfiguration confNoMulti =
+    SingleStoreConnectionConfiguration confNoMulti =
         TestConfiguration.defaultBuilder.clone().allowMultiQueries(false).build();
     batchTest(confNoMulti);
   }
 
-  private void batchTest(MariadbConnectionConfiguration conf) throws Exception {
+  private void batchTest(SingleStoreConnectionConfiguration conf) throws Exception {
     sharedConn.createStatement("DROP TABLE IF EXISTS multiBatch").execute().blockLast();
     sharedConn
         .createStatement("CREATE TABLE multiBatch (id int, test varchar(10))")
         .execute()
         .blockLast();
-    MariadbConnection multiConn = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection multiConn = new SingleStoreConnectionFactory(conf).create().block();
     try {
       multiConn.beginTransaction().block(); // if MAXSCALE ensure using WRITER
-      MariadbBatch batch = multiConn.createBatch();
+      SingleStoreBatch batch = multiConn.createBatch();
       int[] res = new int[20];
       for (int i = 0; i < 20; i++) {
         batch.add("INSERT INTO multiBatch VALUES (" + i + ", 'test" + i + "')");
@@ -109,15 +109,15 @@ public class BatchTest extends BaseConnectionTest {
     Assumptions.assumeTrue(
         !sharedConn.getMetadata().getDatabaseVersion().contains("maxScale-6.1.")
             && !"skysql-ha".equals(System.getenv("srv")));
-    MariadbConnectionConfiguration confNoMulti =
+    SingleStoreConnectionConfiguration confNoMulti =
         TestConfiguration.defaultBuilder.clone().allowMultiQueries(false).build();
-    MariadbConnection multiConn = new MariadbConnectionFactory(confNoMulti).create().block();
+    SingleStoreConnection multiConn = new SingleStoreConnectionFactory(confNoMulti).create().block();
     try {
       multiConn
           .createStatement("CREATE TEMPORARY TABLE multiBatch (id int, test varchar(10))")
           .execute()
           .blockLast();
-      MariadbBatch batch = multiConn.createBatch();
+      SingleStoreBatch batch = multiConn.createBatch();
 
       int[] res = new int[10_000];
       for (int i = 0; i < res.length; i++) {
@@ -125,7 +125,7 @@ public class BatchTest extends BaseConnectionTest {
         res[i] = i;
       }
       AtomicInteger resultNb = new AtomicInteger(0);
-      Flux<MariadbResult> f = batch.execute();
+      Flux<SingleStoreResult> f = batch.execute();
       Disposable disp =
           f.flatMap(it -> it.getRowsUpdated()).subscribe(i -> resultNb.incrementAndGet());
       for (int i = 0; i < 100; i++) {
@@ -144,7 +144,7 @@ public class BatchTest extends BaseConnectionTest {
 
   @Test
   void batchWithParameter() {
-    MariadbBatch batch = sharedConn.createBatch();
+    SingleStoreBatch batch = sharedConn.createBatch();
     batch.add("INSERT INTO JJ VALUES ('g?')");
     batch.add("INSERT INTO JJ VALUES ('g') /* ?*/");
     batch.add("INSERT INTO JJ VALUES ('g') /* :named_param*/");
@@ -170,7 +170,7 @@ public class BatchTest extends BaseConnectionTest {
     batchError(sharedConnPrepare);
   }
 
-  void batchError(MariadbConnection conn) {
+  void batchError(SingleStoreConnection conn) {
     conn.createStatement("CREATE TEMPORARY TABLE basicBatch2 (id int, test varchar(10))")
         .execute()
         .blockLast();

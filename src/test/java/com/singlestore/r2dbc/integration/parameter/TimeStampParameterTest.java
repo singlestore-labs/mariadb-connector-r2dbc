@@ -14,9 +14,8 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbConnectionMetadata;
-import com.singlestore.r2dbc.api.MariadbResult;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.api.SingleStoreResult;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -51,8 +50,8 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     bigIntValue(sharedConnPrepare);
   }
 
-  private void bigIntValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void bigIntValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")
             .bind(0, BigInteger.ONE)
@@ -83,8 +82,8 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     stringValue(sharedConnPrepare);
   }
 
-  private void stringValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void stringValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")
             .bind(0, "1")
@@ -115,8 +114,8 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     decimalValue(sharedConnPrepare);
   }
 
-  private void decimalValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void decimalValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")
             .bind(0, BigDecimal.ONE)
@@ -147,8 +146,8 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     intValue(sharedConnPrepare);
   }
 
-  private void intValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void intValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")
             .bind(0, 1)
@@ -179,8 +178,8 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     byteValue(sharedConnPrepare);
   }
 
-  private void byteValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void byteValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")
             .bind(0, (byte) 127)
@@ -211,8 +210,8 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     floatValue(sharedConnPrepare);
   }
 
-  private void floatValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void floatValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")
             .bind(0, 127f)
@@ -243,8 +242,8 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     doubleValue(sharedConnPrepare);
   }
 
-  private void doubleValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void doubleValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")
             .bind(0, 127d)
@@ -275,8 +274,8 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     shortValue(sharedConnPrepare);
   }
 
-  private void shortValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void shortValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")
             .bind(0, Short.valueOf("1"))
@@ -307,8 +306,8 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     longValue(sharedConnPrepare);
   }
 
-  private void longValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void longValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")
             .bind(0, Long.valueOf("1"))
@@ -339,7 +338,7 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     localDateTimeValue(sharedConnPrepare);
   }
 
-  private void localDateTimeValue(MariadbConnection connection) {
+  private void localDateTimeValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")
         .bind(0, LocalDateTime.parse("2010-01-12T05:08:09.0014"))
@@ -363,7 +362,7 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     localDateValue(sharedConnPrepare);
   }
 
-  private void localDateValue(MariadbConnection connection) {
+  private void localDateValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")
         .bind(0, LocalDate.parse("2010-01-12"))
@@ -382,7 +381,7 @@ public class TimeStampParameterTest extends BaseConnectionTest {
     localTimeValue(sharedConn);
   }
 
-  private void localTimeValue(MariadbConnection connection) {
+  private void localTimeValue(SingleStoreConnection connection) {
     LocalTime localTime = LocalTime.parse("05:08:10.123456");
     connection
         .createStatement("INSERT INTO TimestampParam VALUES (?,?,?)")

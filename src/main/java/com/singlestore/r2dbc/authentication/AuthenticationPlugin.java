@@ -4,7 +4,7 @@
 package com.singlestore.r2dbc.authentication;
 
 import io.r2dbc.spi.R2dbcException;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
 import com.singlestore.r2dbc.message.AuthMoreData;
 import com.singlestore.r2dbc.message.ClientMessage;
 import com.singlestore.r2dbc.message.server.Sequencer;
@@ -16,7 +16,7 @@ public interface AuthenticationPlugin {
   AuthenticationPlugin create();
 
   ClientMessage next(
-      MariadbConnectionConfiguration configuration,
+      SingleStoreConnectionConfiguration configuration,
       byte[] seed,
       Sequencer sequencer,
       AuthMoreData authMoreData)

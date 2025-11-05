@@ -20,8 +20,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import com.singlestore.r2dbc.*;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import com.singlestore.r2dbc.tools.TcpProxy;
 import com.singlestore.r2dbc.util.HostAddress;
 import reactor.test.StepVerifier;
@@ -47,7 +47,7 @@ public class FailoverConnectionTest extends BaseConnectionTest {
             .execute()
             .blockLast();
       } else {
-        MariadbStatement stmt =
+        SingleStoreStatement stmt =
             sharedConn.createStatement("INSERT INTO sequence_0_to_999 VALUES (?)");
         stmt.bind(0, 0);
         for (int i = 1; i < 1000; i++) {
@@ -68,7 +68,7 @@ public class FailoverConnectionTest extends BaseConnectionTest {
             && !"skysql".equals(System.getenv("srv"))
             && !"skysql-ha".equals(System.getenv("srv")));
 
-    MariadbConnection connection = createFailoverProxyConnection(HaMode.SEQUENTIAL, false, false);
+    SingleStoreConnection connection = createFailoverProxyConnection(HaMode.SEQUENTIAL, false, false);
     try {
       connection.createStatement("SET @con=1").execute().blockLast();
       assertTrue(connection.validate(ValidationDepth.REMOTE).block());
@@ -94,7 +94,7 @@ public class FailoverConnectionTest extends BaseConnectionTest {
             && !"skysql".equals(System.getenv("srv"))
             && !"skysql-ha".equals(System.getenv("srv")));
 
-    MariadbConnection connection = createFailoverProxyConnection(HaMode.SEQUENTIAL, false, false);
+    SingleStoreConnection connection = createFailoverProxyConnection(HaMode.SEQUENTIAL, false, false);
     try {
       connection.setAutoCommit(false).block();
       connection.beginTransaction().block();
@@ -134,7 +134,7 @@ public class FailoverConnectionTest extends BaseConnectionTest {
     }
   }
 
-  private void transactionReplayFailingBetweenCmds(MariadbConnection connection) throws Exception {
+  private void transactionReplayFailingBetweenCmds(SingleStoreConnection connection) throws Exception {
     try {
       connection.createStatement("SET @con=1").execute().blockLast();
 
@@ -207,7 +207,7 @@ public class FailoverConnectionTest extends BaseConnectionTest {
     transactionReplayFailingDuringCmd(createFailoverProxyConnection(HaMode.SEQUENTIAL, true, true));
   }
 
-  private void transactionReplayFailingDuringCmd(MariadbConnection connection) throws Exception {
+  private void transactionReplayFailingDuringCmd(SingleStoreConnection connection) throws Exception {
     connection.setAutoCommit(false).block();
     connection.beginTransaction().block();
 
@@ -255,7 +255,7 @@ public class FailoverConnectionTest extends BaseConnectionTest {
     Thread.sleep(50);
   }
 
-  private MariadbConnection createFailoverProxyConnection(
+  private SingleStoreConnection createFailoverProxyConnection(
       HaMode haMode, boolean transactionReplay, boolean usePrepare) throws Exception {
 
     HostAddress hostAddress = TestConfiguration.defaultConf.getHostAddresses().get(0);
@@ -268,7 +268,7 @@ public class FailoverConnectionTest extends BaseConnectionTest {
     List<HostAddress> hosts = new ArrayList<>();
     hosts.add(new HostAddress("localhost", 9999));
     hosts.add(new HostAddress("localhost", proxy.getLocalPort()));
-    MariadbConnectionConfiguration.Builder builder =
+    SingleStoreConnectionConfiguration.Builder builder =
         TestConfiguration.defaultBuilder
             .clone()
             .haMode(haMode.name())
@@ -285,8 +285,8 @@ public class FailoverConnectionTest extends BaseConnectionTest {
       builder.sslMode(SslMode.VERIFY_CA);
     }
 
-    MariadbConnectionConfiguration confProxy = builder.build();
+    SingleStoreConnectionConfiguration confProxy = builder.build();
 
-    return new MariadbConnectionFactory(confProxy).create().block();
+    return new SingleStoreConnectionFactory(confProxy).create().block();
   }
 }

@@ -3,6 +3,7 @@
 
 package com.singlestore.r2dbc.integration;
 
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import io.r2dbc.spi.R2dbcDataIntegrityViolationException;
 import io.r2dbc.spi.R2dbcTransientResourceException;
 import io.r2dbc.spi.Statement;
@@ -11,9 +12,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbConnectionMetadata;
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnectionMetadata;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -210,7 +210,7 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   void bindUnknownClass() {
-    MariadbStatement stmt = sharedConn.createStatement("INSERT INTO someTable values (?)");
+    SingleStoreStatement stmt = sharedConn.createStatement("INSERT INTO someTable values (?)");
     try {
       stmt.bind(0, sharedConn).execute().subscribe();
       Assertions.fail("must have thrown exception");
@@ -261,7 +261,7 @@ public class StatementTest extends BaseConnectionTest {
 
   @Test
   void fetchSize() {
-    MariadbConnectionMetadata meta = sharedConn.getMetadata();
+    SingleStoreConnectionMetadata meta = sharedConn.getMetadata();
 
     sharedConn
         .createStatement("SELECT * FROM seq_1_to_1000 ORDER BY seq")
@@ -358,7 +358,7 @@ public class StatementTest extends BaseConnectionTest {
   public void sinkEndCheck() throws Throwable {
     AtomicReference<Disposable> d = new AtomicReference<>();
     AtomicReference<Disposable> d2 = new AtomicReference<>();
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     connection.beginTransaction().block();
     try {
       Flux<Integer> flux =
@@ -397,7 +397,7 @@ public class StatementTest extends BaseConnectionTest {
   @Test
   public void sinkFirstOnly() throws Throwable {
     AtomicReference<Disposable> d2 = new AtomicReference<>();
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     connection.beginTransaction().block();
     try {
       Flux<Integer> flux =
@@ -712,12 +712,12 @@ public class StatementTest extends BaseConnectionTest {
     parameterNull(sharedConnPrepare);
   }
 
-  void parameterNull(MariadbConnection conn) {
+  void parameterNull(SingleStoreConnection conn) {
     conn.beginTransaction().block();
     conn.createStatement("INSERT INTO parameterNull VALUES ('1', '1', 1), (null, '2', 2), (null, null, 3)")
         .execute()
         .blockLast();
-    MariadbStatement stmt =
+    SingleStoreStatement stmt =
         conn.createStatement("SELECT t2 FROM parameterNull WHERE COALESCE(t,?) is null ORDER BY id");
     stmt.bindNull(0, Integer.class)
         .execute()

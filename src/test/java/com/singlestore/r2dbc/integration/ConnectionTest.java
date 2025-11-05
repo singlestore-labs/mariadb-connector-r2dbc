@@ -5,6 +5,7 @@ package com.singlestore.r2dbc.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import io.r2dbc.spi.*;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -15,8 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.*;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.resources.LoopResources;
@@ -46,7 +46,7 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void localValidationClosedConnection() {
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     connection.close().block();
     connection
         .validate(ValidationDepth.LOCAL)
@@ -63,7 +63,7 @@ public class ConnectionTest extends BaseConnectionTest {
             && !"skysql-ha".equals(System.getenv("srv")));
 
     // disableLog();
-    MariadbConnection connection = createProxyCon();
+    SingleStoreConnection connection = createProxyCon();
     proxy.forceClose();
     connection
         .setAutoCommit(false)
@@ -85,7 +85,7 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void validate() {
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     assertTrue(connection.validate(ValidationDepth.LOCAL).block());
     assertTrue(connection.validate(ValidationDepth.REMOTE).block());
     connection.close().block();
@@ -101,7 +101,7 @@ public class ConnectionTest extends BaseConnectionTest {
         !isMaxscale()
             && !"skysql".equals(System.getenv("srv"))
             && !"skysql-ha".equals(System.getenv("srv")));
-    MariadbConnection connection = createProxyCon();
+    SingleStoreConnection connection = createProxyCon();
     proxy.stop();
     connection.close().block();
   }
@@ -130,7 +130,7 @@ public class ConnectionTest extends BaseConnectionTest {
     Assumptions.assumeTrue(System.getenv("local") == null || "1".equals(System.getenv("local")));
 
     Assumptions.assumeTrue(!isMaxscale() && !isEnterprise());
-    MariadbConnection connection = createProxyCon();
+    SingleStoreConnection connection = createProxyCon();
     new Timer()
         .schedule(
             new TimerTask() {
@@ -168,7 +168,7 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void remoteValidationClosedConnection() {
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     assert connection != null;
     connection.close().block();
     connection
@@ -181,7 +181,7 @@ public class ConnectionTest extends BaseConnectionTest {
   @Test
   void multipleConnection() {
     for (int i = 0; i < 50; i++) {
-      MariadbConnection connection = factory.create().block();
+      SingleStoreConnection connection = factory.create().block();
       connection
           .validate(ValidationDepth.REMOTE)
           .as(StepVerifier::create)
@@ -193,16 +193,16 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void connectTimeout() throws Exception {
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder.clone().connectTimeout(Duration.ofSeconds(1)).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     consume(connection);
     connection.close().block();
   }
 
   @Test
   void timeoutMultiHost() throws Exception {
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .host(
@@ -215,7 +215,7 @@ public class ConnectionTest extends BaseConnectionTest {
                         .getHost())
             .connectTimeout(Duration.ofMillis(500))
             .build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     consume(connection);
     connection.close().block();
   }
@@ -244,15 +244,15 @@ public class ConnectionTest extends BaseConnectionTest {
         .blockLast();
     sharedConn.createStatement("FLUSH PRIVILEGES").execute().blockLast();
 
-    MariadbConnectionConfiguration conf =
-        MariadbConnectionConfiguration.builder()
+    SingleStoreConnectionConfiguration conf =
+        SingleStoreConnectionConfiguration.builder()
             .username("testSocket")
             .password("MySup5%rPassw@ord")
             .database(TestConfiguration.database)
             .socket(socket)
             .build();
 
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     consume(connection);
     assert connection != null;
     connection.close().block();
@@ -262,9 +262,9 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void socketTcpKeepAlive() throws Exception {
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder.clone().tcpKeepAlive(Boolean.TRUE).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     consume(connection);
     assert connection != null;
     connection.close().block();
@@ -272,9 +272,9 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void socketTcpAbortiveClose() throws Exception {
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder.clone().tcpAbortiveClose(Boolean.TRUE).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     consume(connection);
     assert connection != null;
     connection.close().block();
@@ -282,13 +282,13 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void basicConnectionWithoutPipeline() throws Exception {
-    MariadbConnectionConfiguration noPipeline =
+    SingleStoreConnectionConfiguration noPipeline =
         TestConfiguration.defaultBuilder
             .clone()
             .useServerPrepStmts(true)
             .prepareCacheSize(1)
             .build();
-    MariadbConnection connection = new MariadbConnectionFactory(noPipeline).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(noPipeline).create().block();
     connection
         .createStatement("SELECT 5")
         .execute()
@@ -342,9 +342,9 @@ public class ConnectionTest extends BaseConnectionTest {
     Map<String, Object> sessionVariable = new HashMap<>();
     sessionVariable.put("collation_connection", "utf8_slovenian_ci");
     sessionVariable.put("wait_timeout", 3600);
-    MariadbConnectionConfiguration cnf =
+    SingleStoreConnectionConfiguration cnf =
         TestConfiguration.defaultBuilder.clone().sessionVariables(sessionVariable).build();
-    MariadbConnection connection = new MariadbConnectionFactory(cnf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(cnf).create().block();
     connection
         .createStatement("SELECT 5")
         .execute()
@@ -355,10 +355,10 @@ public class ConnectionTest extends BaseConnectionTest {
     connection.close().block();
 
     sessionVariable.put("test", null);
-    MariadbConnectionConfiguration cnf2 =
+    SingleStoreConnectionConfiguration cnf2 =
         TestConfiguration.defaultBuilder.clone().sessionVariables(sessionVariable).build();
     try {
-      new MariadbConnectionFactory(cnf2).create().block();
+      new SingleStoreConnectionFactory(cnf2).create().block();
       Assertions.fail("must have throw exception");
     } catch (Throwable t) {
       Assertions.assertEquals(R2dbcNonTransientResourceException.class, t.getClass());
@@ -371,20 +371,20 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void multipleClose() {
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     connection.close().subscribe();
     connection.close().block();
   }
 
   @Test
   void multipleBegin() throws Exception {
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     assert connection != null;
     multipleBegin(connection);
     connection.close().block();
 
     connection =
-        new MariadbConnectionFactory(
+        new SingleStoreConnectionFactory(
                 TestConfiguration.defaultBuilder.clone().build())
             .create()
             .block();
@@ -393,7 +393,7 @@ public class ConnectionTest extends BaseConnectionTest {
     connection.close().block();
   }
 
-  void multipleBegin(MariadbConnection con) throws Exception {
+  void multipleBegin(SingleStoreConnection con) throws Exception {
     con.beginTransaction().subscribe();
     con.beginTransaction().block();
     con.beginTransaction().block();
@@ -402,13 +402,13 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void multipleAutocommit() throws Exception {
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     assert connection != null;
     multipleAutocommit(connection);
     connection.close().block();
 
     connection =
-        new MariadbConnectionFactory(
+        new SingleStoreConnectionFactory(
                 TestConfiguration.defaultBuilder.clone().build())
             .create()
             .block();
@@ -417,7 +417,7 @@ public class ConnectionTest extends BaseConnectionTest {
     connection.close().block();
   }
 
-  void multipleAutocommit(MariadbConnection con) throws Exception {
+  void multipleAutocommit(SingleStoreConnection con) throws Exception {
     con.setAutoCommit(true).subscribe();
     con.setAutoCommit(true).block();
     con.setAutoCommit(false).block();
@@ -426,8 +426,8 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void queryAfterClose() throws Exception {
-    MariadbConnection connection = factory.create().block();
-    MariadbStatement stmt = connection.createStatement("SELECT 1");
+    SingleStoreConnection connection = factory.create().block();
+    SingleStoreStatement stmt = connection.createStatement("SELECT 1");
     connection.close().block();
     stmt.execute()
         .as(StepVerifier::create)
@@ -476,7 +476,7 @@ public class ConnectionTest extends BaseConnectionTest {
   @Test
   @Timeout(120)
   void multiThreadingSameConnection() throws Throwable {
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     try {
       AtomicInteger completed = new AtomicInteger(0);
       ThreadPoolExecutor scheduler =
@@ -501,9 +501,9 @@ public class ConnectionTest extends BaseConnectionTest {
     connectionAttributes.put("APPLICATION", "MyApp");
     connectionAttributes.put("OTHER", "OTHER information");
 
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder.clone().connectionAttributes(connectionAttributes).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     assert connection != null;
     connection.close().block();
   }
@@ -527,9 +527,9 @@ public class ConnectionTest extends BaseConnectionTest {
     sessionVariables.put("multi_statement_xact_idle_timeout", 60);
     sessionVariables.put("lock_wait_timeout", 2147483);
 
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder.clone().sessionVariables(sessionVariables).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     assert connection != null;
     connection
         .createStatement("SELECT @@lock_wait_timeout, @@multi_statement_xact_idle_timeout")
@@ -552,8 +552,8 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void getTransactionIsolationLevel() {
-    MariadbConnection connection =
-        new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
+    SingleStoreConnection connection =
+        new SingleStoreConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
     try {
       IsolationLevel defaultValue = IsolationLevel.READ_COMMITTED;
       Assertions.assertEquals(defaultValue, connection.getTransactionIsolationLevel());
@@ -570,8 +570,8 @@ public class ConnectionTest extends BaseConnectionTest {
   @Test
   void getDatabase() {
     Assumptions.assumeFalse(isXpand());
-    MariadbConnection connection =
-        new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
+    SingleStoreConnection connection =
+        new SingleStoreConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
     assertEquals(TestConfiguration.database, connection.getDatabase());
     connection.setDatabase("test_r2dbc").block();
     assertEquals("test_r2dbc", connection.getDatabase());
@@ -608,24 +608,24 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void commitTransaction() throws Exception {
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     commitTransaction(connection);
-    MariadbStatement stmt = connection.createStatement("DO 1");
+    SingleStoreStatement stmt = connection.createStatement("DO 1");
     connection.close().block();
     assertThrows(R2dbcNonTransientResourceException.class, () -> stmt.execute().blockLast(), "");
 
     connection =
-        new MariadbConnectionFactory(
+        new SingleStoreConnectionFactory(
                 TestConfiguration.defaultBuilder.clone().build())
             .create()
             .block();
     commitTransaction(connection);
-    MariadbStatement stmt2 = connection.createStatement("DO 1");
+    SingleStoreStatement stmt2 = connection.createStatement("DO 1");
     connection.close().block();
     assertThrows(R2dbcNonTransientResourceException.class, () -> stmt2.execute().blockLast(), "");
   }
 
-  void commitTransaction(MariadbConnection con) {
+  void commitTransaction(SingleStoreConnection con) {
     con.createStatement("DROP TABLE IF EXISTS commitTransaction").execute().blockLast();
     con.createStatement("CREATE TABLE commitTransaction (t1 VARCHAR(256))").execute().blockLast();
     con.setAutoCommit(false).subscribe();
@@ -646,9 +646,9 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void useTransaction() throws Exception {
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     useTransaction(connection);
-    MariadbStatement stmt = connection.createStatement("DO 1");
+    SingleStoreStatement stmt = connection.createStatement("DO 1");
     connection.close().block();
     assertThrows(
         R2dbcNonTransientResourceException.class,
@@ -656,12 +656,12 @@ public class ConnectionTest extends BaseConnectionTest {
         "The connection is closed. Unable to send anything");
 
     connection =
-        new MariadbConnectionFactory(
+        new SingleStoreConnectionFactory(
                 TestConfiguration.defaultBuilder.clone().build())
             .create()
             .block();
     useTransaction(connection);
-    MariadbStatement stmt2 = connection.createStatement("DO 1");
+    SingleStoreStatement stmt2 = connection.createStatement("DO 1");
     connection.close().block();
     assertThrows(
         R2dbcNonTransientResourceException.class,
@@ -669,7 +669,7 @@ public class ConnectionTest extends BaseConnectionTest {
         "The connection is closed. Unable to send anything");
   }
 
-  void useTransaction(MariadbConnection conn) {
+  void useTransaction(SingleStoreConnection conn) {
     conn.createStatement("DROP TABLE IF EXISTS useTransaction").execute().blockLast();
     conn.createStatement("CREATE TABLE useTransaction (t1 VARCHAR(256))").execute().blockLast();
     conn.beginTransaction().subscribe();
@@ -687,8 +687,8 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   void toStringTest() {
-    MariadbConnection connection =
-        new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
+    SingleStoreConnection connection =
+        new SingleStoreConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
     try {
       Assertions.assertTrue(
           connection
@@ -703,8 +703,8 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   public void isolationLevel() {
-    MariadbConnection connection =
-        new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
+    SingleStoreConnection connection =
+        new SingleStoreConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
 
     Assertions.assertThrows(
         Exception.class, () -> connection.setTransactionIsolationLevel(null).block());
@@ -718,8 +718,8 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   public void noDb() throws Throwable {
-    MariadbConnection connection =
-        new MariadbConnectionFactory(
+    SingleStoreConnection connection =
+        new SingleStoreConnectionFactory(
                 TestConfiguration.defaultBuilder.clone().database(null).build())
             .create()
             .block();
@@ -755,12 +755,12 @@ public class ConnectionTest extends BaseConnectionTest {
       Throwable expected = null;
       Mono<?>[] cons = new Mono<?>[maxConn.intValue()];
       for (int i = 0; i < maxConn.intValue(); i++) {
-        cons[i] = new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create();
+        cons[i] = new SingleStoreConnectionFactory(TestConfiguration.defaultBuilder.build()).create();
       }
-      MariadbConnection[] connections = new MariadbConnection[maxConn.intValue()];
+      SingleStoreConnection[] connections = new SingleStoreConnection[maxConn.intValue()];
       for (int i = 0; i < maxConn.intValue(); i++) {
         try {
-          connections[i] = (MariadbConnection) cons[i].block();
+          connections[i] = (SingleStoreConnection) cons[i].block();
         } catch (Throwable e) {
           expected = e;
         }
@@ -790,7 +790,7 @@ public class ConnectionTest extends BaseConnectionTest {
         !isMaxscale()
             && !"skysql".equals(System.getenv("srv"))
             && !"skysql-ha".equals(System.getenv("srv")));
-    MariadbConnection connection = factory.create().block();
+    SingleStoreConnection connection = factory.create().block();
     long threadId = connection.getThreadId();
     assertNotNull(connection.getHost());
     assertEquals(TestConfiguration.defaultBuilder.build().getPort(), connection.getPort());
@@ -839,8 +839,8 @@ public class ConnectionTest extends BaseConnectionTest {
 
   @Test
   public void queryTimeout() throws Throwable {
-    MariadbConnection connection =
-        new MariadbConnectionFactory(TestConfiguration.defaultBuilder.clone().build())
+    SingleStoreConnection connection =
+        new SingleStoreConnectionFactory(TestConfiguration.defaultBuilder.clone().build())
             .create()
             .block();
     assertThrows(
@@ -867,8 +867,8 @@ public class ConnectionTest extends BaseConnectionTest {
     assertTrue(hasReactorTcp);
     assertFalse(hasMariaDbThreads);
 
-    MariadbConnection connection =
-        new MariadbConnectionFactory(
+    SingleStoreConnection connection =
+        new SingleStoreConnectionFactory(
                 TestConfiguration.defaultBuilder
                     .clone()
                     .loopResources(LoopResources.create("mariadb"))
@@ -890,7 +890,7 @@ public class ConnectionTest extends BaseConnectionTest {
 
   protected class ExecuteQueries implements Runnable {
     private final AtomicInteger i;
-    private MariadbConnection connection = null;
+    private SingleStoreConnection connection = null;
 
     public ExecuteQueries(AtomicInteger i) {
       this.i = i;
@@ -925,9 +925,9 @@ public class ConnectionTest extends BaseConnectionTest {
 
   protected class ExecuteQueriesOnSameConnection implements Runnable {
     private final AtomicInteger i;
-    private final MariadbConnection connection;
+    private final SingleStoreConnection connection;
 
-    public ExecuteQueriesOnSameConnection(AtomicInteger i, MariadbConnection connection) {
+    public ExecuteQueriesOnSameConnection(AtomicInteger i, SingleStoreConnection connection) {
       this.i = i;
       this.connection = connection;
     }

@@ -10,7 +10,7 @@ import io.r2dbc.spi.ConnectionFactoryMetadata;
 import io.r2dbc.spi.ConnectionMetadata;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnectionMetadata;
+import com.singlestore.r2dbc.api.SingleStoreConnectionMetadata;
 
 public class ConnectionMetadataTest extends BaseConnectionTest {
 
@@ -32,7 +32,7 @@ public class ConnectionMetadataTest extends BaseConnectionTest {
 
   @Test
   void metadataInfo() {
-    MariadbConnectionMetadata meta = sharedConn.getMetadata();
+    SingleStoreConnectionMetadata meta = sharedConn.getMetadata();
     assertTrue(meta.getMajorVersion() >= 5);
     assertTrue(meta.getMinorVersion() > -1);
     assertTrue(meta.getPatchVersion() > -1);

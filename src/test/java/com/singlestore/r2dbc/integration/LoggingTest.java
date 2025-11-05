@@ -17,11 +17,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.MariadbConnectionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
 import com.singlestore.r2dbc.TestConfiguration;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbConnectionMetadata;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnectionMetadata;
 import org.slf4j.LoggerFactory;
 import reactor.test.StepVerifier;
 
@@ -55,8 +55,8 @@ public class LoggingTest extends BaseConnectionTest {
 
     logger.addAppender(fa);
 
-    MariadbConnectionConfiguration conf = TestConfiguration.defaultBuilder.build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnectionConfiguration conf = TestConfiguration.defaultBuilder.build();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     connection
         .createStatement("SELECT 1")
         .execute()
@@ -64,7 +64,7 @@ public class LoggingTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectNext(1)
         .verifyComplete();
-    MariadbConnectionMetadata meta = connection.getMetadata();
+    SingleStoreConnectionMetadata meta = connection.getMetadata();
     connection.close().block();
 
     String contents = new String(Files.readAllBytes(Paths.get(tempFile.getPath())));

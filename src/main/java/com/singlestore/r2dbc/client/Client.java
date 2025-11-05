@@ -5,7 +5,7 @@ package com.singlestore.r2dbc.client;
 
 import io.r2dbc.spi.TransactionDefinition;
 import com.singlestore.r2dbc.ExceptionFactory;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
 import com.singlestore.r2dbc.message.ClientMessage;
 import com.singlestore.r2dbc.message.Context;
 import com.singlestore.r2dbc.message.ServerMessage;
@@ -44,7 +44,7 @@ public interface Client {
       ClientMessage requests, ExceptionFactory factory, String sql);
 
   Mono<Void> sendSslRequest(
-      SslRequestPacket sslRequest, MariadbConnectionConfiguration configuration);
+      SslRequestPacket sslRequest, SingleStoreConnectionConfiguration configuration);
 
   boolean isAutoCommit();
 

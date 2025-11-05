@@ -8,7 +8,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.test.StepVerifier;
 
 public class JsonParseTest extends BaseConnectionTest {
@@ -42,7 +42,7 @@ public class JsonParseTest extends BaseConnectionTest {
     defaultValue(sharedConnPrepare);
   }
 
-  private void defaultValue(MariadbConnection connection) {
+  private void defaultValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM JsonTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -72,7 +72,7 @@ public class JsonParseTest extends BaseConnectionTest {
     stringValue(sharedConnPrepare);
   }
 
-  private void stringValue(MariadbConnection connection) {
+  private void stringValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM JsonTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)

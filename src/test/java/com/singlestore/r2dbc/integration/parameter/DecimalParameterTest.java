@@ -17,7 +17,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -51,7 +51,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
     nullValue(sharedConnPrepare);
   }
 
-  private void nullValue(MariadbConnection connection) {
+  private void nullValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bindNull(0, BigDecimal.class)
@@ -72,7 +72,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
     bigIntValue(sharedConnPrepare);
   }
 
-  private void bigIntValue(MariadbConnection connection) {
+  private void bigIntValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, BigDecimal.ONE)
@@ -96,7 +96,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
     stringValue(sharedConnPrepare);
   }
 
-  private void stringValue(MariadbConnection connection) {
+  private void stringValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, "1")
@@ -120,7 +120,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
     decimalValue(sharedConnPrepare);
   }
 
-  private void decimalValue(MariadbConnection connection) {
+  private void decimalValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, BigDecimal.ONE)
@@ -144,7 +144,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
     intValue(sharedConnPrepare);
   }
 
-  private void intValue(MariadbConnection connection) {
+  private void intValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, 1)
@@ -168,7 +168,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
     byteValue(sharedConnPrepare);
   }
 
-  private void byteValue(MariadbConnection connection) {
+  private void byteValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, (byte) 127)
@@ -192,7 +192,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
     floatValue(sharedConnPrepare);
   }
 
-  private void floatValue(MariadbConnection connection) {
+  private void floatValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, 127f)
@@ -216,7 +216,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
     doubleValue(sharedConnPrepare);
   }
 
-  private void doubleValue(MariadbConnection connection) {
+  private void doubleValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, 127d)
@@ -240,7 +240,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
     shortValue(sharedConnPrepare);
   }
 
-  private void shortValue(MariadbConnection connection) {
+  private void shortValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, Short.valueOf("1"))
@@ -264,7 +264,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
     longValue(sharedConnPrepare);
   }
 
-  private void longValue(MariadbConnection connection) {
+  private void longValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, Long.valueOf("1"))
@@ -294,7 +294,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
         .blockLast();
   }
 
-  private void localDateTimeValue(MariadbConnection connection) {
+  private void localDateTimeValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, LocalDateTime.now())
@@ -328,7 +328,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
         .blockLast();
   }
 
-  private void localDateValue(MariadbConnection connection) {
+  private void localDateValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, LocalDate.now())
@@ -362,7 +362,7 @@ public class DecimalParameterTest extends BaseConnectionTest {
         .blockLast();
   }
 
-  private void localTimeValue(MariadbConnection connection) {
+  private void localTimeValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO DecimalParam VALUES (?,?,?)")
         .bind(0, LocalTime.now())

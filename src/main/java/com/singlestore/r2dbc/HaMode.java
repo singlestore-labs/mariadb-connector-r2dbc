@@ -31,7 +31,7 @@ public enum HaMode {
     }
 
     public Mono<Client> connectHost(
-        MariadbConnectionConfiguration conf, ReentrantLock lock, boolean failFast) {
+        SingleStoreConnectionConfiguration conf, ReentrantLock lock, boolean failFast) {
       long endingNanoTime =
           CONNECTION_LOOP_DURATION.getSeconds() * 1_000_000_000 + System.nanoTime();
       return connectHost(conf, lock, failFast, this::getAvailableHost, endingNanoTime);
@@ -50,7 +50,7 @@ public enum HaMode {
     }
 
     public Mono<Client> connectHost(
-        MariadbConnectionConfiguration conf, ReentrantLock lock, boolean failFast) {
+        SingleStoreConnectionConfiguration conf, ReentrantLock lock, boolean failFast) {
       long endingNanoTime =
           CONNECTION_LOOP_DURATION.getSeconds() * 1_000_000_000 + System.nanoTime();
       return connectHost(conf, lock, failFast, this::getAvailableHost, endingNanoTime);
@@ -65,7 +65,7 @@ public enum HaMode {
     }
 
     public Mono<Client> connectHost(
-        MariadbConnectionConfiguration conf, ReentrantLock lock, boolean failFast) {
+        SingleStoreConnectionConfiguration conf, ReentrantLock lock, boolean failFast) {
       return connectHost(conf, lock, true, this::getAvailableHost, 0L);
     }
   };
@@ -108,7 +108,7 @@ public enum HaMode {
   }
 
   private static Mono<Client> connect(
-      MariadbConnectionConfiguration conf, ReentrantLock lock, HostAddress hostAddress) {
+      SingleStoreConnectionConfiguration conf, ReentrantLock lock, HostAddress hostAddress) {
     return SimpleClient.connect(
             ConnectionProvider.newConnection(),
             InetSocketAddress.createUnresolved(hostAddress.getHost(), hostAddress.getPort()),
@@ -117,11 +117,11 @@ public enum HaMode {
             lock)
         .delayUntil(client -> AuthenticationFlow.exchange(client, conf, hostAddress))
         .doOnError(e -> HaMode.failHost(hostAddress))
-        .flatMap(client -> MariadbConnectionFactory.retrieveSingleStoreVersion(conf, client))
+        .flatMap(client -> SingleStoreConnectionFactory.retrieveSingleStoreVersion(conf, client))
         .cast(Client.class)
         .flatMap(
             client ->
-                MariadbConnectionFactory.setSessionVariables(conf, client).then(Mono.just(client)));
+                SingleStoreConnectionFactory.setSessionVariables(conf, client).then(Mono.just(client)));
   }
 
   /**
@@ -145,7 +145,7 @@ public enum HaMode {
 
   public static Mono<Client> resumeConnect(
       Throwable t,
-      MariadbConnectionConfiguration conf,
+      SingleStoreConnectionConfiguration conf,
       ReentrantLock lock,
       boolean failFast,
       List<HostAddress> availableHosts,
@@ -178,7 +178,7 @@ public enum HaMode {
   }
 
   public static Mono<Client> connectHost(
-      MariadbConnectionConfiguration conf,
+      SingleStoreConnectionConfiguration conf,
       ReentrantLock lock,
       boolean failFast,
       BiFunction<List<HostAddress>, ConcurrentMap<HostAddress, Long>, List<HostAddress>> availHost,
@@ -223,5 +223,5 @@ public enum HaMode {
       List<HostAddress> hostAddresses, ConcurrentMap<HostAddress, Long> denyList);
 
   public abstract Mono<Client> connectHost(
-      MariadbConnectionConfiguration conf, ReentrantLock lock, boolean failFast);
+      SingleStoreConnectionConfiguration conf, ReentrantLock lock, boolean failFast);
 }

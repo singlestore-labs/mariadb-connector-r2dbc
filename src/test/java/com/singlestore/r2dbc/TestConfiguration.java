@@ -10,8 +10,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbConnectionMetadata;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnectionMetadata;
 
 public class TestConfiguration {
 
@@ -21,9 +21,9 @@ public class TestConfiguration {
   public static final String password;
   public static final String database;
   public static final String other;
-  public static final MariadbConnectionConfiguration.Builder defaultBuilder;
-  public static final MariadbConnectionConfiguration defaultConf;
-  public static final MariadbConnectionFactory defaultFactory;
+  public static final SingleStoreConnectionConfiguration.Builder defaultBuilder;
+  public static final SingleStoreConnectionConfiguration defaultConf;
+  public static final SingleStoreConnectionFactory defaultFactory;
 
   static {
     String defaultHost = "localhost";
@@ -80,15 +80,15 @@ public class TestConfiguration {
             other == null ? "" : "?" + other.replace("\n", "\\n"));
 
     ConnectionFactoryOptions options = ConnectionFactoryOptions.parse(connString);
-    defaultBuilder = MariadbConnectionConfiguration.fromOptions(options);
+    defaultBuilder = SingleStoreConnectionConfiguration.fromOptions(options);
     try {
-      MariadbConnection connection =
-          new MariadbConnectionFactory(
-                  MariadbConnectionConfiguration.fromOptions(options)
+      SingleStoreConnection connection =
+          new SingleStoreConnectionFactory(
+                  SingleStoreConnectionConfiguration.fromOptions(options)
                       .build())
               .create()
               .block();
-      MariadbConnectionMetadata meta = connection.getMetadata();
+      SingleStoreConnectionMetadata meta = connection.getMetadata();
       connection.close().block();
     } catch (Exception e) {
       // eat
@@ -96,7 +96,7 @@ public class TestConfiguration {
     }
 
     defaultConf = defaultBuilder.build();
-    defaultFactory = new MariadbConnectionFactory(defaultConf);
+    defaultFactory = new SingleStoreConnectionFactory(defaultConf);
   }
 
   private static String get(String name, Properties prop) {

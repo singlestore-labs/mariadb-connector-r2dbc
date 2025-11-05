@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.api.function.Executable;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbConnectionMetadata;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnectionMetadata;
 import com.singlestore.r2dbc.tools.TcpProxy;
 import com.singlestore.r2dbc.util.HostAddress;
 import reactor.core.publisher.Mono;
@@ -28,9 +28,9 @@ public class BaseConnectionTest {
           ? Boolean.valueOf(System.getenv("NO_BACKSLASH_ESCAPES"))
           : false;
   private static final Random rand = new Random();
-  public static MariadbConnectionFactory factory = TestConfiguration.defaultFactory;
-  public static MariadbConnection sharedConn;
-  public static MariadbConnection sharedConnPrepare;
+  public static SingleStoreConnectionFactory factory = TestConfiguration.defaultFactory;
+  public static SingleStoreConnection sharedConn;
+  public static SingleStoreConnection sharedConnPrepare;
   public static Integer initialConnectionNumber = -1;
   public static TcpProxy proxy;
   private static Instant initialTest;
@@ -43,11 +43,11 @@ public class BaseConnectionTest {
 
     sharedConn = factory.create().block();
 
-    MariadbConnectionConfiguration confPipeline =
+    SingleStoreConnectionConfiguration confPipeline =
         TestConfiguration.defaultBuilder.clone().useServerPrepStmts(true).build();
-    sharedConnPrepare = new MariadbConnectionFactory(confPipeline).create().block();
+    sharedConnPrepare = new SingleStoreConnectionFactory(confPipeline).create().block();
     String sqlModeAddition = "";
-    MariadbConnectionMetadata meta = sharedConn.getMetadata();
+    SingleStoreConnectionMetadata meta = sharedConn.getMetadata();
     if ((meta.isMariaDBServer() && !meta.minVersion(10, 2, 4)) || !meta.isMariaDBServer()) {
       sqlModeAddition += ",STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO";
     }
@@ -94,17 +94,17 @@ public class BaseConnectionTest {
   }
 
   public static boolean isMariaDBServer() {
-    MariadbConnectionMetadata meta = sharedConn.getMetadata();
+    SingleStoreConnectionMetadata meta = sharedConn.getMetadata();
     return meta.isMariaDBServer();
   }
 
   public static boolean isXpand() {
-    MariadbConnectionMetadata meta = sharedConn.getMetadata();
+    SingleStoreConnectionMetadata meta = sharedConn.getMetadata();
     return meta.getDatabaseVersion().toLowerCase().contains("xpand");
   }
 
   public static boolean minVersion(int major, int minor, int patch) {
-    MariadbConnectionMetadata meta = sharedConn.getMetadata();
+    SingleStoreConnectionMetadata meta = sharedConn.getMetadata();
     return meta.minVersion(major, minor, patch);
   }
 
@@ -124,7 +124,7 @@ public class BaseConnectionTest {
   }
 
   public static boolean exactVersion(int major, int minor, int patch) {
-    MariadbConnectionMetadata meta = sharedConn.getMetadata();
+    SingleStoreConnectionMetadata meta = sharedConn.getMetadata();
     return meta.getMajorVersion() == major
         && meta.getMinorVersion() == minor
         && meta.getPatchVersion() == patch;
@@ -145,23 +145,23 @@ public class BaseConnectionTest {
     Assertions.assertTrue(e.getMessage().contains(expected), "real message:" + e.getMessage());
   }
 
-  public MariadbConnection createProxyCon() throws Exception {
+  public SingleStoreConnection createProxyCon() throws Exception {
     HostAddress hostAddress = TestConfiguration.defaultConf.getHostAddresses().get(0);
     try {
       proxy = new TcpProxy(hostAddress.getHost(), hostAddress.getPort());
     } catch (IOException i) {
       throw new Exception("proxy error", i);
     }
-    MariadbConnectionConfiguration confProxy =
+    SingleStoreConnectionConfiguration confProxy =
         TestConfiguration.defaultBuilder
             .clone()
             .port(proxy.getLocalPort())
             .host("localhost")
             .build();
-    return new MariadbConnectionFactory(confProxy).create().block();
+    return new SingleStoreConnectionFactory(confProxy).create().block();
   }
 
-  public boolean haveSsl(MariadbConnection connection) {
+  public boolean haveSsl(SingleStoreConnection connection) {
     return connection
         .createStatement("select @@have_ssl")
         .execute()
@@ -244,7 +244,7 @@ public class BaseConnectionTest {
     }
   }
 
-  public static void create_seq(MariadbConnection conn, String table, int start, int end) {
+  public static void create_seq(SingleStoreConnection conn, String table, int start, int end) {
     conn
         .createStatement(String.format("CREATE TABLE %s(seq INT)", table))
         .execute()

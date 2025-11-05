@@ -3,6 +3,7 @@
 
 package com.singlestore.r2dbc.integration.parameter;
 
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import io.r2dbc.spi.Blob;
 
 import java.io.ByteArrayInputStream;
@@ -19,11 +20,10 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.MariadbConnectionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
 import com.singlestore.r2dbc.TestConfiguration;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -58,7 +58,7 @@ public class BlobParameterTest extends BaseConnectionTest {
     nullValue(sharedConnPrepare);
   }
 
-  private void nullValue(MariadbConnection connection) {
+  private void nullValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
         .bindNull(0, byte[].class)
@@ -80,7 +80,7 @@ public class BlobParameterTest extends BaseConnectionTest {
     bigIntValue(sharedConnPrepare);
   }
 
-  private void bigIntValue(MariadbConnection connection) {
+  private void bigIntValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
         .bind(0, new BigInteger("11"))
@@ -104,7 +104,7 @@ public class BlobParameterTest extends BaseConnectionTest {
     stringValue(sharedConnPrepare);
   }
 
-  private void stringValue(MariadbConnection connection) {
+  private void stringValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
         .bind(0, "\1")
@@ -128,7 +128,7 @@ public class BlobParameterTest extends BaseConnectionTest {
     decimalValue(sharedConnPrepare);
   }
 
-  private void decimalValue(MariadbConnection connection) {
+  private void decimalValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
         .bind(0, new BigDecimal("11"))
@@ -152,7 +152,7 @@ public class BlobParameterTest extends BaseConnectionTest {
     intValue(sharedConnPrepare);
   }
 
-  private void intValue(MariadbConnection connection) {
+  private void intValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
         .bind(0, 11)
@@ -176,7 +176,7 @@ public class BlobParameterTest extends BaseConnectionTest {
     byteValue(sharedConnPrepare);
   }
 
-  private void byteValue(MariadbConnection connection) {
+  private void byteValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
         .bind(0, (byte) 15)
@@ -200,8 +200,8 @@ public class BlobParameterTest extends BaseConnectionTest {
     blobValue(sharedConnPrepare);
   }
 
-  private void blobValue(MariadbConnection connection) {
-    MariadbStatement stmt =
+  private void blobValue(SingleStoreConnection connection) {
+    SingleStoreStatement stmt =
         connection
             .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
             .bind(0, Blob.from(Mono.just(ByteBuffer.wrap(new byte[]{(byte) 15}))))
@@ -227,8 +227,8 @@ public class BlobParameterTest extends BaseConnectionTest {
     streamValue(sharedConnPrepare);
   }
 
-  private void streamValue(MariadbConnection connection) {
-    MariadbStatement stmt =
+  private void streamValue(SingleStoreConnection connection) {
+    SingleStoreStatement stmt =
         connection
             .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
             .bind(0, new ByteArrayInputStream(new byte[]{(byte) 15}))
@@ -251,8 +251,8 @@ public class BlobParameterTest extends BaseConnectionTest {
     byteBufferValue(sharedConnPrepare);
   }
 
-  private void byteBufferValue(MariadbConnection connection) {
-    MariadbStatement stmt =
+  private void byteBufferValue(SingleStoreConnection connection) {
+    SingleStoreStatement stmt =
         connection
             .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
             .bind(0, ByteBuffer.wrap(new byte[]{(byte) 15}))
@@ -279,9 +279,9 @@ public class BlobParameterTest extends BaseConnectionTest {
   void inputStreamValueNoBackslash() throws Exception {
     Map<String, Object> sessionMap = new HashMap<>();
     sessionMap.put("SQL_MODE", "NO_BACKSLASH_ESCAPES");
-    MariadbConnectionConfiguration confNoBackSlash =
+    SingleStoreConnectionConfiguration confNoBackSlash =
         TestConfiguration.defaultBuilder.clone().sessionVariables(sessionMap).build();
-    MariadbConnection con = new MariadbConnectionFactory(confNoBackSlash).create().block();
+    SingleStoreConnection con = new SingleStoreConnectionFactory(confNoBackSlash).create().block();
     inputStreamValue(con);
     con.close().block();
   }
@@ -290,19 +290,19 @@ public class BlobParameterTest extends BaseConnectionTest {
   void inputStreamValueNoBackslashPrepare() throws Exception {
     Map<String, Object> sessionMap = new HashMap<>();
     sessionMap.put("SQL_MODE", "NO_BACKSLASH_ESCAPES");
-    MariadbConnectionConfiguration confNoBackSlash =
+    SingleStoreConnectionConfiguration confNoBackSlash =
         TestConfiguration.defaultBuilder
             .clone()
             .sessionVariables(sessionMap)
             .useServerPrepStmts(true)
             .build();
-    MariadbConnection con = new MariadbConnectionFactory(confNoBackSlash).create().block();
+    SingleStoreConnection con = new SingleStoreConnectionFactory(confNoBackSlash).create().block();
     inputStreamValue(con);
     con.close().block();
   }
 
-  private void inputStreamValue(MariadbConnection connection) {
-    MariadbStatement stmt =
+  private void inputStreamValue(SingleStoreConnection connection) {
+    SingleStoreStatement stmt =
         connection
             .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
             .bind(0, new ByteArrayInputStream(new byte[]{(byte) 15}))
@@ -333,7 +333,7 @@ public class BlobParameterTest extends BaseConnectionTest {
         ByteBuffer.wrap("1".getBytes()));
   }
 
-  private void floatValue(MariadbConnection connection) {
+  private void floatValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
         .bind(0, 11f)
@@ -361,7 +361,7 @@ public class BlobParameterTest extends BaseConnectionTest {
         ByteBuffer.wrap("1".getBytes()));
   }
 
-  private void doubleValue(MariadbConnection connection) {
+  private void doubleValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
         .bind(0, 11d)
@@ -381,7 +381,7 @@ public class BlobParameterTest extends BaseConnectionTest {
     shortValue(sharedConnPrepare);
   }
 
-  private void shortValue(MariadbConnection connection) {
+  private void shortValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
         .bind(0, Short.valueOf("11"))
@@ -405,7 +405,7 @@ public class BlobParameterTest extends BaseConnectionTest {
     longValue(sharedConnPrepare);
   }
 
-  private void longValue(MariadbConnection connection) {
+  private void longValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (?,?,?)")
         .bind(0, 11L)
@@ -432,7 +432,7 @@ public class BlobParameterTest extends BaseConnectionTest {
         "2025-01-31 10:45:01.123000");
   }
 
-  private void localDateTimeValue(MariadbConnection connection, String t1, String t3) {
+  private void localDateTimeValue(SingleStoreConnection connection, String t1, String t3) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (? :> DATETIME(6),? :> DATETIME(6),? :> DATETIME(6))")
         .bind(0, LocalDateTime.parse("2013-07-22T12:50:05.01230"))
@@ -456,7 +456,7 @@ public class BlobParameterTest extends BaseConnectionTest {
     localDateValue(sharedConnPrepare);
   }
 
-  private void localDateValue(MariadbConnection connection) {
+  private void localDateValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (? :> DATE,? :> DATE,? :> DATE)")
         .bind(0, LocalDate.parse("2010-01-12"))
@@ -488,7 +488,7 @@ public class BlobParameterTest extends BaseConnectionTest {
         ByteBuffer.wrap(("08:00:00.123000").getBytes()));
   }
 
-  private void localTimeValue(MariadbConnection connection) {
+  private void localTimeValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO BlobParam VALUES (? :> TIME(6),? :> TIME(6),? :> TIME(6))")
         .bind(0, LocalTime.parse("18:00:00.012340"))

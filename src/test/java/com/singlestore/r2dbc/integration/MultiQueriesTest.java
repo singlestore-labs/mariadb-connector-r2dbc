@@ -8,10 +8,10 @@ import java.util.Optional;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.MariadbConnectionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
 import com.singlestore.r2dbc.TestConfiguration;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.test.StepVerifier;
 
 public class MultiQueriesTest extends BaseConnectionTest {
@@ -34,9 +34,9 @@ public class MultiQueriesTest extends BaseConnectionTest {
 
   @Test
   void multiQueryEnable() throws Exception {
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder.clone().allowMultiQueries(true).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     connection
         .createStatement("SELECT CAST(1 as CHAR); SELECT 'a'")
         .execute()
@@ -52,9 +52,9 @@ public class MultiQueriesTest extends BaseConnectionTest {
     Assumptions.assumeTrue(
         !isMaxscale() && !"skysql-ha".equals(System.getenv("srv")) && !isXpand());
 
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder.clone().allowMultiQueries(false).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     connection
         .createStatement("SELECT CAST(1 as CHAR); SELECT 'a'")
         .execute()
@@ -89,9 +89,9 @@ public class MultiQueriesTest extends BaseConnectionTest {
 
   @Test
   void multiQueryWithParameterEnable() throws Exception {
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder.clone().allowMultiQueries(true).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     connection
         .createStatement("SELECT CAST(? as CHAR); SELECT ?")
         .bind(0, 1)
@@ -109,9 +109,9 @@ public class MultiQueriesTest extends BaseConnectionTest {
     Assumptions.assumeTrue(
         !isMaxscale() && !"skysql-ha".equals(System.getenv("srv")) && !isXpand());
 
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder.clone().allowMultiQueries(false).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     connection
         .createStatement("SELECT CAST(? as CHAR); SELECT ?")
         .bind(0, 1)

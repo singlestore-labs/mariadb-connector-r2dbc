@@ -5,10 +5,10 @@ package com.singlestore.r2dbc.integration.authentication;
 
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.MariadbConnectionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
 import com.singlestore.r2dbc.TestConfiguration;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 
 public class PamPluginTest extends BaseConnectionTest {
 
@@ -25,13 +25,13 @@ public class PamPluginTest extends BaseConnectionTest {
         .execute()
         .blockLast();
 
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .username(pamUser)
             .password("test_pass")
             .build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     connection.close().block();
   }
 }

@@ -5,13 +5,13 @@ package com.singlestore.r2dbc;
 
 import io.r2dbc.spi.ConnectionFactoryMetadata;
 
-final class MariadbConnectionFactoryMetadata implements ConnectionFactoryMetadata {
+final class SingleStoreConnectionFactoryMetadata implements ConnectionFactoryMetadata {
 
   public static final String NAME = "MariaDB";
 
-  static final MariadbConnectionFactoryMetadata INSTANCE = new MariadbConnectionFactoryMetadata();
+  static final SingleStoreConnectionFactoryMetadata INSTANCE = new SingleStoreConnectionFactoryMetadata();
 
-  private MariadbConnectionFactoryMetadata() {}
+  private SingleStoreConnectionFactoryMetadata() {}
 
   @Override
   public String getName() {

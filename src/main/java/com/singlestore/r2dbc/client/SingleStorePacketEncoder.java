@@ -11,7 +11,7 @@ import com.singlestore.r2dbc.message.ClientMessage;
 import com.singlestore.r2dbc.message.Context;
 import reactor.core.publisher.Mono;
 
-public class MariadbPacketEncoder {
+public class SingleStorePacketEncoder {
   private Context context = null;
 
   public Mono<CompositeByteBuf> encodeFlux(ClientMessage msg) {

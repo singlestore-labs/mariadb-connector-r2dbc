@@ -3,6 +3,7 @@
 
 package com.singlestore.r2dbc.client;
 
+import com.singlestore.r2dbc.api.SingleStoreResult;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -32,7 +33,6 @@ import com.singlestore.r2dbc.message.Context;
 import com.singlestore.r2dbc.message.Protocol;
 import com.singlestore.r2dbc.message.ServerMessage;
 import com.singlestore.r2dbc.message.client.*;
-import com.singlestore.r2dbc.message.flow.AuthenticationFlow;
 import com.singlestore.r2dbc.message.server.CompletePrepareResult;
 import com.singlestore.r2dbc.message.server.ErrorPacket;
 import com.singlestore.r2dbc.message.server.InitialHandshakePacket;
@@ -55,7 +55,7 @@ public class SimpleClient implements Client {
 
   private static final Logger logger = Loggers.getLogger(SimpleClient.class);
 
-  protected MariadbConnectionConfiguration configuration;
+  protected SingleStoreConnectionConfiguration configuration;
   protected final ReentrantLock lock;
   protected Connection connection;
   protected HostAddress hostAddress;
@@ -63,8 +63,8 @@ public class SimpleClient implements Client {
   private Sinks.Many<ClientMessage> requestSink = Sinks.many().unicast().onBackpressureBuffer();
   private Queue<Exchange> exchangeQueue = Queues.<Exchange>get(Queues.SMALL_BUFFER_SIZE).get();
   private final AtomicBoolean isClosed = new AtomicBoolean(false);
-  private MariadbFrameDecoder decoder;
-  private MariadbPacketEncoder encoder;
+  private SingleStoreFrameDecoder decoder;
+  private SingleStorePacketEncoder encoder;
   private final PrepareCache prepareCache;
   private ByteBufAllocator byteBufAllocator;
   protected volatile Context context;
@@ -73,7 +73,7 @@ public class SimpleClient implements Client {
 
   protected SimpleClient(
       Connection connection,
-      MariadbConnectionConfiguration configuration,
+      SingleStoreConnectionConfiguration configuration,
       HostAddress hostAddress,
       ReentrantLock lock) {
     this.connection = connection;
@@ -84,8 +84,8 @@ public class SimpleClient implements Client {
         new PrepareCache(
             this.configuration.useServerPrepStmts() ? this.configuration.getPrepareCacheSize() : 0,
             this);
-    this.decoder = new MariadbFrameDecoder(exchangeQueue, this, configuration);
-    this.encoder = new MariadbPacketEncoder();
+    this.decoder = new SingleStoreFrameDecoder(exchangeQueue, this, configuration);
+    this.encoder = new SingleStorePacketEncoder();
     this.byteBufAllocator = connection.outbound().alloc();
     Queue<ServerMessage> receiverQueue = Queues.<ServerMessage>get(Queues.SMALL_BUFFER_SIZE).get();
     this.messageSubscriber = new ServerMessageSubscriber(this.lock, exchangeQueue, receiverQueue);
@@ -162,7 +162,7 @@ public class SimpleClient implements Client {
       ConnectionProvider connectionProvider,
       SocketAddress socketAddress,
       HostAddress hostAddress,
-      MariadbConnectionConfiguration configuration,
+      SingleStoreConnectionConfiguration configuration,
       ReentrantLock lock) {
     TcpClient tcpClient =
         TcpClient.create(connectionProvider)
@@ -175,7 +175,7 @@ public class SimpleClient implements Client {
   }
 
   public static TcpClient setSocketOption(
-      MariadbConnectionConfiguration configuration, TcpClient tcpClient) {
+      SingleStoreConnectionConfiguration configuration, TcpClient tcpClient) {
     if (configuration.getConnectTimeout() != null) {
       tcpClient =
           tcpClient.option(
@@ -274,7 +274,7 @@ public class SimpleClient implements Client {
 
   @Override
   public Mono<Void> sendSslRequest(
-      SslRequestPacket sslRequest, MariadbConnectionConfiguration configuration) {
+      SslRequestPacket sslRequest, SingleStoreConnectionConfiguration configuration) {
     try {
       SslContext sslContext = configuration.getSslConfig().getSslContext();
 
@@ -398,7 +398,7 @@ public class SimpleClient implements Client {
             .windowUntil(ServerMessage::resultSetEnd)
             .map(
                 dataRow ->
-                    new MariadbResult(
+                    new com.singlestore.r2dbc.client.SingleStoreResult(
                         Protocol.TEXT,
                         null,
                         dataRow,
@@ -406,7 +406,7 @@ public class SimpleClient implements Client {
                         null,
                         true,
                         configuration))
-            .cast(com.singlestore.r2dbc.api.MariadbResult.class)
+            .cast(SingleStoreResult.class)
             .then();
       }
       return Mono.empty();

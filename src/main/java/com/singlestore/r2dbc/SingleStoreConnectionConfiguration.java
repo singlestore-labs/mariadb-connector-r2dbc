@@ -22,7 +22,7 @@ import reactor.netty.resources.LoopResources;
 import reactor.netty.tcp.TcpResources;
 import reactor.util.annotation.Nullable;
 
-public final class MariadbConnectionConfiguration {
+public final class SingleStoreConnectionConfiguration {
 
   public static final int DEFAULT_PORT = 3306;
   private final String database;
@@ -49,7 +49,7 @@ public final class MariadbConnectionConfiguration {
   private final UnaryOperator<SslContextBuilder> sslContextBuilderCustomizer;
   private final boolean skipPostCommands;
 
-  private MariadbConnectionConfiguration(
+  private SingleStoreConnectionConfiguration(
       String haMode,
       @Nullable Duration connectTimeout,
       @Nullable Boolean tcpKeepAlive,
@@ -122,7 +122,7 @@ public final class MariadbConnectionConfiguration {
     this.sslContextBuilderCustomizer = sslContextBuilderCustomizer;
   }
 
-  private MariadbConnectionConfiguration(
+  private SingleStoreConnectionConfiguration(
       String database,
       List<HostAddress> hostAddresses,
       HaMode haMode,
@@ -197,19 +197,19 @@ public final class MariadbConnectionConfiguration {
     Builder builder = new Builder();
     builder.database((String) connectionFactoryOptions.getValue(DATABASE));
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.SOCKET)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.SOCKET)) {
       builder.socket(
           (String)
-              connectionFactoryOptions.getRequiredValue(MariadbConnectionFactoryProvider.SOCKET));
+              connectionFactoryOptions.getRequiredValue(SingleStoreConnectionFactoryProvider.SOCKET));
     } else {
       builder.host((String) connectionFactoryOptions.getRequiredValue(HOST));
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.ALLOW_MULTI_QUERIES)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.ALLOW_MULTI_QUERIES)) {
       builder.allowMultiQueries(
           boolValue(
               connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.ALLOW_MULTI_QUERIES)));
+                  SingleStoreConnectionFactoryProvider.ALLOW_MULTI_QUERIES)));
     }
 
     if (connectionFactoryOptions.hasOption(ConnectionFactoryOptions.CONNECT_TIMEOUT)) {
@@ -218,49 +218,49 @@ public final class MariadbConnectionConfiguration {
               connectionFactoryOptions.getValue(ConnectionFactoryOptions.CONNECT_TIMEOUT)));
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.TCP_KEEP_ALIVE)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.TCP_KEEP_ALIVE)) {
       builder.tcpKeepAlive(
           boolValue(
-              connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.TCP_KEEP_ALIVE)));
+              connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.TCP_KEEP_ALIVE)));
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.TCP_ABORTIVE_CLOSE)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.TCP_ABORTIVE_CLOSE)) {
       builder.tcpAbortiveClose(
           boolValue(
               connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.TCP_ABORTIVE_CLOSE)));
+                  SingleStoreConnectionFactoryProvider.TCP_ABORTIVE_CLOSE)));
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.TRANSACTION_REPLAY)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.TRANSACTION_REPLAY)) {
       builder.transactionReplay(
           boolValue(
               connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.TRANSACTION_REPLAY)));
+                  SingleStoreConnectionFactoryProvider.TRANSACTION_REPLAY)));
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.SESSION_VARIABLES)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.SESSION_VARIABLES)) {
       String sessionVarString =
           (String)
-              connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.SESSION_VARIABLES);
+              connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.SESSION_VARIABLES);
       builder.sessionVariables(Security.parseSessionVariables(sessionVarString));
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.HAMODE)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.HAMODE)) {
       String haMode =
-          (String) connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.HAMODE);
+          (String) connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.HAMODE);
       builder.haMode(haMode);
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.USE_SERVER_PREPARE)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.USE_SERVER_PREPARE)) {
       builder.useServerPrepStmts(
           boolValue(
               connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.USE_SERVER_PREPARE)));
+                  SingleStoreConnectionFactoryProvider.USE_SERVER_PREPARE)));
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.AUTO_COMMIT)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.AUTO_COMMIT)) {
       Object value =
-          connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.AUTO_COMMIT);
+          connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.AUTO_COMMIT);
       if (value == null) {
         builder.autocommit(null);
       } else if (value instanceof Boolean) {
@@ -270,52 +270,52 @@ public final class MariadbConnectionConfiguration {
       }
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.SKIP_POST_COMMANDS)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.SKIP_POST_COMMANDS)) {
       builder.skipPostCommands(
           boolValue(
               connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.SKIP_POST_COMMANDS)));
+                  SingleStoreConnectionFactoryProvider.SKIP_POST_COMMANDS)));
     }
 
     if (connectionFactoryOptions.hasOption(
-        MariadbConnectionFactoryProvider.CONNECTION_ATTRIBUTES)) {
+        SingleStoreConnectionFactoryProvider.CONNECTION_ATTRIBUTES)) {
       String connAttributes =
           (String)
               connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.CONNECTION_ATTRIBUTES);
+                  SingleStoreConnectionFactoryProvider.CONNECTION_ATTRIBUTES);
       builder.connectionAttributes(getMapFromString(connAttributes));
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.PREPARE_CACHE_SIZE)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.PREPARE_CACHE_SIZE)) {
       builder.prepareCacheSize(
           intValue(
               connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.PREPARE_CACHE_SIZE)));
+                  SingleStoreConnectionFactoryProvider.PREPARE_CACHE_SIZE)));
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.SSL_MODE)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.SSL_MODE)) {
       builder.sslMode(
           SslMode.from(
               (String)
-                  connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.SSL_MODE)));
+                  connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.SSL_MODE)));
     }
     builder.serverSslCert(
         (String)
-            connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.SERVER_SSL_CERT));
+            connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.SERVER_SSL_CERT));
     builder.clientSslCert(
         (String)
-            connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.CLIENT_SSL_CERT));
+            connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.CLIENT_SSL_CERT));
     builder.clientSslKey(
         (String)
-            connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.CLIENT_SSL_KEY));
+            connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.CLIENT_SSL_KEY));
     builder.clientSslPassword(
         (String)
-            connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.CLIENT_SSL_PWD));
+            connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.CLIENT_SSL_PWD));
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.TLS_PROTOCOL)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.TLS_PROTOCOL)) {
       String[] protocols =
           ((String)
-                  connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.TLS_PROTOCOL))
+                  connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.TLS_PROTOCOL))
               .split("[,;\\s]+");
       builder.tlsProtocol(protocols);
     }
@@ -328,11 +328,11 @@ public final class MariadbConnectionConfiguration {
     if (connectionFactoryOptions.hasOption(PORT)) {
       builder.port(intValue(connectionFactoryOptions.getValue(PORT)));
     }
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.PAM_OTHER_PASSWORD)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.PAM_OTHER_PASSWORD)) {
       String s =
           (String)
               connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.PAM_OTHER_PASSWORD);
+                  SingleStoreConnectionFactoryProvider.PAM_OTHER_PASSWORD);
       String[] pairs = s.split(",");
       try {
         for (int i = 0; i < pairs.length; i++) {
@@ -344,33 +344,33 @@ public final class MariadbConnectionConfiguration {
       builder.pamOtherPwd(pairs);
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.RESTRICTED_AUTH)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.RESTRICTED_AUTH)) {
       builder.restrictedAuth(
           (String)
-              connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.RESTRICTED_AUTH));
+              connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.RESTRICTED_AUTH));
     }
 
-    if (connectionFactoryOptions.hasOption(MariadbConnectionFactoryProvider.LOOP_RESOURCES)) {
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.LOOP_RESOURCES)) {
       LoopResources loopResources =
           (LoopResources)
-              connectionFactoryOptions.getValue(MariadbConnectionFactoryProvider.LOOP_RESOURCES);
+              connectionFactoryOptions.getValue(SingleStoreConnectionFactoryProvider.LOOP_RESOURCES);
       builder.loopResources(loopResources);
     }
 
     if (connectionFactoryOptions.hasOption(
-        MariadbConnectionFactoryProvider.SSL_TUNNEL_DISABLE_HOST_VERIFICATION)) {
+        SingleStoreConnectionFactoryProvider.SSL_TUNNEL_DISABLE_HOST_VERIFICATION)) {
       builder.sslTunnelDisableHostVerification(
           boolValue(
               connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.SSL_TUNNEL_DISABLE_HOST_VERIFICATION)));
+                  SingleStoreConnectionFactoryProvider.SSL_TUNNEL_DISABLE_HOST_VERIFICATION)));
     }
 
     if (connectionFactoryOptions.hasOption(
-        MariadbConnectionFactoryProvider.SSL_CONTEXT_BUILDER_CUSTOMIZER)) {
+        SingleStoreConnectionFactoryProvider.SSL_CONTEXT_BUILDER_CUSTOMIZER)) {
       builder.sslContextBuilderCustomizer(
           (UnaryOperator<SslContextBuilder>)
               connectionFactoryOptions.getValue(
-                  MariadbConnectionFactoryProvider.SSL_CONTEXT_BUILDER_CUSTOMIZER));
+                  SingleStoreConnectionFactoryProvider.SSL_CONTEXT_BUILDER_CUSTOMIZER));
     }
 
     return builder;
@@ -491,7 +491,7 @@ public final class MariadbConnectionConfiguration {
   @SuppressWarnings("rawtypes")
   public String toString() {
 
-    MariadbConnectionConfiguration defaultConf = new Builder().build(false);
+    SingleStoreConnectionConfiguration defaultConf = new Builder().build(false);
     StringBuilder sb = new StringBuilder();
     sb.append("r2dbc:mariadb:");
     if (this.haMode != HaMode.NONE) {
@@ -519,7 +519,7 @@ public final class MariadbConnectionConfiguration {
       // - set values
       boolean first = true;
 
-      Field[] fields = MariadbConnectionConfiguration.class.getDeclaredFields();
+      Field[] fields = SingleStoreConnectionConfiguration.class.getDeclaredFields();
       for (Field field : fields) {
         if ("database".equals(field.getName())
             || "haMode".equals(field.getName())
@@ -643,7 +643,7 @@ public final class MariadbConnectionConfiguration {
   }
 
   /**
-   * A builder for {@link MariadbConnectionConfiguration} instances.
+   * A builder for {@link SingleStoreConnectionConfiguration} instances.
    *
    * <p><i>This class is not threadsafe</i>
    */
@@ -683,15 +683,15 @@ public final class MariadbConnectionConfiguration {
     private Builder() {}
 
     /**
-     * Returns a configured {@link MariadbConnectionConfiguration}.
+     * Returns a configured {@link SingleStoreConnectionConfiguration}.
      *
-     * @return a configured {@link MariadbConnectionConfiguration}
+     * @return a configured {@link SingleStoreConnectionConfiguration}
      */
-    public MariadbConnectionConfiguration build() {
+    public SingleStoreConnectionConfiguration build() {
       return build(true);
     }
 
-    private MariadbConnectionConfiguration build(boolean checkMandatory) {
+    private SingleStoreConnectionConfiguration build(boolean checkMandatory) {
       if (checkMandatory) {
         if (this.host == null && this.socket == null) {
           throw new IllegalArgumentException("host or socket must not be null");
@@ -706,7 +706,7 @@ public final class MariadbConnectionConfiguration {
           throw new IllegalArgumentException("username must not be null");
         }
       }
-      return new MariadbConnectionConfiguration(
+      return new SingleStoreConnectionConfiguration(
           this.haMode,
           this.connectTimeout,
           this.tcpKeepAlive,

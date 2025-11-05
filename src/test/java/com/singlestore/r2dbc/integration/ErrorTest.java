@@ -8,11 +8,10 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.MariadbConnectionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
 import com.singlestore.r2dbc.TestConfiguration;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbConnectionMetadata;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.test.StepVerifier;
 
 public class ErrorTest extends BaseConnectionTest {
@@ -52,13 +51,13 @@ public class ErrorTest extends BaseConnectionTest {
   @Test
   void permissionDenied() throws Exception {
     sharedConn.createStatement("CREATE USER IF NOT EXISTS userWithoutRight"+getHostSuffix()).execute().blockLast();
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .username("userWithoutRight")
             .password("")
             .build();
-    new MariadbConnectionFactory(conf)
+    new SingleStoreConnectionFactory(conf)
         .create()
         .as(StepVerifier::create)
         .expectErrorMatches(
@@ -74,7 +73,7 @@ public class ErrorTest extends BaseConnectionTest {
             .username("userWithoutRight")
             .password("wrongpassword")
             .build();
-    new MariadbConnectionFactory(conf)
+    new SingleStoreConnectionFactory(conf)
         .create()
         .as(StepVerifier::create)
         .expectErrorMatches(
@@ -109,7 +108,7 @@ public class ErrorTest extends BaseConnectionTest {
 
   @Test
   void closeDuringSelect() {
-    MariadbConnection connection2 = factory.create().block();
+    SingleStoreConnection connection2 = factory.create().block();
     connection2
         .createStatement("SELECT * FROM seq_1_to_100000")
         .execute()

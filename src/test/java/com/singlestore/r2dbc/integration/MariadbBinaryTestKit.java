@@ -10,8 +10,8 @@ import javax.sql.DataSource;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Disabled;
 import com.singlestore.jdbc.SingleStoreDataSource;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.MariadbConnectionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
 import com.singlestore.r2dbc.TestConfiguration;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -47,13 +47,13 @@ public class MariadbBinaryTestKit implements TestKit<String> {
       // eat
     }
     try {
-      MariadbConnectionConfiguration confMulti =
+      SingleStoreConnectionConfiguration confMulti =
           TestConfiguration.defaultBuilder
               .clone()
               .useServerPrepStmts(true)
               .allowMultiQueries(true)
               .build();
-      return new MariadbConnectionFactory(confMulti);
+      return new SingleStoreConnectionFactory(confMulti);
     } catch (CloneNotSupportedException e) {
       throw new IllegalStateException("Unexpected error");
     }

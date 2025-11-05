@@ -13,10 +13,10 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.MariadbConnectionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
 import com.singlestore.r2dbc.TestConfiguration;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -40,9 +40,9 @@ public class NoPipelineTest extends BaseConnectionTest {
 
   @Test
   void noPipelineConnect() throws Exception {
-    MariadbConnectionConfiguration confPipeline =
+    SingleStoreConnectionConfiguration confPipeline =
         TestConfiguration.defaultBuilder.clone().build();
-    MariadbConnection connection = new MariadbConnectionFactory(confPipeline).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(confPipeline).create().block();
 
     try {
       runWithPipeline(connection);
@@ -51,7 +51,7 @@ public class NoPipelineTest extends BaseConnectionTest {
     }
   }
 
-  private Duration runWithPipeline(MariadbConnection connection) {
+  private Duration runWithPipeline(SingleStoreConnection connection) {
     Instant initial = Instant.now();
     int MAX = 100;
     List<Flux<BigInteger>> fluxes = new ArrayList<>();

@@ -16,7 +16,7 @@ import java.util.BitSet;
 import com.singlestore.r2dbc.codec.Codec;
 import com.singlestore.r2dbc.codec.list.*;
 
-public enum MariadbType implements Type {
+public enum SingleStoreType implements Type {
   TINYINT(R2dbcType.TINYINT.name(), Byte.class, ByteCodec.INSTANCE),
   UNSIGNED_TINYINT(R2dbcType.TINYINT.name(), Short.class, ShortCodec.INSTANCE),
   SMALLINT(R2dbcType.SMALLINT.name(), Short.class, ShortCodec.INSTANCE),
@@ -43,7 +43,7 @@ public enum MariadbType implements Type {
   private final Class<?> classType;
   private final Codec<?> defaultCodec;
 
-  <T> MariadbType(String typeName, Class<T> classType, Codec<T> defaultCodec) {
+  <T> SingleStoreType(String typeName, Class<T> classType, Codec<T> defaultCodec) {
     this.typeName = typeName;
     this.classType = classType;
     this.defaultCodec = defaultCodec;

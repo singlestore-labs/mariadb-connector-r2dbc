@@ -8,7 +8,7 @@ import io.r2dbc.spi.R2dbcNonTransientResourceException;
 import io.r2dbc.spi.R2dbcPermissionDeniedException;
 import java.util.Arrays;
 import com.singlestore.r2dbc.ExceptionFactory;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
 import com.singlestore.r2dbc.SslMode;
 import com.singlestore.r2dbc.authentication.AuthenticationFlowPluginLoader;
 import com.singlestore.r2dbc.authentication.AuthenticationPlugin;
@@ -32,7 +32,7 @@ import reactor.util.Loggers;
 public final class AuthenticationFlow {
   private static final Logger logger = Loggers.getLogger(AuthenticationFlow.class);
 
-  private final MariadbConnectionConfiguration configuration;
+  private final SingleStoreConnectionConfiguration configuration;
   private final SimpleClient client;
   private final HostAddress hostAddress;
   private InitialHandshakePacket initialHandshakePacket;
@@ -44,14 +44,14 @@ public final class AuthenticationFlow {
   private long clientCapabilities;
 
   private AuthenticationFlow(
-      SimpleClient client, MariadbConnectionConfiguration configuration, HostAddress hostAddress) {
+      SimpleClient client, SingleStoreConnectionConfiguration configuration, HostAddress hostAddress) {
     this.client = client;
     this.configuration = configuration;
     this.hostAddress = hostAddress;
   }
 
   public static Mono<Client> exchange(
-      SimpleClient client, MariadbConnectionConfiguration configuration, HostAddress hostAddress) {
+      SimpleClient client, SingleStoreConnectionConfiguration configuration, HostAddress hostAddress) {
     AuthenticationFlow flow = new AuthenticationFlow(client, configuration, hostAddress);
     Assert.requireNonNull(client, "client must not be null");
 
@@ -97,7 +97,7 @@ public final class AuthenticationFlow {
   }
 
   private static long initializeClientCapabilities(
-      final long serverCapabilities, MariadbConnectionConfiguration configuration) {
+      final long serverCapabilities, SingleStoreConnectionConfiguration configuration) {
     long capabilities =
         Capabilities.IGNORE_SPACE
             | Capabilities.CLIENT_PROTOCOL_41

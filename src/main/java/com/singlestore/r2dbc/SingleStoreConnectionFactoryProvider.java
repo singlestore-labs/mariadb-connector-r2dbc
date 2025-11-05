@@ -13,7 +13,7 @@ import java.util.function.UnaryOperator;
 import com.singlestore.r2dbc.util.Assert;
 import reactor.netty.resources.LoopResources;
 
-public final class MariadbConnectionFactoryProvider implements ConnectionFactoryProvider {
+public final class SingleStoreConnectionFactoryProvider implements ConnectionFactoryProvider {
   public static final String MARIADB_DRIVER = "mariadb";
   public static final Option<String> SOCKET = Option.valueOf("socket");
   public static final Option<Boolean> ALLOW_MULTI_QUERIES = Option.valueOf("allowMultiQueries");
@@ -45,15 +45,15 @@ public final class MariadbConnectionFactoryProvider implements ConnectionFactory
   public static final Option<Boolean> SSL_TUNNEL_DISABLE_HOST_VERIFICATION =
       Option.valueOf("sslTunnelDisableHostVerification");
 
-  static MariadbConnectionConfiguration createConfiguration(
+  static SingleStoreConnectionConfiguration createConfiguration(
       ConnectionFactoryOptions connectionFactoryOptions) {
     Assert.requireNonNull(connectionFactoryOptions, "connectionFactoryOptions must not be null");
-    return MariadbConnectionConfiguration.fromOptions(connectionFactoryOptions).build();
+    return SingleStoreConnectionConfiguration.fromOptions(connectionFactoryOptions).build();
   }
 
   @Override
-  public MariadbConnectionFactory create(ConnectionFactoryOptions connectionFactoryOptions) {
-    return new MariadbConnectionFactory(createConfiguration(connectionFactoryOptions));
+  public SingleStoreConnectionFactory create(ConnectionFactoryOptions connectionFactoryOptions) {
+    return new SingleStoreConnectionFactory(createConfiguration(connectionFactoryOptions));
   }
 
   @Override

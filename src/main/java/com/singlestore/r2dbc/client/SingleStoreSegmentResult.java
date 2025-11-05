@@ -17,40 +17,39 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import com.singlestore.r2dbc.ExceptionFactory;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.api.MariadbResult;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.api.SingleStoreResult;
 import com.singlestore.r2dbc.message.Protocol;
 import com.singlestore.r2dbc.message.ServerMessage;
 import com.singlestore.r2dbc.message.server.*;
 import com.singlestore.r2dbc.util.Assert;
 import com.singlestore.r2dbc.util.ServerPrepareResult;
-import com.singlestore.r2dbc.util.constants.ServerStatus;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public final class MariadbSegmentResult extends AbstractReferenceCounted implements MariadbResult {
+public final class SingleStoreSegmentResult extends AbstractReferenceCounted implements SingleStoreResult {
 
   private final Flux<Result.Segment> segments;
 
-  private MariadbSegmentResult(Flux<Result.Segment> segments) {
+  private SingleStoreSegmentResult(Flux<Result.Segment> segments) {
     this.segments = segments;
   }
 
-  MariadbSegmentResult(
+  SingleStoreSegmentResult(
       Protocol protocol,
       AtomicReference<ServerPrepareResult> prepareResult,
       Flux<ServerMessage> messages,
       ExceptionFactory factory,
       String[] generatedColumns,
       boolean supportReturning,
-      MariadbConnectionConfiguration conf) {
+      SingleStoreConnectionConfiguration conf) {
 
     final List<ColumnDefinitionPacket> columns = new ArrayList<>();
     final AtomicBoolean metaFollows = new AtomicBoolean(true);
-    final AtomicReference<MariadbRow.MariadbRowConstructor> rowConstructor =
+    final AtomicReference<SingleStoreRow.MariadbRowConstructor> rowConstructor =
         new AtomicReference<>();
-    final AtomicReference<MariadbRowMetadata> meta = new AtomicReference<>();
+    final AtomicReference<SingleStoreRowMetadata> meta = new AtomicReference<>();
     this.segments =
         messages.handle(
             (message, sink) -> {
@@ -76,11 +75,11 @@ public final class MariadbSegmentResult extends AbstractReferenceCounted impleme
                 EofPacket eof = (EofPacket) message;
                 if (!eof.ending()) {
                   rowConstructor.set(
-                      protocol == Protocol.TEXT ? MariadbRowText::new : MariadbRowBinary::new);
+                      protocol == Protocol.TEXT ? SingleStoreRowText::new : SingleStoreRowBinary::new);
                   ColumnDefinitionPacket[] columnsArray =
                       columns.toArray(new ColumnDefinitionPacket[0]);
 
-                  meta.set(new MariadbRowMetadata(columnsArray));
+                  meta.set(new SingleStoreRowMetadata(columnsArray));
 
                   // in case metadata follows and prepared statement, update meta
                   if (prepareResult != null && prepareResult.get() != null && metaFollows.get()) {
@@ -99,8 +98,8 @@ public final class MariadbSegmentResult extends AbstractReferenceCounted impleme
 
                 if (generatedColumns != null && !supportReturning) {
                   String colName = generatedColumns.length > 0 ? generatedColumns[0] : "ID";
-                  MariadbRowMetadata tmpMeta =
-                      new MariadbRowMetadata(
+                  SingleStoreRowMetadata tmpMeta =
+                      new SingleStoreRowMetadata(
                           new ColumnDefinitionPacket[] {
                             ColumnDefinitionPacket.fromGeneratedId(colName, conf)
                           });
@@ -114,9 +113,9 @@ public final class MariadbSegmentResult extends AbstractReferenceCounted impleme
                     return;
                   }
                   ByteBuf buf =
-                      com.singlestore.r2dbc.client.MariadbResult.getLongTextEncoded(
+                      com.singlestore.r2dbc.client.SingleStoreResult.getLongTextEncoded(
                           ((OkPacket) message).getLastInsertId());
-                  com.singlestore.r2dbc.api.MariadbRow row = new MariadbRowText(buf, tmpMeta, factory);
+                  com.singlestore.r2dbc.api.SingleStoreRow row = new SingleStoreRowText(buf, tmpMeta, factory);
                   sink.next(new MariadbRowSegment(row, buf));
                 }
 
@@ -129,22 +128,22 @@ public final class MariadbSegmentResult extends AbstractReferenceCounted impleme
 
               if (message instanceof RowPacket) {
                 RowPacket row = ((RowPacket) message);
-                com.singlestore.r2dbc.api.MariadbRow rowSegment =
+                com.singlestore.r2dbc.api.SingleStoreRow rowSegment =
                     rowConstructor.get().create(row.getRaw(), meta.get(), factory);
                 sink.next(new MariadbRowSegment(rowSegment, (RowPacket) message));
               }
             });
   }
 
-  static MariadbSegmentResult toResult(
+  static SingleStoreSegmentResult toResult(
       Protocol protocol,
       AtomicReference<ServerPrepareResult> prepareResult,
       Flux<ServerMessage> messages,
       ExceptionFactory factory,
       String[] generatedColumns,
       boolean supportReturning,
-      MariadbConnectionConfiguration conf) {
-    return new MariadbSegmentResult(
+      SingleStoreConnectionConfiguration conf) {
+    return new SingleStoreSegmentResult(
         protocol, prepareResult, messages, factory, generatedColumns, supportReturning, conf);
   }
 
@@ -208,9 +207,9 @@ public final class MariadbSegmentResult extends AbstractReferenceCounted impleme
   }
 
   @Override
-  public MariadbSegmentResult filter(Predicate<Result.Segment> filter) {
+  public SingleStoreSegmentResult filter(Predicate<Result.Segment> filter) {
     Assert.requireNonNull(filter, "filter must not be null");
-    return new MariadbSegmentResult(
+    return new SingleStoreSegmentResult(
         this.segments.filter(
             it -> {
               boolean result = filter.test(it);

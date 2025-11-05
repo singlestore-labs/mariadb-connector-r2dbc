@@ -4,7 +4,7 @@
 package com.singlestore.r2dbc.authentication;
 
 import java.util.ServiceLoader;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 
 public class AuthenticationFlowPluginLoader {
 
@@ -17,7 +17,7 @@ public class AuthenticationFlowPluginLoader {
    */
   public static AuthenticationPlugin get(String type) {
     ServiceLoader<AuthenticationPlugin> loader =
-        ServiceLoader.load(AuthenticationPlugin.class, MariadbConnection.class.getClassLoader());
+        ServiceLoader.load(AuthenticationPlugin.class, SingleStoreConnection.class.getClassLoader());
 
     for (AuthenticationPlugin implClass : loader) {
       if (type.equals(implClass.type())) {

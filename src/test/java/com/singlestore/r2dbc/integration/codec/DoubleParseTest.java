@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.util.MariadbType;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.util.SingleStoreType;
 import reactor.test.StepVerifier;
 
 public class DoubleParseTest extends BaseConnectionTest {
@@ -57,7 +57,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     defaultValue(sharedConnPrepare);
   }
 
-  private void defaultValue(MariadbConnection connection) {
+  private void defaultValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -93,7 +93,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     booleanValue(sharedConnPrepare);
   }
 
-  private void booleanValue(MariadbConnection connection) {
+  private void booleanValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -114,7 +114,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     byteArrayValue(sharedConnPrepare);
   }
 
-  private void byteArrayValue(MariadbConnection connection) {
+  private void byteArrayValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
@@ -140,7 +140,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     ByteValue(sharedConnPrepare);
   }
 
-  private void ByteValue(MariadbConnection connection) {
+  private void ByteValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2  LIMIT 3")
         .bind(0, 1)
@@ -167,7 +167,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     byteValue(sharedConnPrepare);
   }
 
-  private void byteValue(MariadbConnection connection) {
+  private void byteValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2  LIMIT 3")
         .bind(0, 1)
@@ -194,7 +194,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     shortValue(sharedConnPrepare);
   }
 
-  private void shortValue(MariadbConnection connection) {
+  private void shortValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -219,7 +219,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     intValue(sharedConnPrepare);
   }
 
-  private void intValue(MariadbConnection connection) {
+  private void intValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -240,7 +240,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     longValue(sharedConnPrepare);
   }
 
-  private void longValue(MariadbConnection connection) {
+  private void longValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -261,7 +261,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     floatValue(sharedConnPrepare);
   }
 
-  private void floatValue(MariadbConnection connection) {
+  private void floatValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -297,7 +297,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     doubleValue(sharedConnPrepare);
   }
 
-  private void doubleValue(MariadbConnection connection) {
+  private void doubleValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -336,7 +336,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     doubleObjectValue(sharedConnPrepare);
   }
 
-  private void doubleObjectValue(MariadbConnection connection) {
+  private void doubleObjectValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -374,7 +374,7 @@ public class DoubleParseTest extends BaseConnectionTest {
   }
 
   private void stringValue(
-      MariadbConnection connection, Optional<String> t1, Optional<String> t2, Optional<String> t3) {
+      SingleStoreConnection connection, Optional<String> t1, Optional<String> t2, Optional<String> t3) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -395,7 +395,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     decimalValue(sharedConnPrepare);
   }
 
-  private void decimalValue(MariadbConnection connection) {
+  private void decimalValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -431,7 +431,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     bigintValue(sharedConnPrepare);
   }
 
-  private void bigintValue(MariadbConnection connection) {
+  private void bigintValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -456,7 +456,7 @@ public class DoubleParseTest extends BaseConnectionTest {
     meta(sharedConnPrepare);
   }
 
-  private void meta(MariadbConnection connection) {
+  private void meta(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM DoubleTable WHERE 1 = ? ORDER BY t2 LIMIT 1")
         .bind(0, 1)
@@ -471,7 +471,7 @@ public class DoubleParseTest extends BaseConnectionTest {
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
         .as(StepVerifier::create)
-        .expectNextMatches(c -> c.equals(MariadbType.DOUBLE))
+        .expectNextMatches(c -> c.equals(SingleStoreType.DOUBLE))
         .verifyComplete();
   }
 }

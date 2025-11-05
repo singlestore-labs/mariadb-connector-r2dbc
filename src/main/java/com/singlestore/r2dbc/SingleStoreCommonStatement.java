@@ -3,6 +3,8 @@
 
 package com.singlestore.r2dbc;
 
+import com.singlestore.r2dbc.api.SingleStoreResult;
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ReferenceCounted;
 import java.util.ArrayList;
@@ -11,9 +13,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
-import com.singlestore.r2dbc.api.MariadbStatement;
+
 import com.singlestore.r2dbc.client.Client;
-import com.singlestore.r2dbc.client.MariadbResult;
 import com.singlestore.r2dbc.codec.Codecs;
 import com.singlestore.r2dbc.message.Protocol;
 import com.singlestore.r2dbc.message.ServerMessage;
@@ -23,19 +24,19 @@ import com.singlestore.r2dbc.util.ServerPrepareResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-public abstract class MariadbCommonStatement implements MariadbStatement {
+public abstract class SingleStoreCommonStatement implements SingleStoreStatement {
   public static final int UNKNOWN_SIZE = -1;
   protected final List<Binding> bindings = new ArrayList<>();
   protected final Client client;
   protected final String initialSql;
-  protected final MariadbConnectionConfiguration configuration;
+  protected final SingleStoreConnectionConfiguration configuration;
   protected final ExceptionFactory factory;
   protected int expectedSize;
   protected String[] generatedColumns;
   private Binding currentBinding;
 
-  public MariadbCommonStatement(
-      Client client, String sql, MariadbConnectionConfiguration configuration) {
+  public SingleStoreCommonStatement(
+      Client client, String sql, SingleStoreConnectionConfiguration configuration) {
     this.client = client;
     this.configuration = configuration;
     this.initialSql = Assert.requireNonNull(sql, "sql must not be null");
@@ -81,7 +82,7 @@ public abstract class MariadbCommonStatement implements MariadbStatement {
     currentBinding = new Binding(getExpectedSize());
   }
 
-  public MariadbStatement add() {
+  public SingleStoreStatement add() {
     currentBinding.validate(getExpectedSize());
     this.bindings.add(currentBinding);
     currentBinding = new Binding(getExpectedSize());
@@ -89,17 +90,17 @@ public abstract class MariadbCommonStatement implements MariadbStatement {
   }
 
   @Override
-  public MariadbStatement bind(String identifier, Object value) {
+  public SingleStoreStatement bind(String identifier, Object value) {
     return bind(getColumnIndex(identifier), value);
   }
 
   @Override
-  public MariadbStatement bindNull(String identifier, Class<?> type) {
+  public SingleStoreStatement bindNull(String identifier, Class<?> type) {
     return bindNull(getColumnIndex(identifier), type);
   }
 
   @Override
-  public MariadbStatement bindNull(int index, Class<?> type) {
+  public SingleStoreStatement bindNull(int index, Class<?> type) {
     if (index < 0) {
       throw new IndexOutOfBoundsException(
           String.format("wrong index value %d, index must be positive", index));
@@ -118,7 +119,7 @@ public abstract class MariadbCommonStatement implements MariadbStatement {
   }
 
   @Override
-  public MariadbStatement bind(int index, Object value) {
+  public SingleStoreStatement bind(int index, Object value) {
     Assert.requireNonNull(value, "value must not be null");
     if (index < 0) {
       throw new IndexOutOfBoundsException(
@@ -136,7 +137,7 @@ public abstract class MariadbCommonStatement implements MariadbStatement {
     return currentBinding;
   }
 
-  public Flux<com.singlestore.r2dbc.api.MariadbResult> toResult(
+  public Flux<SingleStoreResult> toResult(
       final Protocol protocol,
       Flux<ServerMessage> messages,
       ExceptionFactory factory,
@@ -146,7 +147,7 @@ public abstract class MariadbCommonStatement implements MariadbStatement {
         .windowUntil(ServerMessage::resultSetEnd)
         .map(
             dataRow ->
-                new MariadbResult(
+                new com.singlestore.r2dbc.client.SingleStoreResult(
                     protocol,
                     prepareResult,
                     dataRow,
@@ -154,7 +155,7 @@ public abstract class MariadbCommonStatement implements MariadbStatement {
                     generatedColumns,
                     client.getVersion().supportReturning(),
                     configuration))
-        .cast(com.singlestore.r2dbc.api.MariadbResult.class);
+        .cast(SingleStoreResult.class);
   }
 
   protected void clearBindings(Iterator<Binding> iterator, AtomicBoolean canceled) {

@@ -6,6 +6,10 @@ package com.singlestore.r2dbc.unit.client;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.client.ServerVersion;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class ServerVersionTest {
   @Test
   void testMinVersion() {

@@ -9,10 +9,11 @@ import java.math.BigInteger;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.test.StepVerifier;
 
 public class ResultsetTest extends BaseConnectionTest {
@@ -90,7 +91,7 @@ public class ResultsetTest extends BaseConnectionTest {
         .execute()
         .blockLast();
 
-    MariadbStatement st =
+    SingleStoreStatement st =
         sharedConn
             .createStatement("INSERT INTO INSERT_RETURNING(test) VALUES (?), (?)")
             .bind(0, "test1")
@@ -206,7 +207,7 @@ public class ResultsetTest extends BaseConnectionTest {
     getIndexToBig(sharedConnPrepare);
   }
 
-  void getIndexToBig(MariadbConnection connection) {
+  void getIndexToBig(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT 1, 2, ?")
         .bind(0, 3)
@@ -231,7 +232,7 @@ public class ResultsetTest extends BaseConnectionTest {
     getIndexToLow(sharedConnPrepare);
   }
 
-  void getIndexToLow(MariadbConnection connection) {
+  void getIndexToLow(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT 1, 2, ?")
         .bind(0, 3)
@@ -279,7 +280,7 @@ public class ResultsetTest extends BaseConnectionTest {
   }
 
   private void skippingRes(
-      MariadbConnection con, String longText, String mediumText, String smallIntText) {
+      SingleStoreConnection con, String longText, String mediumText, String smallIntText) {
     con.createStatement("TRUNCATE prepare3").execute().blockLast();
     con.beginTransaction().block();
     con.createStatement("INSERT INTO prepare3 values (?,?,?,?,?)")

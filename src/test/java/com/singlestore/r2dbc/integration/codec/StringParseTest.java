@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.util.MariadbType;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.util.SingleStoreType;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -91,7 +91,7 @@ public class StringParseTest extends BaseConnectionTest {
     wrongType(sharedConnPrepare);
   }
 
-  private void wrongType(MariadbConnection connection) {
+  private void wrongType(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
@@ -111,7 +111,7 @@ public class StringParseTest extends BaseConnectionTest {
     defaultValue(sharedConnPrepare);
   }
 
-  private void defaultValue(MariadbConnection connection) {
+  private void defaultValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
@@ -157,7 +157,7 @@ public class StringParseTest extends BaseConnectionTest {
     defaultValueBinary(sharedConnPrepare);
   }
 
-  private void defaultValueBinary(MariadbConnection connection) {
+  private void defaultValueBinary(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringBinary WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
@@ -222,7 +222,7 @@ public class StringParseTest extends BaseConnectionTest {
     clobValue(sharedConnPrepare);
   }
 
-  private void clobValue(MariadbConnection connection) {
+  private void clobValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 limit 2")
         .bind(0, 1)
@@ -264,7 +264,7 @@ public class StringParseTest extends BaseConnectionTest {
     booleanValue(sharedConnPrepare);
   }
 
-  private void booleanValue(MariadbConnection connection) {
+  private void booleanValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
@@ -285,7 +285,7 @@ public class StringParseTest extends BaseConnectionTest {
     unknownValue(sharedConnPrepare);
   }
 
-  private void unknownValue(MariadbConnection connection) {
+  private void unknownValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -314,7 +314,7 @@ public class StringParseTest extends BaseConnectionTest {
     durationValue(sharedConnPrepare);
   }
 
-  private void durationValue(MariadbConnection connection) {
+  private void durationValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -370,7 +370,7 @@ public class StringParseTest extends BaseConnectionTest {
     localTimeValue(sharedConnPrepare);
   }
 
-  private void localTimeValue(MariadbConnection connection) {
+  private void localTimeValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -427,7 +427,7 @@ public class StringParseTest extends BaseConnectionTest {
     localDateValue(sharedConnPrepare);
   }
 
-  private void localDateValue(MariadbConnection connection) {
+  private void localDateValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -484,7 +484,7 @@ public class StringParseTest extends BaseConnectionTest {
     localDateTimeValue(sharedConnPrepare);
   }
 
-  private void localDateTimeValue(MariadbConnection connection) {
+  private void localDateTimeValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -547,7 +547,7 @@ public class StringParseTest extends BaseConnectionTest {
     byteArrayValue(sharedConnPrepare);
   }
 
-  private void byteArrayValue(MariadbConnection connection) {
+  private void byteArrayValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
@@ -572,7 +572,7 @@ public class StringParseTest extends BaseConnectionTest {
     ByteValue(sharedConnPrepare);
   }
 
-  private void ByteValue(MariadbConnection connection) {
+  private void ByteValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -598,7 +598,7 @@ public class StringParseTest extends BaseConnectionTest {
     byteValue(sharedConnPrepare);
   }
 
-  private void byteValue(MariadbConnection connection) {
+  private void byteValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -624,7 +624,7 @@ public class StringParseTest extends BaseConnectionTest {
     shortValue(sharedConnPrepare);
   }
 
-  private void shortValue(MariadbConnection connection) {
+  private void shortValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -650,7 +650,7 @@ public class StringParseTest extends BaseConnectionTest {
     intValue(sharedConnPrepare);
   }
 
-  private void intValue(MariadbConnection connection) {
+  private void intValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -676,7 +676,7 @@ public class StringParseTest extends BaseConnectionTest {
     longValue(sharedConnPrepare);
   }
 
-  private void longValue(MariadbConnection connection) {
+  private void longValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -702,7 +702,7 @@ public class StringParseTest extends BaseConnectionTest {
     floatValue(sharedConnPrepare);
   }
 
-  private void floatValue(MariadbConnection connection) {
+  private void floatValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -728,7 +728,7 @@ public class StringParseTest extends BaseConnectionTest {
     doubleValue(sharedConnPrepare);
   }
 
-  private void doubleValue(MariadbConnection connection) {
+  private void doubleValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -754,7 +754,7 @@ public class StringParseTest extends BaseConnectionTest {
     stringValue(sharedConnPrepare);
   }
 
-  private void stringValue(MariadbConnection connection) {
+  private void stringValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3")
         .bind(0, 1)
@@ -775,7 +775,7 @@ public class StringParseTest extends BaseConnectionTest {
     decimalValue(sharedConnPrepare);
   }
 
-  private void decimalValue(MariadbConnection connection) {
+  private void decimalValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -801,7 +801,7 @@ public class StringParseTest extends BaseConnectionTest {
     bigintValue(sharedConnPrepare);
   }
 
-  private void bigintValue(MariadbConnection connection) {
+  private void bigintValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -827,7 +827,7 @@ public class StringParseTest extends BaseConnectionTest {
     blobValue(sharedConnPrepare);
   }
 
-  private void blobValue(MariadbConnection connection) {
+  private void blobValue(SingleStoreConnection connection) {
 
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 limit 1")
@@ -856,7 +856,7 @@ public class StringParseTest extends BaseConnectionTest {
     meta(sharedConnPrepare);
   }
 
-  private void meta(MariadbConnection connection) {
+  private void meta(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
         .bind(0, 1)
@@ -871,7 +871,7 @@ public class StringParseTest extends BaseConnectionTest {
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
         .as(StepVerifier::create)
-        .expectNextMatches(c -> c.equals(MariadbType.VARCHAR))
+        .expectNextMatches(c -> c.equals(SingleStoreType.VARCHAR))
         .verifyComplete();
     connection
         .createStatement("SELECT t2 FROM StringTable WHERE 1 = ? ORDER BY t3 LIMIT 1")
@@ -879,7 +879,7 @@ public class StringParseTest extends BaseConnectionTest {
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
         .as(StepVerifier::create)
-        .expectNextMatches(c -> c.equals(MariadbType.CLOB))
+        .expectNextMatches(c -> c.equals(SingleStoreType.CLOB))
         .verifyComplete();
   }
 }

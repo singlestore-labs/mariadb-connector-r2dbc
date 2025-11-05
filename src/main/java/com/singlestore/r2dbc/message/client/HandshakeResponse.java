@@ -7,7 +7,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import com.singlestore.r2dbc.MariadbConnectionFactoryProvider;
+import com.singlestore.r2dbc.SingleStoreConnectionFactoryProvider;
 import com.singlestore.r2dbc.authentication.addon.ClearPasswordPluginFlow;
 import com.singlestore.r2dbc.authentication.standard.NativePasswordPluginFlow;
 import com.singlestore.r2dbc.message.ClientMessage;
@@ -145,7 +145,7 @@ public final class HandshakeResponse implements ClientMessage {
   private void writeConnectAttributes(
       ByteBuf buf, Map<String, String> connectionAttributes, HostAddress hostAddress) {
     BufferUtils.writeLengthEncode("_client_name", buf);
-    BufferUtils.writeLengthEncode(MariadbConnectionFactoryProvider.MARIADB_DRIVER, buf);
+    BufferUtils.writeLengthEncode(SingleStoreConnectionFactoryProvider.MARIADB_DRIVER, buf);
 
     String clientVersion = VersionFactory.getInstance();
     if (clientVersion != null) {

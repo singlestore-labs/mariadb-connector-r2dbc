@@ -5,7 +5,7 @@ package com.singlestore.r2dbc.api;
 
 import io.r2dbc.spi.ConnectionMetadata;
 
-public interface MariadbConnectionMetadata extends ConnectionMetadata {
+public interface SingleStoreConnectionMetadata extends ConnectionMetadata {
 
   @Override
   String getDatabaseProductName();

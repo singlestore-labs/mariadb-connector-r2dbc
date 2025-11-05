@@ -10,7 +10,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 import java.util.Queue;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
 import com.singlestore.r2dbc.message.Context;
 import com.singlestore.r2dbc.message.ServerMessage;
 import com.singlestore.r2dbc.message.server.ColumnDefinitionPacket;
@@ -20,10 +20,10 @@ import com.singlestore.r2dbc.util.PrepareCache;
 import com.singlestore.r2dbc.util.ServerPrepareResult;
 import reactor.util.concurrent.Queues;
 
-public class MariadbFrameDecoder extends ByteToMessageDecoder {
+public class SingleStoreFrameDecoder extends ByteToMessageDecoder {
   private final Queue<Exchange> exchangeQueue;
   private final Client client;
-  private final MariadbConnectionConfiguration configuration;
+  private final SingleStoreConnectionConfiguration configuration;
   private final Queue<String> prepareSql = Queues.<String>small().get();
   private CompositeByteBuf multipart = null;
   private DecoderState state = null;
@@ -34,8 +34,8 @@ public class MariadbFrameDecoder extends ByteToMessageDecoder {
   private ColumnDefinitionPacket[] prepareColumns;
   private Context context = null;
 
-  public MariadbFrameDecoder(
-      Queue<Exchange> exchangeQueue, Client client, MariadbConnectionConfiguration configuration) {
+  public SingleStoreFrameDecoder(
+      Queue<Exchange> exchangeQueue, Client client, SingleStoreConnectionConfiguration configuration) {
     this.exchangeQueue = exchangeQueue;
     this.client = client;
     this.configuration = configuration;
@@ -125,7 +125,7 @@ public class MariadbFrameDecoder extends ByteToMessageDecoder {
     return prepareColumns;
   }
 
-  public MariadbConnectionConfiguration getConf() {
+  public SingleStoreConnectionConfiguration getConf() {
     return configuration;
   }
 

@@ -3,7 +3,7 @@
 
 package com.singlestore.r2dbc.authentication.standard;
 
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
 import com.singlestore.r2dbc.authentication.AuthenticationPlugin;
 import com.singlestore.r2dbc.message.AuthMoreData;
 import com.singlestore.r2dbc.message.ClientMessage;
@@ -24,7 +24,7 @@ public final class PamPluginFlow implements AuthenticationPlugin {
   }
 
   public ClientMessage next(
-      MariadbConnectionConfiguration configuration,
+      SingleStoreConnectionConfiguration configuration,
       byte[] seed,
       Sequencer sequencer,
       AuthMoreData authMoreData) {

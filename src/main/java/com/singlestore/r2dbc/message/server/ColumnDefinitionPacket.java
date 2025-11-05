@@ -7,11 +7,11 @@ import io.netty.buffer.ByteBuf;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Nullability;
 import java.nio.charset.StandardCharsets;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
 import com.singlestore.r2dbc.codec.DataType;
 import com.singlestore.r2dbc.message.ServerMessage;
 import com.singlestore.r2dbc.util.CharsetEncodingLength;
-import com.singlestore.r2dbc.util.MariadbType;
+import com.singlestore.r2dbc.util.SingleStoreType;
 import com.singlestore.r2dbc.util.constants.ColumnFlags;
 
 public final class ColumnDefinitionPacket
@@ -23,7 +23,7 @@ public final class ColumnDefinitionPacket
   private final byte decimals;
   private final int flags;
   private final boolean ending;
-  private final MariadbConnectionConfiguration conf;
+  private final SingleStoreConnectionConfiguration conf;
 
   private ColumnDefinitionPacket(
       byte[] meta,
@@ -33,7 +33,7 @@ public final class ColumnDefinitionPacket
       byte decimals,
       int flags,
       boolean ending,
-      MariadbConnectionConfiguration conf) {
+      SingleStoreConnectionConfiguration conf) {
     this.meta = meta;
     this.charset = charset;
     this.length = length;
@@ -44,7 +44,7 @@ public final class ColumnDefinitionPacket
     this.conf = conf;
   }
 
-  private ColumnDefinitionPacket(String name, MariadbConnectionConfiguration conf) {
+  private ColumnDefinitionPacket(String name, SingleStoreConnectionConfiguration conf) {
     byte[] nameBytes = name.getBytes(StandardCharsets.UTF_8);
     byte[] arr = new byte[6 + 2 * nameBytes.length];
     int pos = 0;
@@ -76,7 +76,7 @@ public final class ColumnDefinitionPacket
   }
 
   public static ColumnDefinitionPacket decode(
-      ByteBuf buf, boolean ending, MariadbConnectionConfiguration conf) {
+      ByteBuf buf, boolean ending, SingleStoreConnectionConfiguration conf) {
     byte[] meta = new byte[buf.readableBytes() - 12];
     buf.readBytes(meta);
     int charset = buf.readUnsignedShortLE();
@@ -89,7 +89,7 @@ public final class ColumnDefinitionPacket
   }
 
   public static ColumnDefinitionPacket fromGeneratedId(
-      String name, MariadbConnectionConfiguration conf) {
+      String name, SingleStoreConnectionConfiguration conf) {
     return new ColumnDefinitionPacket(name, conf);
   }
 
@@ -192,53 +192,53 @@ public final class ColumnDefinitionPacket
     return (charset == 63);
   }
 
-  public MariadbType getType() {
+  public SingleStoreType getType() {
     switch (dataType) {
       case TINYINT:
-        return isSigned() ? MariadbType.TINYINT : MariadbType.UNSIGNED_TINYINT;
+        return isSigned() ? SingleStoreType.TINYINT : SingleStoreType.UNSIGNED_TINYINT;
       case YEAR:
-        return MariadbType.SMALLINT;
+        return SingleStoreType.SMALLINT;
       case SMALLINT:
-        return isSigned() ? MariadbType.SMALLINT : MariadbType.UNSIGNED_SMALLINT;
+        return isSigned() ? SingleStoreType.SMALLINT : SingleStoreType.UNSIGNED_SMALLINT;
       case INTEGER:
-        return isSigned() ? MariadbType.INTEGER : MariadbType.UNSIGNED_INTEGER;
+        return isSigned() ? SingleStoreType.INTEGER : SingleStoreType.UNSIGNED_INTEGER;
       case FLOAT:
-        return MariadbType.FLOAT;
+        return SingleStoreType.FLOAT;
       case DOUBLE:
-        return MariadbType.DOUBLE;
+        return SingleStoreType.DOUBLE;
       case TIMESTAMP:
       case DATETIME:
-        return MariadbType.TIMESTAMP;
+        return SingleStoreType.TIMESTAMP;
       case BIGINT:
-        return isSigned() ? MariadbType.BIGINT : MariadbType.UNSIGNED_BIGINT;
+        return isSigned() ? SingleStoreType.BIGINT : SingleStoreType.UNSIGNED_BIGINT;
       case MEDIUMINT:
-        return MariadbType.INTEGER;
+        return SingleStoreType.INTEGER;
       case DATE:
       case NEWDATE:
-        return MariadbType.DATE;
+        return SingleStoreType.DATE;
       case TIME:
-        return MariadbType.TIME;
+        return SingleStoreType.TIME;
       case JSON:
-        return MariadbType.VARCHAR;
+        return SingleStoreType.VARCHAR;
       case ENUM:
       case SET:
       case STRING:
       case VARSTRING:
       case NULL:
-        return isBinary() ? MariadbType.BYTES : MariadbType.VARCHAR;
+        return isBinary() ? SingleStoreType.BYTES : SingleStoreType.VARCHAR;
       case TEXT:
-        return MariadbType.CLOB;
+        return SingleStoreType.CLOB;
       case OLDDECIMAL:
       case DECIMAL:
-        return MariadbType.DECIMAL;
+        return SingleStoreType.DECIMAL;
       case BIT:
-        return MariadbType.BIT;
+        return SingleStoreType.BIT;
       case TINYBLOB:
       case MEDIUMBLOB:
       case LONGBLOB:
       case BLOB:
       case GEOMETRY:
-        return MariadbType.BLOB;
+        return SingleStoreType.BLOB;
 
       default:
         return null;

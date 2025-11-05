@@ -8,13 +8,13 @@ import java.util.*;
 import com.singlestore.r2dbc.message.server.ColumnDefinitionPacket;
 import com.singlestore.r2dbc.util.Assert;
 
-public final class MariadbRowMetadata implements RowMetadata {
+public final class SingleStoreRowMetadata implements RowMetadata {
 
   private final ColumnDefinitionPacket[] metadataList;
   private volatile Collection<String> columnNames;
   private Map<String, Integer> mapper = null;
 
-  public MariadbRowMetadata(ColumnDefinitionPacket[] metadataList) {
+  public SingleStoreRowMetadata(ColumnDefinitionPacket[] metadataList) {
     this.metadataList = metadataList;
   }
 

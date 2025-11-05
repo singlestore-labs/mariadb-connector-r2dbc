@@ -6,11 +6,11 @@ package com.singlestore.r2dbc.api;
 import io.r2dbc.spi.Batch;
 import reactor.core.publisher.Flux;
 
-public interface MariadbBatch extends Batch {
+public interface SingleStoreBatch extends Batch {
 
   @Override
-  MariadbBatch add(String sql);
+  SingleStoreBatch add(String sql);
 
   @Override
-  Flux<MariadbResult> execute();
+  Flux<SingleStoreResult> execute();
 }

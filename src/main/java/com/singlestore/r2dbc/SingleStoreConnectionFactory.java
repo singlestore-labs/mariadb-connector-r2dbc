@@ -3,6 +3,7 @@
 
 package com.singlestore.r2dbc;
 
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ReferenceCounted;
@@ -13,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import com.singlestore.r2dbc.client.Client;
 import com.singlestore.r2dbc.client.FailoverClient;
-import com.singlestore.r2dbc.client.MariadbResult;
+import com.singlestore.r2dbc.client.SingleStoreResult;
 import com.singlestore.r2dbc.client.SimpleClient;
 import com.singlestore.r2dbc.message.Protocol;
 import com.singlestore.r2dbc.message.ServerMessage;
@@ -21,24 +22,23 @@ import com.singlestore.r2dbc.message.client.QueryPacket;
 import com.singlestore.r2dbc.message.flow.AuthenticationFlow;
 import com.singlestore.r2dbc.util.Assert;
 import com.singlestore.r2dbc.util.HostAddress;
-import com.singlestore.r2dbc.util.constants.Capabilities;
 import reactor.core.publisher.Mono;
 import reactor.netty.resources.ConnectionProvider;
 
-public final class MariadbConnectionFactory implements ConnectionFactory {
+public final class SingleStoreConnectionFactory implements ConnectionFactory {
 
-  private final MariadbConnectionConfiguration configuration;
+  private final SingleStoreConnectionConfiguration configuration;
 
-  public MariadbConnectionFactory(MariadbConnectionConfiguration configuration) {
+  public SingleStoreConnectionFactory(SingleStoreConnectionConfiguration configuration) {
     this.configuration = Assert.requireNonNull(configuration, "configuration must not be null");
   }
 
-  public static MariadbConnectionFactory from(MariadbConnectionConfiguration configuration) {
-    return new MariadbConnectionFactory(configuration);
+  public static SingleStoreConnectionFactory from(SingleStoreConnectionConfiguration configuration) {
+    return new SingleStoreConnectionFactory(configuration);
   }
 
   private static Mono<Client> connectToSocket(
-      final MariadbConnectionConfiguration configuration,
+      final SingleStoreConnectionConfiguration configuration,
       SocketAddress endpoint,
       HostAddress hostAddress,
       ReentrantLock lock) {
@@ -51,13 +51,13 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
         .onErrorMap(e -> cannotConnect(e, endpoint));
   }
 
-  public static Mono<SimpleClient> retrieveSingleStoreVersion(final MariadbConnectionConfiguration configuration, SimpleClient client) {
+  public static Mono<SimpleClient> retrieveSingleStoreVersion(final SingleStoreConnectionConfiguration configuration, SimpleClient client) {
     return client.sendCommand(new QueryPacket("SELECT @@memsql_version"), true)
         .doOnDiscard(ReferenceCounted.class, ReferenceCountUtil::release)
         .windowUntil(ServerMessage::resultSetEnd)
         .map(
             dataRow ->
-                new MariadbResult(
+                new SingleStoreResult(
                     Protocol.TEXT,
                     null,
                     dataRow,
@@ -72,7 +72,7 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
     }
 
   public static Mono<Void> setSessionVariables(
-      final MariadbConnectionConfiguration configuration, Client client) {
+      final SingleStoreConnectionConfiguration configuration, Client client) {
     if (configuration.skipPostCommands()) return Mono.empty();
     // set default autocommit value
     StringBuilder sql = new StringBuilder("SET ");
@@ -120,7 +120,7 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
         .windowUntil(ServerMessage::resultSetEnd)
         .map(
             dataRow ->
-                new MariadbResult(
+                new SingleStoreResult(
                     Protocol.TEXT,
                     null,
                     dataRow,
@@ -132,7 +132,7 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
         .then();
   }
 
-  public static Mono<MariadbConnection> closeWithError(Client client, Throwable throwable) {
+  public static Mono<com.singlestore.r2dbc.SingleStoreConnection> closeWithError(Client client, Throwable throwable) {
     return client.close().then(Mono.error(throwable));
   }
 
@@ -147,7 +147,7 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
   }
 
   @Override
-  public Mono<com.singlestore.r2dbc.api.MariadbConnection> create() {
+  public Mono<SingleStoreConnection> create() {
     ReentrantLock lock = new ReentrantLock();
     return ((configuration.getSocket() != null)
             ? connectToSocket(
@@ -161,16 +161,16 @@ public final class MariadbConnectionFactory implements ConnectionFactory {
         .flatMap(
             client ->
                 Mono.just(
-                        new MariadbConnection(
+                        new com.singlestore.r2dbc.SingleStoreConnection(
                             client,
                             configuration))
                     .onErrorResume(throwable -> closeWithError(client, throwable)))
-        .cast(com.singlestore.r2dbc.api.MariadbConnection.class);
+        .cast(SingleStoreConnection.class);
   }
 
   @Override
   public ConnectionFactoryMetadata getMetadata() {
-    return MariadbConnectionFactoryMetadata.INSTANCE;
+    return SingleStoreConnectionFactoryMetadata.INSTANCE;
   }
 
   @Override

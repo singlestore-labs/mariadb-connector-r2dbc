@@ -5,10 +5,10 @@ package com.singlestore.r2dbc.api;
 
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
-import com.singlestore.r2dbc.client.MariadbRowMetadata;
+import com.singlestore.r2dbc.client.SingleStoreRowMetadata;
 
 /** A {@link Row} for a MariaDB/MySQL database. */
-public interface MariadbRow extends Row {
+public interface SingleStoreRow extends Row {
 
   /**
    * Returns the {@link RowMetadata} for all columns in this row.
@@ -16,5 +16,5 @@ public interface MariadbRow extends Row {
    * @return the {@link RowMetadata} for all columns in this row
    * @since 0.9
    */
-  MariadbRowMetadata getMetadata();
+  SingleStoreRowMetadata getMetadata();
 }

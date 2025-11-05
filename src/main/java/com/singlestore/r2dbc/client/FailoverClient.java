@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import com.singlestore.r2dbc.ExceptionFactory;
 import com.singlestore.r2dbc.HaMode;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
 import com.singlestore.r2dbc.message.ClientMessage;
 import com.singlestore.r2dbc.message.Context;
 import com.singlestore.r2dbc.message.ServerMessage;
@@ -25,7 +25,6 @@ import com.singlestore.r2dbc.message.server.RowPacket;
 import com.singlestore.r2dbc.util.HostAddress;
 import com.singlestore.r2dbc.util.PrepareCache;
 import com.singlestore.r2dbc.util.ServerPrepareResult;
-import com.singlestore.r2dbc.util.constants.Capabilities;
 import com.singlestore.r2dbc.util.constants.ServerStatus;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,17 +37,17 @@ public class FailoverClient implements Client {
       R2dbcNonTransientException.class::isInstance;
 
   private final AtomicReference<Client> client = new AtomicReference<>();
-  private final MariadbConnectionConfiguration conf;
+  private final SingleStoreConnectionConfiguration conf;
   private final ReentrantLock lock;
 
-  public FailoverClient(MariadbConnectionConfiguration conf, ReentrantLock lock, Client client) {
+  public FailoverClient(SingleStoreConnectionConfiguration conf, ReentrantLock lock, Client client) {
     this.client.set(client);
     this.conf = conf;
     this.lock = lock;
   }
 
   private static final Mono<Boolean> reconnectIfNeeded(
-      MariadbConnectionConfiguration conf, ReentrantLock lock, AtomicReference<Client> client) {
+      SingleStoreConnectionConfiguration conf, ReentrantLock lock, AtomicReference<Client> client) {
     if (client.get().isConnected()) return Mono.just(Boolean.TRUE);
     return reconnectFallbackReplay(null, conf, lock, client, true, false, null)
         .then(Mono.just(Boolean.TRUE));
@@ -56,7 +55,7 @@ public class FailoverClient implements Client {
 
   private static Mono<ServerMessage> reconnectFallback(
       Throwable t,
-      MariadbConnectionConfiguration conf,
+      SingleStoreConnectionConfiguration conf,
       ReentrantLock lock,
       AtomicReference<Client> client) {
     HaMode.failHost(client.get().getHostAddress());
@@ -80,7 +79,7 @@ public class FailoverClient implements Client {
 
   private static final Mono<Client> reconnectFallbackReplay(
       Throwable throwable,
-      MariadbConnectionConfiguration conf,
+      SingleStoreConnectionConfiguration conf,
       ReentrantLock lock,
       AtomicReference<Client> client,
       boolean canSafelyBeReExecuted,
@@ -116,7 +115,7 @@ public class FailoverClient implements Client {
   }
 
   private static Mono<Void> syncNewState(
-      Client oldCli, Client currentClient, MariadbConnectionConfiguration conf) {
+      Client oldCli, Client currentClient, SingleStoreConnectionConfiguration conf) {
     Context oldCtx = oldCli.getContext();
 
     // sync database
@@ -138,7 +137,7 @@ public class FailoverClient implements Client {
       Throwable throwable,
       Client oldClient,
       Client client,
-      MariadbConnectionConfiguration conf,
+      SingleStoreConnectionConfiguration conf,
       boolean canRedo,
       boolean firstMsgReceived,
       ClientMessage request) {
@@ -434,7 +433,7 @@ public class FailoverClient implements Client {
 
   @Override
   public Mono<Void> sendSslRequest(
-      SslRequestPacket sslRequest, MariadbConnectionConfiguration configuration) {
+      SslRequestPacket sslRequest, SingleStoreConnectionConfiguration configuration) {
     return client.get().sendSslRequest(sslRequest, configuration);
   }
 

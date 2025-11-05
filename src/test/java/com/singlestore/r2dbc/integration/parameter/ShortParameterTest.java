@@ -14,7 +14,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -47,7 +47,7 @@ public class ShortParameterTest extends BaseConnectionTest {
     nullValue(sharedConnPrepare);
   }
 
-  private void nullValue(MariadbConnection connection) {
+  private void nullValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bindNull(0, BigInteger.class)
@@ -68,7 +68,7 @@ public class ShortParameterTest extends BaseConnectionTest {
     bigIntValue(sharedConnPrepare);
   }
 
-  private void bigIntValue(MariadbConnection connection) {
+  private void bigIntValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, BigInteger.ONE)
@@ -92,7 +92,7 @@ public class ShortParameterTest extends BaseConnectionTest {
     stringValue(sharedConnPrepare);
   }
 
-  private void stringValue(MariadbConnection connection) {
+  private void stringValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, "1")
@@ -116,7 +116,7 @@ public class ShortParameterTest extends BaseConnectionTest {
     decimalValue(sharedConnPrepare);
   }
 
-  private void decimalValue(MariadbConnection connection) {
+  private void decimalValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, BigDecimal.ONE)
@@ -140,7 +140,7 @@ public class ShortParameterTest extends BaseConnectionTest {
     intValue(sharedConnPrepare);
   }
 
-  private void intValue(MariadbConnection connection) {
+  private void intValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, 1)
@@ -164,7 +164,7 @@ public class ShortParameterTest extends BaseConnectionTest {
     byteValue(sharedConnPrepare);
   }
 
-  private void byteValue(MariadbConnection connection) {
+  private void byteValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, (byte) 127)
@@ -188,7 +188,7 @@ public class ShortParameterTest extends BaseConnectionTest {
     floatValue(sharedConnPrepare);
   }
 
-  private void floatValue(MariadbConnection connection) {
+  private void floatValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, 127f)
@@ -212,7 +212,7 @@ public class ShortParameterTest extends BaseConnectionTest {
     doubleValue(sharedConnPrepare);
   }
 
-  private void doubleValue(MariadbConnection connection) {
+  private void doubleValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, 127d)
@@ -236,7 +236,7 @@ public class ShortParameterTest extends BaseConnectionTest {
     shortValue(sharedConnPrepare);
   }
 
-  private void shortValue(MariadbConnection connection) {
+  private void shortValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, Short.valueOf("1"))
@@ -260,7 +260,7 @@ public class ShortParameterTest extends BaseConnectionTest {
     longValue(sharedConnPrepare);
   }
 
-  private void longValue(MariadbConnection connection) {
+  private void longValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO SmallIntParam VALUES (?,?,?)")
         .bind(0, Long.valueOf("1"))

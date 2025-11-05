@@ -5,7 +5,7 @@ package com.singlestore.r2dbc.integration;
 
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.test.StepVerifier;
 
 public class StatementBatchingTest extends BaseConnectionTest {
@@ -20,7 +20,7 @@ public class StatementBatchingTest extends BaseConnectionTest {
     batchStatement(sharedConnPrepare);
   }
 
-  void batchStatement(MariadbConnection connection) {
+  void batchStatement(SingleStoreConnection connection) {
     connection
         .createStatement(
             "CREATE TEMPORARY TABLE batchStatement (id int not null primary key auto_increment,"
@@ -58,7 +58,7 @@ public class StatementBatchingTest extends BaseConnectionTest {
     batchStatementResultSet(sharedConnPrepare);
   }
 
-  void batchStatementResultSet(MariadbConnection connection) {
+  void batchStatementResultSet(SingleStoreConnection connection) {
     connection
         .createStatement(
             "CREATE TEMPORARY TABLE batchStatementResultSet (id int not null primary key"

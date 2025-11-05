@@ -12,14 +12,14 @@ import com.singlestore.r2dbc.message.server.ColumnDefinitionPacket;
 import com.singlestore.r2dbc.util.Assert;
 import reactor.util.annotation.Nullable;
 
-public class MariadbRowText extends MariadbRow implements com.singlestore.r2dbc.api.MariadbRow {
+public class SingleStoreRowText extends SingleStoreRow implements com.singlestore.r2dbc.api.SingleStoreRow {
 
-  public MariadbRowText(ByteBuf buf, MariadbRowMetadata meta, ExceptionFactory factory) {
+  public SingleStoreRowText(ByteBuf buf, SingleStoreRowMetadata meta, ExceptionFactory factory) {
     super(buf, meta, factory);
     this.buf.markReaderIndex();
   }
 
-  public MariadbRowMetadata getMetadata() {
+  public SingleStoreRowMetadata getMetadata() {
     return meta;
   }
 
@@ -49,7 +49,7 @@ public class MariadbRowText extends MariadbRow implements com.singlestore.r2dbc.
     if ((defaultCodec = (Codec<T>) Codecs.typeMapper.get(type)) != null) {
       if (!defaultCodec.canDecode(column, type)) {
         buf.skipBytes(length);
-        throw MariadbRow.noDecoderException(column, type);
+        throw SingleStoreRow.noDecoderException(column, type);
       }
       return defaultCodec.decodeText(buf, length, column, type, factory);
     }
@@ -61,7 +61,7 @@ public class MariadbRowText extends MariadbRow implements com.singlestore.r2dbc.
     }
 
     buf.skipBytes(length);
-    throw MariadbRow.noDecoderException(column, type);
+    throw SingleStoreRow.noDecoderException(column, type);
   }
 
   @Nullable

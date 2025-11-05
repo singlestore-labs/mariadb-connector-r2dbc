@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.test.StepVerifier;
 
 public class UuidParseTest extends BaseConnectionTest {
@@ -43,7 +43,7 @@ public class UuidParseTest extends BaseConnectionTest {
     defaultValue(sharedConnPrepare);
   }
 
-  private void defaultValue(MariadbConnection connection) {
+  private void defaultValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM UuidTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -79,7 +79,7 @@ public class UuidParseTest extends BaseConnectionTest {
     stringValue(sharedConnPrepare);
   }
 
-  private void stringValue(MariadbConnection connection) {
+  private void stringValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM UuidTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)
@@ -103,7 +103,7 @@ public class UuidParseTest extends BaseConnectionTest {
     uuidValue(sharedConnPrepare);
   }
 
-  private void uuidValue(MariadbConnection connection) {
+  private void uuidValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM UuidTable WHERE 1 = ? ORDER BY t2")
         .bind(0, 1)

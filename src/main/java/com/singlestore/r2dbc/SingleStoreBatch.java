@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import com.singlestore.r2dbc.api.MariadbResult;
+import com.singlestore.r2dbc.api.SingleStoreResult;
 import com.singlestore.r2dbc.client.Client;
 import com.singlestore.r2dbc.message.Protocol;
 import com.singlestore.r2dbc.message.client.QueryPacket;
@@ -19,13 +19,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 /** Basic implementation for batch. //TODO implement bulk */
-final class MariadbBatch implements com.singlestore.r2dbc.api.MariadbBatch {
+final class SingleStoreBatch implements com.singlestore.r2dbc.api.SingleStoreBatch {
 
   private final Client client;
-  private final MariadbConnectionConfiguration configuration;
+  private final SingleStoreConnectionConfiguration configuration;
   private final List<String> statements = new ArrayList<>();
 
-  MariadbBatch(Client client, MariadbConnectionConfiguration configuration) {
+  SingleStoreBatch(Client client, SingleStoreConnectionConfiguration configuration) {
     this.client = client;
     this.configuration = configuration;
   }
@@ -49,7 +49,7 @@ final class MariadbBatch implements com.singlestore.r2dbc.api.MariadbBatch {
   }
 
   @Override
-  public MariadbBatch add(String sql) {
+  public SingleStoreBatch add(String sql) {
     Assert.requireNonNull(sql, "sql must not be null");
 
     // ensure commands doesn't have parameters
@@ -65,7 +65,7 @@ final class MariadbBatch implements com.singlestore.r2dbc.api.MariadbBatch {
   }
 
   @Override
-  public Flux<MariadbResult> execute() {
+  public Flux<SingleStoreResult> execute() {
     if (configuration.allowMultiQueries()) {
       return this.client
           .sendCommand(new QueryPacket(String.join(";", this.statements)), true)
@@ -73,7 +73,7 @@ final class MariadbBatch implements com.singlestore.r2dbc.api.MariadbBatch {
           .windowUntil(it -> it.resultSetEnd())
           .map(
               dataRow ->
-                  new com.singlestore.r2dbc.client.MariadbResult(
+                  new com.singlestore.r2dbc.client.SingleStoreResult(
                       Protocol.TEXT,
                       null,
                       dataRow,
@@ -95,7 +95,7 @@ final class MariadbBatch implements com.singlestore.r2dbc.api.MariadbBatch {
                       .windowUntil(it -> it.resultSetEnd())
                       .map(
                           dataRow ->
-                              new com.singlestore.r2dbc.client.MariadbResult(
+                              new com.singlestore.r2dbc.client.SingleStoreResult(
                                   Protocol.TEXT,
                                   null,
                                   dataRow,
@@ -103,7 +103,7 @@ final class MariadbBatch implements com.singlestore.r2dbc.api.MariadbBatch {
                                   null,
                                   client.getVersion().supportReturning(),
                                   configuration))
-                      .cast(com.singlestore.r2dbc.api.MariadbResult.class))
+                      .cast(SingleStoreResult.class))
           .flatMap(mariadbResultFlux -> mariadbResultFlux)
           .doOnCancel(() -> canceled.set(true))
           .doOnSubscribe(

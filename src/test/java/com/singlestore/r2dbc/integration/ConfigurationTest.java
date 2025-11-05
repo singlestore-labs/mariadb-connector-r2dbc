@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.*;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -54,8 +54,8 @@ public class ConfigurationTest extends BaseConnectionTest {
 
   @Test
   void ensureUserInfoUrlEncoding() {
-    MariadbConnectionFactory factory =
-        (MariadbConnectionFactory)
+    SingleStoreConnectionFactory factory =
+        (SingleStoreConnectionFactory)
             ConnectionFactories.get(
                 "r2dbc:mariadb://root%40%C3%A5:p%40ssword@localhost:3305/%D1" + "%88db");
     Assertions.assertTrue(
@@ -66,8 +66,8 @@ public class ConfigurationTest extends BaseConnectionTest {
 
   @Test
   void haMode() {
-    MariadbConnectionFactory factory =
-        (MariadbConnectionFactory)
+    SingleStoreConnectionFactory factory =
+        (SingleStoreConnectionFactory)
             ConnectionFactories.get(
                 "r2dbc:mariadb:loadbalance://root:password@localhost:3305/db");
     Assertions.assertTrue(factory.toString().contains("username=root"));
@@ -103,8 +103,8 @@ public class ConfigurationTest extends BaseConnectionTest {
       }
     }
     Assumptions.assumeTrue(clientSslCert != null);
-    MariadbConnectionFactory factory =
-        (MariadbConnectionFactory)
+    SingleStoreConnectionFactory factory =
+        (SingleStoreConnectionFactory)
             ConnectionFactories.get(
                 "r2dbc:mariadb://root:pwd@localhost:3306/db?socket=ff&allowMultiQueries=true"
                     + "&tlsProtocol=TLSv1.2"
@@ -143,8 +143,8 @@ public class ConfigurationTest extends BaseConnectionTest {
   void checkDecoded() {
     ConnectionFactoryOptions options =
         ConnectionFactoryOptions.parse("r2dbc:mariadb://ro%3Aot:pw%3Ad@localhost:3306/db");
-    MariadbConnectionConfiguration conf =
-        MariadbConnectionConfiguration.fromOptions(options).build();
+    SingleStoreConnectionConfiguration conf =
+        SingleStoreConnectionConfiguration.fromOptions(options).build();
     Assertions.assertEquals("ro:ot", conf.getUsername());
     Assertions.assertEquals("pw:d", conf.getPassword().toString());
   }
@@ -156,7 +156,7 @@ public class ConfigurationTest extends BaseConnectionTest {
 
     assertThrows(
         NoSuchOptionException.class,
-        () -> MariadbConnectionConfiguration.fromOptions(option1s).build(),
+        () -> SingleStoreConnectionConfiguration.fromOptions(option1s).build(),
         "");
 
     ConnectionFactoryOptions options =
@@ -166,14 +166,14 @@ public class ConfigurationTest extends BaseConnectionTest {
             .option(ConnectionFactoryOptions.PORT, 43306)
             .option(ConnectionFactoryOptions.USER, "myUser")
             .option(ConnectionFactoryOptions.DATABASE, "myDb")
-            .option(MariadbConnectionFactoryProvider.ALLOW_MULTI_QUERIES, true)
-            .option(MariadbConnectionFactoryProvider.TCP_KEEP_ALIVE, true)
-            .option(MariadbConnectionFactoryProvider.TCP_ABORTIVE_CLOSE, true)
+            .option(SingleStoreConnectionFactoryProvider.ALLOW_MULTI_QUERIES, true)
+            .option(SingleStoreConnectionFactoryProvider.TCP_KEEP_ALIVE, true)
+            .option(SingleStoreConnectionFactoryProvider.TCP_ABORTIVE_CLOSE, true)
             .option(Option.valueOf("locale"), "en_US")
             .build();
-    MariadbConnectionConfiguration conf =
-        MariadbConnectionConfiguration.fromOptions(options).build();
-    MariadbConnectionFactory factory = MariadbConnectionFactory.from(conf);
+    SingleStoreConnectionConfiguration conf =
+        SingleStoreConnectionConfiguration.fromOptions(options).build();
+    SingleStoreConnectionFactory factory = SingleStoreConnectionFactory.from(conf);
     Assertions.assertTrue(
         factory
             .toString()
@@ -183,7 +183,7 @@ public class ConfigurationTest extends BaseConnectionTest {
 
   @Test
   void provider() {
-    Assertions.assertEquals("mariadb", new MariadbConnectionFactoryProvider().getDriver());
+    Assertions.assertEquals("mariadb", new SingleStoreConnectionFactoryProvider().getDriver());
   }
 
   @Test
@@ -194,12 +194,12 @@ public class ConfigurationTest extends BaseConnectionTest {
             .option(ConnectionFactoryOptions.PORT, 43306)
             .option(ConnectionFactoryOptions.USER, "myUser")
             .option(ConnectionFactoryOptions.DATABASE, "myDb")
-            .option(MariadbConnectionFactoryProvider.ALLOW_MULTI_QUERIES, true)
+            .option(SingleStoreConnectionFactoryProvider.ALLOW_MULTI_QUERIES, true)
             .option(Option.valueOf("locale"), "en_US")
             .build();
     assertThrows(
         IllegalStateException.class,
-        () -> MariadbConnectionConfiguration.fromOptions(options).build(),
+        () -> SingleStoreConnectionConfiguration.fromOptions(options).build(),
         "No value found for host");
   }
 
@@ -211,11 +211,11 @@ public class ConfigurationTest extends BaseConnectionTest {
             .option(ConnectionFactoryOptions.HOST, "someHost")
             .option(ConnectionFactoryOptions.PORT, 43306)
             .option(ConnectionFactoryOptions.USER, "myUser")
-            .option(MariadbConnectionFactoryProvider.ALLOW_MULTI_QUERIES, true)
+            .option(SingleStoreConnectionFactoryProvider.ALLOW_MULTI_QUERIES, true)
             .option(Option.valueOf("locale"), "en_US")
             .build();
-    MariadbConnectionConfiguration conf =
-        MariadbConnectionConfiguration.fromOptions(options).build();
+    SingleStoreConnectionConfiguration conf =
+        SingleStoreConnectionConfiguration.fromOptions(options).build();
     Assertions.assertEquals("someHost", conf.getHostAddresses().get(0).getHost());
     Assertions.assertEquals(43306, conf.getPort());
     Assertions.assertTrue(conf.allowMultiQueries());
@@ -225,22 +225,22 @@ public class ConfigurationTest extends BaseConnectionTest {
             .option(ConnectionFactoryOptions.DRIVER, "mariadb")
             .option(ConnectionFactoryOptions.HOST, "someHost")
             .option(ConnectionFactoryOptions.PORT, 43306)
-            .option(MariadbConnectionFactoryProvider.ALLOW_MULTI_QUERIES, true)
+            .option(SingleStoreConnectionFactoryProvider.ALLOW_MULTI_QUERIES, true)
             .option(Option.valueOf("locale"), "en_US")
             .build();
     assertThrows(
         IllegalStateException.class,
-        () -> MariadbConnectionConfiguration.fromOptions(optionsWithoutUser).build(),
+        () -> SingleStoreConnectionConfiguration.fromOptions(optionsWithoutUser).build(),
         "No value found for user");
   }
 
   @Test
   void autocommitValue() throws Exception {
-    MariadbConnectionConfiguration conf = TestConfiguration.defaultBuilder.clone().build();
+    SingleStoreConnectionConfiguration conf = TestConfiguration.defaultBuilder.clone().build();
 
     Assertions.assertTrue(conf.autocommit());
 
-    MariadbConnection sharedConn = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection sharedConn = new SingleStoreConnectionFactory(conf).create().block();
     sharedConn
         .createStatement("SELECT @@autocommit")
         .execute()
@@ -253,14 +253,14 @@ public class ConfigurationTest extends BaseConnectionTest {
 
     conf = TestConfiguration.defaultBuilder.clone().autocommit(false).build();
     Assertions.assertFalse(conf.autocommit());
-    sharedConn = new MariadbConnectionFactory(conf).create().block();
+    sharedConn = new SingleStoreConnectionFactory(conf).create().block();
     Assertions.assertFalse(sharedConn.isAutoCommit());
     sharedConn.createStatement("SET @@autocommit=0");
     sharedConn.close().block();
 
     conf = TestConfiguration.defaultBuilder.clone().build();
     Assertions.assertTrue(conf.autocommit());
-    sharedConn = new MariadbConnectionFactory(conf).create().block();
+    sharedConn = new SingleStoreConnectionFactory(conf).create().block();
     Assertions.assertTrue(sharedConn.isAutoCommit());
     sharedConn.createStatement("SET @@autocommit=1");
     sharedConn.close().block();
@@ -276,7 +276,7 @@ public class ConfigurationTest extends BaseConnectionTest {
             .sessionVariables(sessionVariables)
             .build();
     Assertions.assertFalse(conf.autocommit());
-    sharedConn = new MariadbConnectionFactory(conf).create().block();
+    sharedConn = new SingleStoreConnectionFactory(conf).create().block();
     Assertions.assertFalse(sharedConn.isAutoCommit());
     sharedConn.close().block();
   }
@@ -285,14 +285,14 @@ public class ConfigurationTest extends BaseConnectionTest {
   void sessionVariablesMultipleValues() throws Exception {
     Map<String, Object> sessionVariables1 = new HashMap<>();
     sessionVariables1.put("sql_mode", "ANSI_QUOTES,ONLY_FULL_GROUP_BY,STRICT_ALL_TABLES");
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .sessionVariables(sessionVariables1)
             .clone()
             .build();
 
-    MariadbConnection sharedConn = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection sharedConn = new SingleStoreConnectionFactory(conf).create().block();
     sharedConn
         .createStatement("SELECT @@sql_mode")
         .execute()
@@ -308,15 +308,15 @@ public class ConfigurationTest extends BaseConnectionTest {
   void confMinOption() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> MariadbConnectionConfiguration.builder().build(),
+        () -> SingleStoreConnectionConfiguration.builder().build(),
         "host or socket must not be null");
     assertThrows(
         IllegalArgumentException.class,
-        () -> MariadbConnectionConfiguration.builder().host("jj").socket("dd").build(),
+        () -> SingleStoreConnectionConfiguration.builder().host("jj").socket("dd").build(),
         "Connection must be configured for either host/port or socket usage but not both");
     assertThrows(
         IllegalArgumentException.class,
-        () -> MariadbConnectionConfiguration.builder().host("jj").build(),
+        () -> SingleStoreConnectionConfiguration.builder().host("jj").build(),
         "username must not be null");
   }
 
@@ -339,8 +339,8 @@ public class ConfigurationTest extends BaseConnectionTest {
     String connectionUrl =
         "r2dbc:mariadb://admin:pass@localhost:3306/dbname?allowMultiQueries=blabla&autoCommit=1";
     ConnectionFactoryOptions options = ConnectionFactoryOptions.parse(connectionUrl);
-    MariadbConnectionConfiguration.Builder builder =
-        MariadbConnectionConfiguration.fromOptions(options);
+    SingleStoreConnectionConfiguration.Builder builder =
+        SingleStoreConnectionConfiguration.fromOptions(options);
     builder.sslMode(null);
     Assertions.assertTrue(builder.toString().contains("sslMode=DISABLE"));
     builder.sslMode(SslMode.TRUST);
@@ -372,15 +372,15 @@ public class ConfigurationTest extends BaseConnectionTest {
             + " sslTunnelDisableHostVerification=false, pamOtherPwd=*,*,"
             + " autoCommit=true}",
         builder.toString());
-    MariadbConnectionConfiguration conf = builder.build();
+    SingleStoreConnectionConfiguration conf = builder.build();
     Assertions.assertEquals("sslMode=trust", conf.getSslConfig().toString());
   }
 
   @Test
   public void emptySessionVariable() throws Exception {
-    MariadbConnectionConfiguration emptySessionConf =
+    SingleStoreConnectionConfiguration emptySessionConf =
         TestConfiguration.defaultBuilder.clone().sessionVariables(new HashMap<>()).build();
-    MariadbConnection con = new MariadbConnectionFactory(emptySessionConf).create().block();
+    SingleStoreConnection con = new SingleStoreConnectionFactory(emptySessionConf).create().block();
     con.close().block();
   }
 }

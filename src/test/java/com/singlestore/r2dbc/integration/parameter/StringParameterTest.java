@@ -3,6 +3,7 @@
 
 package com.singlestore.r2dbc.integration.parameter;
 
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import io.r2dbc.spi.Clob;
 
 import java.math.BigDecimal;
@@ -19,18 +20,17 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.MariadbConnectionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
 import com.singlestore.r2dbc.TestConfiguration;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbConnectionMetadata;
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnectionMetadata;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 public class StringParameterTest extends BaseConnectionTest {
-  private static final MariadbConnectionMetadata meta = sharedConn.getMetadata();
+  private static final SingleStoreConnectionMetadata meta = sharedConn.getMetadata();
 
   @BeforeAll
   public static void before2() {
@@ -62,7 +62,7 @@ public class StringParameterTest extends BaseConnectionTest {
     nullValue(sharedConnPrepare);
   }
 
-  private void nullValue(MariadbConnection connection) {
+  private void nullValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
         .bindNull(0, BigInteger.class)
@@ -97,8 +97,8 @@ public class StringParameterTest extends BaseConnectionTest {
     return array;
   }
 
-  private void bitSetValue(MariadbConnection connection) {
-    MariadbStatement stmt =
+  private void bitSetValue(SingleStoreConnection connection) {
+    SingleStoreStatement stmt =
         connection
             .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
             .bind(0, BitSet.valueOf(revertOrder("çà¤\\".getBytes(StandardCharsets.UTF_8))))
@@ -118,9 +118,9 @@ public class StringParameterTest extends BaseConnectionTest {
     byteArrayValue(sharedConnPrepare);
   }
 
-  private void byteArrayValue(MariadbConnection connection) {
+  private void byteArrayValue(SingleStoreConnection connection) {
 
-    MariadbStatement stmt =
+    SingleStoreStatement stmt =
         connection
             .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
             .bind(0, "çà¤\\".getBytes(StandardCharsets.UTF_8))
@@ -140,7 +140,7 @@ public class StringParameterTest extends BaseConnectionTest {
     bigIntValue(sharedConnPrepare);
   }
 
-  private void bigIntValue(MariadbConnection connection) {
+  private void bigIntValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
         .bind(0, BigInteger.ONE)
@@ -161,7 +161,7 @@ public class StringParameterTest extends BaseConnectionTest {
     stringValue(sharedConnPrepare);
   }
 
-  private void stringValue(MariadbConnection connection) {
+  private void stringValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
         .bind(0, "1")
@@ -186,9 +186,9 @@ public class StringParameterTest extends BaseConnectionTest {
   void clobValueNoBackslash() throws Exception {
     Map<String, Object> sessionMap = new HashMap<>();
     sessionMap.put("SQL_MODE", "NO_BACKSLASH_ESCAPES");
-    MariadbConnectionConfiguration confNoBackSlash =
+    SingleStoreConnectionConfiguration confNoBackSlash =
         TestConfiguration.defaultBuilder.clone().sessionVariables(sessionMap).build();
-    MariadbConnection con = new MariadbConnectionFactory(confNoBackSlash).create().block();
+    SingleStoreConnection con = new SingleStoreConnectionFactory(confNoBackSlash).create().block();
     clobValue(con);
     con.close().block();
   }
@@ -197,15 +197,15 @@ public class StringParameterTest extends BaseConnectionTest {
   void clobValuePrepareNoBackslash() throws Exception {
     Map<String, Object> sessionMap = new HashMap<>();
     sessionMap.put("SQL_MODE", "NO_BACKSLASH_ESCAPES");
-    MariadbConnectionConfiguration confNoBackSlash =
+    SingleStoreConnectionConfiguration confNoBackSlash =
         TestConfiguration.defaultBuilder.clone().sessionVariables(sessionMap).build();
-    MariadbConnection con = new MariadbConnectionFactory(confNoBackSlash).create().block();
+    SingleStoreConnection con = new SingleStoreConnectionFactory(confNoBackSlash).create().block();
     clobValue(con);
     con.close().block();
   }
 
-  private void clobValue(MariadbConnection connection) {
-    MariadbStatement stmt =
+  private void clobValue(SingleStoreConnection connection) {
+    SingleStoreStatement stmt =
         connection
             .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
             .bind(0, Clob.from(Mono.just("123")))
@@ -225,7 +225,7 @@ public class StringParameterTest extends BaseConnectionTest {
     decimalValue(sharedConnPrepare);
   }
 
-  private void decimalValue(MariadbConnection connection) {
+  private void decimalValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
         .bind(0, BigDecimal.ONE)
@@ -246,7 +246,7 @@ public class StringParameterTest extends BaseConnectionTest {
     intValue(sharedConnPrepare);
   }
 
-  private void intValue(MariadbConnection connection) {
+  private void intValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
         .bind(0, 1)
@@ -267,7 +267,7 @@ public class StringParameterTest extends BaseConnectionTest {
     byteValue(sharedConnPrepare);
   }
 
-  private void byteValue(MariadbConnection connection) {
+  private void byteValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
         .bind(0, (byte) 127)
@@ -290,7 +290,7 @@ public class StringParameterTest extends BaseConnectionTest {
     validate(Optional.of("127"), Optional.of("-128"), Optional.of("0"));
   }
 
-  private void floatValue(MariadbConnection connection) {
+  private void floatValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
         .bind(0, 127f)
@@ -312,7 +312,7 @@ public class StringParameterTest extends BaseConnectionTest {
     validate(Optional.of("127"), Optional.of("-128"), Optional.of("0"));
   }
 
-  private void doubleValue(MariadbConnection connection) {
+  private void doubleValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
         .bind(0, 127d)
@@ -332,7 +332,7 @@ public class StringParameterTest extends BaseConnectionTest {
     shortValue(sharedConnPrepare);
   }
 
-  private void shortValue(MariadbConnection connection) {
+  private void shortValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
         .bind(0, "1")
@@ -353,7 +353,7 @@ public class StringParameterTest extends BaseConnectionTest {
     longValue(sharedConnPrepare);
   }
 
-  private void longValue(MariadbConnection connection) {
+  private void longValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
         .bind(0, Long.valueOf("1"))
@@ -382,7 +382,7 @@ public class StringParameterTest extends BaseConnectionTest {
         "2025-05-12 05:08:11.123000");
   }
 
-  private void localDateTimeValue(MariadbConnection connection, String t1, String t2, String t3) {
+  private void localDateTimeValue(SingleStoreConnection connection, String t1, String t2, String t3) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (?,?,?)")
         .bind(0, LocalDateTime.parse("2010-01-12T05:08:09.0014"))
@@ -403,7 +403,7 @@ public class StringParameterTest extends BaseConnectionTest {
     localDateValue(sharedConnPrepare);
   }
 
-  private void localDateValue(MariadbConnection connection) {
+  private void localDateValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (? :> DATE,? :> DATE,? :> DATE)")
         .bind(0, LocalDate.parse("2010-01-12"))
@@ -432,7 +432,7 @@ public class StringParameterTest extends BaseConnectionTest {
         Optional.of("05:08:11.123000"));
   }
 
-  private void localTimeValue(MariadbConnection connection) {
+  private void localTimeValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO StringParam VALUES (? :> TIME(6),? :> TIME(6),? :> TIME(6))")
         .bind(0, LocalTime.parse("05:08:09.0014"))
@@ -457,8 +457,8 @@ public class StringParameterTest extends BaseConnectionTest {
         Optional.of("00:00:22.000000"));
   }
 
-  private void durationValue(MariadbConnection connection) {
-    MariadbStatement stmt =
+  private void durationValue(SingleStoreConnection connection) {
+    SingleStoreStatement stmt =
         connection
             .createStatement("INSERT INTO StringParam VALUES (? :> TIME(6),? :> TIME(6),? :> TIME(6))")
             .bind(0, Duration.parse("P3DT18H0.012340S"))

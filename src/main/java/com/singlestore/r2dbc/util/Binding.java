@@ -5,7 +5,7 @@ package com.singlestore.r2dbc.util;
 
 import java.util.Arrays;
 import java.util.Objects;
-import com.singlestore.r2dbc.MariadbCommonStatement;
+import com.singlestore.r2dbc.SingleStoreCommonStatement;
 
 public final class Binding {
   private final int expectedSize;
@@ -15,12 +15,12 @@ public final class Binding {
   public Binding(int expectedSize) {
     this.expectedSize = expectedSize;
     this.binds =
-        new BindValue[(expectedSize == MariadbCommonStatement.UNKNOWN_SIZE) ? 10 : expectedSize];
+        new BindValue[(expectedSize == SingleStoreCommonStatement.UNKNOWN_SIZE) ? 10 : expectedSize];
   }
 
   public Binding add(int index, BindValue parameter) {
     if (index >= this.expectedSize) {
-      if (expectedSize != MariadbCommonStatement.UNKNOWN_SIZE) {
+      if (expectedSize != SingleStoreCommonStatement.UNKNOWN_SIZE) {
         throw new IndexOutOfBoundsException(
             String.format(
                 "Binding index %d when only %d parameters are expected", index, this.expectedSize));

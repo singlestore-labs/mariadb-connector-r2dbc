@@ -6,7 +6,9 @@ package com.singlestore.r2dbc;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import com.singlestore.r2dbc.api.MariadbStatement;
+
+import com.singlestore.r2dbc.api.SingleStoreResult;
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import com.singlestore.r2dbc.client.Client;
 import com.singlestore.r2dbc.client.DecoderState;
 import com.singlestore.r2dbc.message.Protocol;
@@ -22,14 +24,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
-final class MariadbServerParameterizedQueryStatement extends MariadbCommonStatement
-    implements MariadbStatement {
+final class SingleStoreServerParameterizedQueryStatement extends SingleStoreCommonStatement
+    implements SingleStoreStatement {
 
   private final AtomicReference<ServerPrepareResult> prepareResult;
   private ServerNamedParamParser paramParser;
 
-  MariadbServerParameterizedQueryStatement(
-      Client client, String sql, MariadbConnectionConfiguration configuration) {
+  SingleStoreServerParameterizedQueryStatement(
+      Client client, String sql, SingleStoreConnectionConfiguration configuration) {
     super(client, sql, configuration);
     this.expectedSize = UNKNOWN_SIZE;
     this.paramParser = null;
@@ -68,7 +70,7 @@ final class MariadbServerParameterizedQueryStatement extends MariadbCommonStatem
   }
 
   @Override
-  public MariadbServerParameterizedQueryStatement returnGeneratedValues(String... columns) {
+  public SingleStoreServerParameterizedQueryStatement returnGeneratedValues(String... columns) {
     Assert.requireNonNull(columns, "columns must not be null");
 
     if (!client.getVersion().supportReturning() && columns.length > 1) {
@@ -80,7 +82,7 @@ final class MariadbServerParameterizedQueryStatement extends MariadbCommonStatem
   }
 
   @Override
-  public Flux<com.singlestore.r2dbc.api.MariadbResult> execute() {
+  public Flux<SingleStoreResult> execute() {
     String realSql = paramParser == null ? this.initialSql : paramParser.getRealSql();
     String sql;
     if (this.generatedColumns == null || !client.getVersion().supportReturning()) {

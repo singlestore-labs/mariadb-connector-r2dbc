@@ -7,9 +7,9 @@ import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbConnectionMetadata;
-import com.singlestore.r2dbc.api.MariadbResult;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnectionMetadata;
+import com.singlestore.r2dbc.api.SingleStoreResult;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -49,8 +49,8 @@ public class BigResultSetTest extends BaseConnectionTest {
 
   @Test
   void multipleFluxSubscription() {
-    MariadbConnectionMetadata meta = sharedConn.getMetadata();
-    Flux<MariadbResult> res = sharedConn.createStatement("SELECT * FROM seq_1_to_50000").execute();
+    SingleStoreConnectionMetadata meta = sharedConn.getMetadata();
+    Flux<SingleStoreResult> res = sharedConn.createStatement("SELECT * FROM seq_1_to_50000").execute();
 
     Flux<String> flux1 =
         res.flatMap(r -> r.map((row, metadata) -> row.get(0, String.class))).share();
@@ -77,7 +77,7 @@ public class BigResultSetTest extends BaseConnectionTest {
     multiPacketRow(sharedConnPrepare);
   }
 
-  void multiPacketRow(MariadbConnection connection) {
+  void multiPacketRow(SingleStoreConnection connection) {
     final char[] array19m = new char[19000000];
     for (int i = 0; i < array19m.length; i++) {
       array19m[i] = (char) (0x30 + (i % 10));
@@ -106,7 +106,7 @@ public class BigResultSetTest extends BaseConnectionTest {
             .toCharArray());
   }
 
-  public boolean checkMaxAllowedPacketMore20m(MariadbConnection connection) {
+  public boolean checkMaxAllowedPacketMore20m(SingleStoreConnection connection) {
     BigInteger maxAllowedPacket =
         connection
             .createStatement("select @@max_allowed_packet")

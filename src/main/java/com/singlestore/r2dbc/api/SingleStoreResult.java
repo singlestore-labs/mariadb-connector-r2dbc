@@ -10,7 +10,7 @@ import java.util.function.BiFunction;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface MariadbResult extends Result {
+public interface SingleStoreResult extends Result {
 
   @Override
   Mono<Long> getRowsUpdated();

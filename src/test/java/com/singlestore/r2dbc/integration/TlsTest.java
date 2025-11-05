@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.*;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -77,7 +77,7 @@ public class TlsTest extends BaseConnectionTest {
                 "GRANT SELECT on `%s`.* to userWithoutPassword", TestConfiguration.database)+getHostSuffix())
         .execute()
         .blockLast();
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .username("userWithoutPassword")
@@ -85,7 +85,7 @@ public class TlsTest extends BaseConnectionTest {
             .port(sslPort)
             .sslMode(SslMode.TRUST)
             .build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     connection.close().block();
     sharedConn
         .createStatement("DROP USER IF EXISTS userWithoutPassword"+getHostSuffix())
@@ -119,9 +119,9 @@ public class TlsTest extends BaseConnectionTest {
   void trustValidation() throws Exception {
     Assumptions.assumeTrue(!isMaxscale() && !"skysql-ha".equals(System.getenv("srv")));
     Assumptions.assumeTrue(haveSsl(sharedConn));
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder.clone().port(sslPort).sslMode(SslMode.TRUST).build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     connection
         .createStatement("SHOW STATUS like 'Ssl_version'")
         .execute()
@@ -184,14 +184,14 @@ public class TlsTest extends BaseConnectionTest {
   void trustForceProtocol() throws Exception {
     String trustProtocol = "TLSv1.2";
     Assumptions.assumeTrue(haveSsl(sharedConn));
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .port(sslPort)
             .sslMode(SslMode.TRUST)
             .tlsProtocol(trustProtocol)
             .build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     connection
         .createStatement("SHOW STATUS like 'Ssl_version'")
         .execute()
@@ -206,16 +206,16 @@ public class TlsTest extends BaseConnectionTest {
   void withoutHostnameValidation() throws Throwable {
     Assumptions.assumeTrue(haveSsl(sharedConn));
     Assumptions.assumeTrue(serverSslCert != null);
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .port(sslPort)
             .sslMode(SslMode.VERIFY_CA)
             .serverSslCert(serverSslCert)
             .build();
-    MariadbConnection connection = null;
+    SingleStoreConnection connection = null;
     try {
-      connection = new MariadbConnectionFactory(conf).create().block();
+      connection = new SingleStoreConnectionFactory(conf).create().block();
       connection
           .createStatement("SHOW STATUS like 'Ssl_version'")
           .execute()
@@ -231,14 +231,14 @@ public class TlsTest extends BaseConnectionTest {
       connection.close().block();
       connection = null;
       String serverCertString = readLine(serverSslCert);
-      MariadbConnectionConfiguration conf2 =
+      SingleStoreConnectionConfiguration conf2 =
           TestConfiguration.defaultBuilder
               .clone()
               .port(sslPort)
               .sslMode(SslMode.VERIFY_CA)
               .serverSslCert(serverCertString)
               .build();
-      MariadbConnection con2 = new MariadbConnectionFactory(conf2).create().block();
+      SingleStoreConnection con2 = new SingleStoreConnectionFactory(conf2).create().block();
       con2.close().block();
     } finally {
       if (connection != null) connection.close().block();
@@ -266,7 +266,7 @@ public class TlsTest extends BaseConnectionTest {
     Assumptions.assumeTrue(serverSslCert != null);
     Assumptions.assumeFalse(
         "localhost".equals(TestConfiguration.host) || "1".equals(System.getenv("local")));
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .port(sslPort)
@@ -274,7 +274,7 @@ public class TlsTest extends BaseConnectionTest {
             .sslMode(SslMode.VERIFY_FULL)
             .serverSslCert(serverSslCert)
             .build();
-    new MariadbConnectionFactory(conf)
+    new SingleStoreConnectionFactory(conf)
         .create()
         .as(StepVerifier::create)
         .expectErrorMatches(
@@ -288,7 +288,7 @@ public class TlsTest extends BaseConnectionTest {
   void fullValidation() throws Exception {
     Assumptions.assumeTrue(haveSsl(sharedConn));
     Assumptions.assumeTrue(serverSslCert != null);
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .port(sslPort)
@@ -296,9 +296,9 @@ public class TlsTest extends BaseConnectionTest {
             .host("localhost")
             .serverSslCert(serverSslCert)
             .build();
-    MariadbConnection connection = null;
+    SingleStoreConnection connection = null;
     try {
-      connection = new MariadbConnectionFactory(conf).create().block();
+      connection = new SingleStoreConnectionFactory(conf).create().block();
       connection
           .createStatement("SHOW STATUS like 'Ssl_version'")
           .execute()
@@ -321,7 +321,7 @@ public class TlsTest extends BaseConnectionTest {
     Assumptions.assumeTrue(haveSsl(sharedConn));
     Assumptions.assumeTrue(serverSslCert != null);
 
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .port(sslPort)
@@ -330,7 +330,7 @@ public class TlsTest extends BaseConnectionTest {
             .serverSslCert(serverSslCert)
             .build();
 
-    new MariadbConnectionFactory(conf)
+    new SingleStoreConnectionFactory(conf)
         .create()
         .as(StepVerifier::create)
         .expectErrorMatches(throwable -> throwable instanceof R2dbcNonTransientException)
@@ -342,7 +342,7 @@ public class TlsTest extends BaseConnectionTest {
     Assumptions.assumeTrue(!isMaxscale() && !"skysql-ha".equals(System.getenv("srv")));
     Assumptions.assumeTrue(haveSsl(sharedConn));
     Assumptions.assumeTrue(serverSslCert != null && clientSslCert != null & clientSslKey != null);
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .sslMode(SslMode.TRUST)
@@ -353,7 +353,7 @@ public class TlsTest extends BaseConnectionTest {
             .clientSslKey(clientSslKey)
             .build();
 
-    new MariadbConnectionFactory(conf)
+    new SingleStoreConnectionFactory(conf)
         .create()
         .as(StepVerifier::create)
         .expectErrorMatches(
@@ -368,7 +368,7 @@ public class TlsTest extends BaseConnectionTest {
     Assumptions.assumeTrue(haveSsl(sharedConn));
     Assumptions.assumeTrue(serverSslCert != null && clientSslCert != null & clientSslKey != null);
     Assumptions.assumeTrue(minVersion(9, 0, 0));
-    MariadbConnectionConfiguration conf =
+    SingleStoreConnectionConfiguration conf =
         TestConfiguration.defaultBuilder
             .clone()
             .sslMode(SslMode.TRUST)
@@ -380,7 +380,7 @@ public class TlsTest extends BaseConnectionTest {
             .clientSslCert(clientSslCert)
             .clientSslKey(clientSslKey)
             .build();
-    MariadbConnection connection = new MariadbConnectionFactory(conf).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(conf).create().block();
     connection
         .createStatement("SHOW STATUS like 'Ssl_version'")
         .execute()

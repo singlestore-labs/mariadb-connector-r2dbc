@@ -12,11 +12,10 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.MariadbConnectionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
 import com.singlestore.r2dbc.TestConfiguration;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.util.MariadbType;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.util.SingleStoreType;
 import reactor.test.StepVerifier;
 
 public class BitParseTest extends BaseConnectionTest {
@@ -61,7 +60,7 @@ public class BitParseTest extends BaseConnectionTest {
 
   @Test
   void defaultValueNoTiny() {
-    MariadbConnection connection = new MariadbConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(TestConfiguration.defaultBuilder.build()).create().block();
     try {
       connection
           .createStatement("SELECT t1 FROM BitTable2 WHERE 1 = ? ORDER BY t4")
@@ -79,7 +78,7 @@ public class BitParseTest extends BaseConnectionTest {
     }
   }
 
-  private void defaultValue(MariadbConnection connection) {
+  private void defaultValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1, t2 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
@@ -121,7 +120,7 @@ public class BitParseTest extends BaseConnectionTest {
     booleanValue(sharedConnPrepare);
   }
 
-  private void booleanValue(MariadbConnection connection) {
+  private void booleanValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
@@ -155,7 +154,7 @@ public class BitParseTest extends BaseConnectionTest {
     booleanObjectValue(sharedConnPrepare);
   }
 
-  private void booleanObjectValue(MariadbConnection connection) {
+  private void booleanObjectValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
@@ -181,7 +180,7 @@ public class BitParseTest extends BaseConnectionTest {
     byteArrayValue(sharedConnPrepare);
   }
 
-  private void byteArrayValue(MariadbConnection connection) {
+  private void byteArrayValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 1")
         .bind(0, 1)
@@ -207,7 +206,7 @@ public class BitParseTest extends BaseConnectionTest {
     ByteValue(sharedConnPrepare);
   }
 
-  private void ByteValue(MariadbConnection connection) {
+  private void ByteValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
@@ -247,7 +246,7 @@ public class BitParseTest extends BaseConnectionTest {
     byteValue(sharedConnPrepare);
   }
 
-  private void byteValue(MariadbConnection connection) {
+  private void byteValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 4")
         .bind(0, 1)
@@ -272,7 +271,7 @@ public class BitParseTest extends BaseConnectionTest {
     shortValue(sharedConnPrepare);
   }
 
-  private void shortValue(MariadbConnection connection) {
+  private void shortValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
@@ -298,7 +297,7 @@ public class BitParseTest extends BaseConnectionTest {
     intValue(sharedConnPrepare);
   }
 
-  private void intValue(MariadbConnection connection) {
+  private void intValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
@@ -320,7 +319,7 @@ public class BitParseTest extends BaseConnectionTest {
     longValue(sharedConnPrepare);
   }
 
-  private void longValue(MariadbConnection connection) {
+  private void longValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
@@ -346,7 +345,7 @@ public class BitParseTest extends BaseConnectionTest {
     floatValue(sharedConnPrepare);
   }
 
-  private void floatValue(MariadbConnection connection) {
+  private void floatValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 1")
         .bind(0, 1)
@@ -372,7 +371,7 @@ public class BitParseTest extends BaseConnectionTest {
     doubleValue(sharedConnPrepare);
   }
 
-  private void doubleValue(MariadbConnection connection) {
+  private void doubleValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 1")
         .bind(0, 1)
@@ -409,7 +408,7 @@ public class BitParseTest extends BaseConnectionTest {
     stringValue(sharedConnPrepare);
   }
 
-  private void stringValue(MariadbConnection connection) {
+  private void stringValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
@@ -435,7 +434,7 @@ public class BitParseTest extends BaseConnectionTest {
     decimalValue(sharedConnPrepare);
   }
 
-  private void decimalValue(MariadbConnection connection) {
+  private void decimalValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
@@ -461,7 +460,7 @@ public class BitParseTest extends BaseConnectionTest {
     bigintValue(sharedConnPrepare);
   }
 
-  private void bigintValue(MariadbConnection connection) {
+  private void bigintValue(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4")
         .bind(0, 1)
@@ -487,7 +486,7 @@ public class BitParseTest extends BaseConnectionTest {
     meta(sharedConnPrepare);
   }
 
-  private void meta(MariadbConnection connection) {
+  private void meta(SingleStoreConnection connection) {
     connection
         .createStatement("SELECT t1 FROM BitTable WHERE 1 = ? ORDER BY t4 LIMIT 1")
         .bind(0, 1)
@@ -502,7 +501,7 @@ public class BitParseTest extends BaseConnectionTest {
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
         .as(StepVerifier::create)
-        .expectNextMatches(c -> c.equals(MariadbType.BIT))
+        .expectNextMatches(c -> c.equals(SingleStoreType.BIT))
         .verifyComplete();
     connection
         .createStatement("SELECT t1 FROM BitTable2 WHERE 1 = ? ORDER BY t4 LIMIT 1")
@@ -510,7 +509,7 @@ public class BitParseTest extends BaseConnectionTest {
         .execute()
         .flatMap(r -> r.map((row, metadata) -> metadata.getColumnMetadata(0).getType()))
         .as(StepVerifier::create)
-        .expectNextMatches(c -> c.equals(MariadbType.BIT))
+        .expectNextMatches(c -> c.equals(SingleStoreType.BIT))
         .verifyComplete();
   }
 }

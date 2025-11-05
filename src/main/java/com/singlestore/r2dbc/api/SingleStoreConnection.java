@@ -10,7 +10,7 @@ import io.r2dbc.spi.ValidationDepth;
 import java.time.Duration;
 import reactor.core.publisher.Mono;
 
-public interface MariadbConnection extends Connection {
+public interface SingleStoreConnection extends Connection {
 
   @Override
   Mono<Void> beginTransaction();
@@ -25,16 +25,16 @@ public interface MariadbConnection extends Connection {
   Mono<Void> commitTransaction();
 
   @Override
-  MariadbBatch createBatch();
+  SingleStoreBatch createBatch();
 
   @Override
   Mono<Void> createSavepoint(String name);
 
   @Override
-  MariadbStatement createStatement(String sql);
+  SingleStoreStatement createStatement(String sql);
 
   @Override
-  MariadbConnectionMetadata getMetadata();
+  SingleStoreConnectionMetadata getMetadata();
 
   String getDatabase();
 

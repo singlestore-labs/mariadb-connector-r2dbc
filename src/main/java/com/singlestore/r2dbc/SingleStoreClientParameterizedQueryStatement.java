@@ -5,6 +5,8 @@ package com.singlestore.r2dbc;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.singlestore.r2dbc.api.SingleStoreResult;
 import com.singlestore.r2dbc.client.Client;
 import com.singlestore.r2dbc.client.DecoderState;
 import com.singlestore.r2dbc.message.Protocol;
@@ -17,12 +19,12 @@ import com.singlestore.r2dbc.util.ClientParser;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-final class MariadbClientParameterizedQueryStatement extends MariadbCommonStatement {
+final class SingleStoreClientParameterizedQueryStatement extends SingleStoreCommonStatement {
 
   private ClientParser parser;
 
-  MariadbClientParameterizedQueryStatement(
-      Client client, String sql, MariadbConnectionConfiguration configuration) {
+  SingleStoreClientParameterizedQueryStatement(
+      Client client, String sql, SingleStoreConnectionConfiguration configuration) {
     super(client, sql, configuration);
     this.parser = ClientParser.parameterParts(this.initialSql, this.client.noBackslashEscapes());
     this.expectedSize = this.parser.getParamCount();
@@ -45,7 +47,7 @@ final class MariadbClientParameterizedQueryStatement extends MariadbCommonStatem
   }
 
   @Override
-  public Flux<com.singlestore.r2dbc.api.MariadbResult> execute() {
+  public Flux<SingleStoreResult> execute() {
     String sql;
     ExceptionFactory factory;
     if (this.generatedColumns == null || !client.getVersion().supportReturning()) {
@@ -119,7 +121,7 @@ final class MariadbClientParameterizedQueryStatement extends MariadbCommonStatem
   }
 
   @Override
-  public MariadbClientParameterizedQueryStatement returnGeneratedValues(String... columns) {
+  public SingleStoreClientParameterizedQueryStatement returnGeneratedValues(String... columns) {
     Assert.requireNonNull(columns, "columns must not be null");
     if (parser.supportAddingReturning() == null)
       parser =

@@ -5,8 +5,8 @@ package com.singlestore.r2dbc;
 
 import io.r2dbc.spi.Result;
 
-public class MariadbUpdateCount implements Result.UpdateCount {
-  public MariadbUpdateCount() {}
+public class SingleStoreUpdateCount implements Result.UpdateCount {
+  public SingleStoreUpdateCount() {}
 
   @Override
   public long value() {

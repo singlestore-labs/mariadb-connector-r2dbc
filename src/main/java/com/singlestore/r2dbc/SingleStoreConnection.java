@@ -3,33 +3,33 @@
 
 package com.singlestore.r2dbc;
 
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import io.r2dbc.spi.IsolationLevel;
 import io.r2dbc.spi.TransactionDefinition;
 import io.r2dbc.spi.ValidationDepth;
 import java.time.Duration;
 import java.util.function.Function;
-import com.singlestore.r2dbc.api.MariadbStatement;
+
 import com.singlestore.r2dbc.client.Client;
 import com.singlestore.r2dbc.message.client.ChangeSchemaPacket;
 import com.singlestore.r2dbc.message.client.PingPacket;
 import com.singlestore.r2dbc.message.client.QueryPacket;
 import com.singlestore.r2dbc.util.Assert;
 import com.singlestore.r2dbc.util.PrepareCache;
-import com.singlestore.r2dbc.util.constants.Capabilities;
 import com.singlestore.r2dbc.util.constants.ServerStatus;
 import reactor.core.publisher.Mono;
 import reactor.util.Logger;
 import reactor.util.Loggers;
 
-public final class MariadbConnection implements com.singlestore.r2dbc.api.MariadbConnection {
+public final class SingleStoreConnection implements com.singlestore.r2dbc.api.SingleStoreConnection {
 
   private final Logger logger = Loggers.getLogger(this.getClass());
   private final Client client;
-  private final MariadbConnectionConfiguration configuration;
+  private final SingleStoreConnectionConfiguration configuration;
   private volatile String database;
 
-  public MariadbConnection(
-      Client client, MariadbConnectionConfiguration configuration) {
+  public SingleStoreConnection(
+      Client client, SingleStoreConnectionConfiguration configuration) {
     this.client = Assert.requireNonNull(client, "client must not be null");
     this.configuration = Assert.requireNonNull(configuration, "configuration must not be null");
     this.database = configuration.getDatabase();
@@ -58,8 +58,8 @@ public final class MariadbConnection implements com.singlestore.r2dbc.api.Mariad
   }
 
   @Override
-  public MariadbBatch createBatch() {
-    return new MariadbBatch(this.client, this.configuration);
+  public SingleStoreBatch createBatch() {
+    return new SingleStoreBatch(this.client, this.configuration);
   }
 
   @Override
@@ -68,7 +68,7 @@ public final class MariadbConnection implements com.singlestore.r2dbc.api.Mariad
   }
 
   @Override
-  public MariadbStatement createStatement(String sql) {
+  public SingleStoreStatement createStatement(String sql) {
     Assert.requireNonNull(sql, "sql must not be null");
     if (sql.trim().isEmpty()) {
       throw new IllegalArgumentException("Statement cannot be empty.");
@@ -76,14 +76,14 @@ public final class MariadbConnection implements com.singlestore.r2dbc.api.Mariad
 
     if ((this.configuration.useServerPrepStmts() || sql.contains("call"))
         && !sql.startsWith("/*text*/")) {
-      return new MariadbServerParameterizedQueryStatement(this.client, sql, this.configuration);
+      return new SingleStoreServerParameterizedQueryStatement(this.client, sql, this.configuration);
     }
-    return new MariadbClientParameterizedQueryStatement(this.client, sql, this.configuration);
+    return new SingleStoreClientParameterizedQueryStatement(this.client, sql, this.configuration);
   }
 
   @Override
-  public MariadbConnectionMetadata getMetadata() {
-    return new MariadbConnectionMetadata(this.client.getVersion());
+  public SingleStoreConnectionMetadata getMetadata() {
+    return new SingleStoreConnectionMetadata(this.client.getVersion());
   }
 
   @Override

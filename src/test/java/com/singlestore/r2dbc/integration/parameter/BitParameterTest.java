@@ -3,6 +3,7 @@
 
 package com.singlestore.r2dbc.integration.parameter;
 
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import io.r2dbc.spi.Blob;
 
 import java.math.BigDecimal;
@@ -15,9 +16,8 @@ import java.util.BitSet;
 import java.util.Optional;
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbResult;
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.api.SingleStoreResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -51,7 +51,7 @@ public class BitParameterTest extends BaseConnectionTest {
     nullValue(sharedConnPrepare);
   }
 
-  private void nullValue(MariadbConnection connection) {
+  private void nullValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
         .bindNull(0, Byte.class)
@@ -72,8 +72,8 @@ public class BitParameterTest extends BaseConnectionTest {
     booleanValue(sharedConnPrepare);
   }
 
-  private void booleanValue(MariadbConnection connection) {
-    MariadbStatement stmt =
+  private void booleanValue(SingleStoreConnection connection) {
+    SingleStoreStatement stmt =
         connection
             .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
             .bind(0, Boolean.TRUE)
@@ -103,7 +103,7 @@ public class BitParameterTest extends BaseConnectionTest {
     bigIntValue(sharedConnPrepare);
   }
 
-  private void bigIntValue(MariadbConnection connection) {
+  private void bigIntValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
         .bind(0, new BigInteger("11"))
@@ -127,7 +127,7 @@ public class BitParameterTest extends BaseConnectionTest {
     stringValue(sharedConnPrepare);
   }
 
-  private void stringValue(MariadbConnection connection) {
+  private void stringValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
         .bind(0, "\1")
@@ -151,7 +151,7 @@ public class BitParameterTest extends BaseConnectionTest {
     decimalValue(sharedConnPrepare);
   }
 
-  private void decimalValue(MariadbConnection connection) {
+  private void decimalValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
         .bind(0, new BigDecimal("11"))
@@ -175,7 +175,7 @@ public class BitParameterTest extends BaseConnectionTest {
     intValue(sharedConnPrepare);
   }
 
-  private void intValue(MariadbConnection connection) {
+  private void intValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
         .bind(0, 11)
@@ -199,7 +199,7 @@ public class BitParameterTest extends BaseConnectionTest {
     byteValue(sharedConnPrepare);
   }
 
-  private void byteValue(MariadbConnection connection) {
+  private void byteValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
         .bind(0, (byte) 15)
@@ -223,7 +223,7 @@ public class BitParameterTest extends BaseConnectionTest {
     blobValue(sharedConnPrepare);
   }
 
-  private void blobValue(MariadbConnection connection) {
+  private void blobValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
         .bind(0, Blob.from(Mono.just(ByteBuffer.wrap(new byte[] {(byte) 15}))))
@@ -263,7 +263,7 @@ public class BitParameterTest extends BaseConnectionTest {
     floatValue(sharedConnPrepare);
   }
 
-  private void floatValue(MariadbConnection connection) {
+  private void floatValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO ByteParam VALUES (? :> BIT(4), ? :> BIT(20), ? :> BIT(2))")
         .bind(0, 11f)
@@ -287,7 +287,7 @@ public class BitParameterTest extends BaseConnectionTest {
     doubleValue(sharedConnPrepare);
   }
 
-  private void doubleValue(MariadbConnection connection) {
+  private void doubleValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO ByteParam VALUES (? :> BIT(4), ? :> BIT(20), ? :> BIT(2))")
         .bind(0, 11d)
@@ -311,7 +311,7 @@ public class BitParameterTest extends BaseConnectionTest {
     shortValue(sharedConnPrepare);
   }
 
-  private void shortValue(MariadbConnection connection) {
+  private void shortValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
         .bind(0, Short.valueOf("11"))
@@ -335,7 +335,7 @@ public class BitParameterTest extends BaseConnectionTest {
     longValue(sharedConnPrepare);
   }
 
-  private void longValue(MariadbConnection connection) {
+  private void longValue(SingleStoreConnection connection) {
     connection
         .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
         .bind(0, 11L)
@@ -359,8 +359,8 @@ public class BitParameterTest extends BaseConnectionTest {
     localDateTimeValue(sharedConnPrepare);
   }
 
-  private void localDateTimeValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void localDateTimeValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
             .bind(0, LocalDateTime.now())
@@ -380,8 +380,8 @@ public class BitParameterTest extends BaseConnectionTest {
     localDateValue(sharedConnPrepare);
   }
 
-  private void localDateValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void localDateValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
             .bind(0, LocalDate.now())
@@ -401,8 +401,8 @@ public class BitParameterTest extends BaseConnectionTest {
     localTimeValue(sharedConnPrepare);
   }
 
-  private void localTimeValue(MariadbConnection connection) {
-    Flux<MariadbResult> f =
+  private void localTimeValue(SingleStoreConnection connection) {
+    Flux<SingleStoreResult> f =
         connection
             .createStatement("INSERT INTO ByteParam VALUES (?,?,?)")
             .bind(0, LocalTime.now())

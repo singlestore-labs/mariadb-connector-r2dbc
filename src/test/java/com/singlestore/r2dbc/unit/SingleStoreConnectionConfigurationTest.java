@@ -10,12 +10,12 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
 import com.singlestore.r2dbc.SslMode;
 import com.singlestore.r2dbc.util.Security;
 import reactor.netty.resources.LoopResources;
 
-public class MariadbConnectionConfigurationTest {
+public class SingleStoreConnectionConfigurationTest {
   @Test
   public void builder() {
     TreeMap<String, String> connectionAttributes = new TreeMap<>();
@@ -23,8 +23,8 @@ public class MariadbConnectionConfigurationTest {
     connectionAttributes.put("entry2", "val2");
     Map<String, Object> tzMap = new HashMap<>();
     tzMap.put("timezone", "Europe/Paris");
-    MariadbConnectionConfiguration conf =
-        MariadbConnectionConfiguration.builder()
+    SingleStoreConnectionConfiguration conf =
+        SingleStoreConnectionConfiguration.builder()
             .connectTimeout(Duration.ofMillis(150))
             .haMode("LOADBALANCE")
             .restrictedAuth("mysql_native_password,client_ed25519")
@@ -61,8 +61,8 @@ public class MariadbConnectionConfigurationTest {
     TreeMap<String, String> connectionAttributes = new TreeMap<>();
     connectionAttributes.put("entry1", "val1");
     connectionAttributes.put("entry2", "val2");
-    MariadbConnectionConfiguration conf =
-        MariadbConnectionConfiguration.builder()
+    SingleStoreConnectionConfiguration conf =
+        SingleStoreConnectionConfiguration.builder()
             .haMode("")
             .host("localhost")
             .username("user")
@@ -97,8 +97,8 @@ public class MariadbConnectionConfigurationTest {
                 + "&allowMultiQueries=true"
                 + "&socket=/path/to/mysocket"
                 + "&sslTunnelDisableHostVerification=true");
-    MariadbConnectionConfiguration conf =
-        MariadbConnectionConfiguration.fromOptions(options).build();
+    SingleStoreConnectionConfiguration conf =
+        SingleStoreConnectionConfiguration.fromOptions(options).build();
     Assertions.assertEquals(
         "r2dbc:mariadb:loadbalance://localhost/db?connectTimeout=PT0.15S"
             + "&tcpKeepAlive=true"
@@ -128,8 +128,8 @@ public class MariadbConnectionConfigurationTest {
     ConnectionFactoryOptions options =
         ConnectionFactoryOptions.parse(
             "r2dbc:mariadb://ro%3Aot:pw%3Ad@localhost:3306/db?sessionVariables=wait_timeout=1,sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'");
-    MariadbConnectionConfiguration conf =
-        MariadbConnectionConfiguration.fromOptions(options).build();
+    SingleStoreConnectionConfiguration conf =
+        SingleStoreConnectionConfiguration.fromOptions(options).build();
     Assertions.assertEquals(
         "r2dbc:mariadb://localhost/db?password=***&username=ro:ot&sessionVariables=sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY',wait_timeout=1",
         conf.toString());
@@ -158,8 +158,8 @@ public class MariadbConnectionConfigurationTest {
                 + "&allowMultiQueries=true"
                 + "&socket=/path/to/mysocket"
                 + "&sslTunnelDisableHostVerification=true");
-    MariadbConnectionConfiguration conf =
-        MariadbConnectionConfiguration.fromOptions(options).build();
+    SingleStoreConnectionConfiguration conf =
+        SingleStoreConnectionConfiguration.fromOptions(options).build();
     Assertions.assertEquals(
         "r2dbc:mariadb:loadbalance://localhost/db?connectTimeout=PT0.15S&tcpKeepAlive=true&tcpAbortiveClose=true&transactionReplay=true&password=***&pamOtherPwd=otherPwd&prepareCacheSize=125&socket=/path/to/mysocket&username=ro:ot&allowMultiQueries=true&connectionAttributes=entry1=val1,entry2=val2&sessionVariables=timezone='Europe/Paris'&sslMode=trust&serverSslCert=/path/to/serverCert&tlsProtocol=TLSv1.2,TLSv1.3&clientSslKey=clientSecretKey&clientSslPassword=***&sslTunnelDisableHostVerification=true&autocommit=false&restrictedAuth=mysql_native_password,client_ed25519",
         conf.toString());

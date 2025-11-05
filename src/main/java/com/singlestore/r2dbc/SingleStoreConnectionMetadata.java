@@ -5,12 +5,12 @@ package com.singlestore.r2dbc;
 
 import com.singlestore.r2dbc.client.ServerVersion;
 
-public final class MariadbConnectionMetadata
-    implements com.singlestore.r2dbc.api.MariadbConnectionMetadata {
+public final class SingleStoreConnectionMetadata
+    implements com.singlestore.r2dbc.api.SingleStoreConnectionMetadata {
 
   private final ServerVersion version;
 
-  MariadbConnectionMetadata(ServerVersion version) {
+  SingleStoreConnectionMetadata(ServerVersion version) {
     this.version = version;
   }
 

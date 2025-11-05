@@ -12,11 +12,11 @@ import com.singlestore.r2dbc.message.server.ColumnDefinitionPacket;
 import com.singlestore.r2dbc.util.Assert;
 import reactor.util.annotation.Nullable;
 
-public class MariadbRowBinary extends MariadbRow implements com.singlestore.r2dbc.api.MariadbRow {
+public class SingleStoreRowBinary extends SingleStoreRow implements com.singlestore.r2dbc.api.SingleStoreRow {
   private final int columnNumber;
   private final byte[] nullBitmap;
 
-  public MariadbRowBinary(ByteBuf buf, MariadbRowMetadata meta, ExceptionFactory factory) {
+  public SingleStoreRowBinary(ByteBuf buf, SingleStoreRowMetadata meta, ExceptionFactory factory) {
     super(buf, meta, factory);
     columnNumber = meta.size();
     nullBitmap = new byte[(columnNumber + 9) / 8];
@@ -25,7 +25,7 @@ public class MariadbRowBinary extends MariadbRow implements com.singlestore.r2db
     buf.markReaderIndex();
   }
 
-  public MariadbRowMetadata getMetadata() {
+  public SingleStoreRowMetadata getMetadata() {
     return meta;
   }
 
@@ -64,7 +64,7 @@ public class MariadbRowBinary extends MariadbRow implements com.singlestore.r2db
     if ((defaultCodec = (Codec<T>) Codecs.typeMapper.get(type)) != null) {
       if (!defaultCodec.canDecode(column, type)) {
         buf.skipBytes(length);
-        throw MariadbRow.noDecoderException(column, type);
+        throw SingleStoreRow.noDecoderException(column, type);
       }
       return defaultCodec.decodeBinary(buf, length, column, type, factory);
     }
@@ -76,7 +76,7 @@ public class MariadbRowBinary extends MariadbRow implements com.singlestore.r2db
     }
 
     buf.skipBytes(length);
-    throw MariadbRow.noDecoderException(column, type);
+    throw SingleStoreRow.noDecoderException(column, type);
   }
 
   @Nullable

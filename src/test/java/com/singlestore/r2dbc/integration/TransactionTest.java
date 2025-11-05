@@ -5,7 +5,7 @@ package com.singlestore.r2dbc.integration;
 
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.api.MariadbConnection;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
 import reactor.test.StepVerifier;
 
 public class TransactionTest extends BaseConnectionTest {
@@ -41,7 +41,7 @@ public class TransactionTest extends BaseConnectionTest {
 
   @Test
   void commit() {
-    MariadbConnection conn = factory.create().block();
+    SingleStoreConnection conn = factory.create().block();
     try {
       conn.beginTransaction().subscribe();
       conn.createStatement(insertCmd).execute().subscribe();
@@ -54,7 +54,7 @@ public class TransactionTest extends BaseConnectionTest {
 
   @Test
   void multipleBegin() {
-    MariadbConnection conn = factory.create().block();
+    SingleStoreConnection conn = factory.create().block();
     try {
       // must issue only one begin command
       conn.beginTransaction().subscribe();
@@ -68,7 +68,7 @@ public class TransactionTest extends BaseConnectionTest {
   @Test
   void commitWithoutTransaction() {
     // must issue no commit command
-    MariadbConnection conn = factory.create().block();
+    SingleStoreConnection conn = factory.create().block();
     try {
       conn.commitTransaction().subscribe();
       conn.commitTransaction().subscribe();
@@ -81,7 +81,7 @@ public class TransactionTest extends BaseConnectionTest {
   @Test
   void rollbackWithoutTransaction() {
     // must issue no commit command
-    MariadbConnection conn = factory.create().block();
+    SingleStoreConnection conn = factory.create().block();
     try {
       conn.rollbackTransaction().subscribe();
       conn.rollbackTransaction().subscribe();
@@ -93,7 +93,7 @@ public class TransactionTest extends BaseConnectionTest {
 
   @Test
   void rollback() {
-    MariadbConnection conn = factory.create().block();
+    SingleStoreConnection conn = factory.create().block();
     try {
       conn.beginTransaction().block();
       conn.createStatement(insertCmd).execute().subscribe();
@@ -106,7 +106,7 @@ public class TransactionTest extends BaseConnectionTest {
 
   @Test
   void rollbackPipelining() {
-    MariadbConnection conn = factory.create().block();
+    SingleStoreConnection conn = factory.create().block();
     try {
       conn.beginTransaction().subscribe();
       conn.createStatement(insertCmd).execute().subscribe();
@@ -120,7 +120,7 @@ public class TransactionTest extends BaseConnectionTest {
 
   @Test
   void savepoints() {
-    MariadbConnection conn = factory.create().block();
+    SingleStoreConnection conn = factory.create().block();
     try {
       assertThrowsContains(
         UnsupportedOperationException.class,
@@ -139,7 +139,7 @@ public class TransactionTest extends BaseConnectionTest {
     }
   }
 
-  private void checkInserted(MariadbConnection conn, int expectedValue) {
+  private void checkInserted(SingleStoreConnection conn, int expectedValue) {
     conn.createStatement("SELECT count(*) FROM `users`")
         .execute()
         .flatMap(r -> r.map((row, metadata) -> row.get(0, Integer.class)))

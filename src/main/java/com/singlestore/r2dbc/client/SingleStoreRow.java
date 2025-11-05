@@ -12,15 +12,15 @@ import com.singlestore.r2dbc.message.server.ColumnDefinitionPacket;
 import com.singlestore.r2dbc.util.Assert;
 import reactor.util.annotation.Nullable;
 
-public abstract class MariadbRow {
+public abstract class SingleStoreRow {
   protected static final int NULL_LENGTH = -1;
-  protected final MariadbRowMetadata meta;
+  protected final SingleStoreRowMetadata meta;
   protected final ByteBuf buf;
   protected final ExceptionFactory factory;
   protected int length;
   protected int index = -1;
 
-  MariadbRow(ByteBuf buf, MariadbRowMetadata meta, ExceptionFactory factory) {
+  SingleStoreRow(ByteBuf buf, SingleStoreRowMetadata meta, ExceptionFactory factory) {
     this.buf = buf;
     this.meta = meta;
     this.factory = factory;
@@ -80,7 +80,7 @@ public abstract class MariadbRow {
   @FunctionalInterface
   public interface MariadbRowConstructor {
 
-    com.singlestore.r2dbc.api.MariadbRow create(
-        ByteBuf buf, MariadbRowMetadata meta, ExceptionFactory factory);
+    com.singlestore.r2dbc.api.SingleStoreRow create(
+        ByteBuf buf, SingleStoreRowMetadata meta, ExceptionFactory factory);
   }
 }

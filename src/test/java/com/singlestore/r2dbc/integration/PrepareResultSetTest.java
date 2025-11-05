@@ -9,11 +9,11 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
-import com.singlestore.r2dbc.MariadbConnectionConfiguration;
-import com.singlestore.r2dbc.MariadbConnectionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
 import com.singlestore.r2dbc.TestConfiguration;
-import com.singlestore.r2dbc.api.MariadbConnection;
-import com.singlestore.r2dbc.api.MariadbStatement;
+import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.api.SingleStoreStatement;
 import com.singlestore.r2dbc.util.PrepareCache;
 import com.singlestore.r2dbc.util.ServerPrepareResult;
 import reactor.test.StepVerifier;
@@ -252,7 +252,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
   void missingParameter() {
     // missing first parameter
     sharedConnPrepare.beginTransaction().block();
-    MariadbStatement stmt =
+    SingleStoreStatement stmt =
         sharedConnPrepare.createStatement("INSERT INTO missingParameter(t1, t2) VALUES (?, ?)");
 
     assertThrows(
@@ -311,7 +311,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
         .execute()
         .blockLast();
 
-    MariadbStatement st =
+    SingleStoreStatement st =
         sharedConnPrepare
             .createStatement("INSERT INTO INSERT_RETURNING(test) VALUES (?), (?)")
             .bind(0, "test1")
@@ -434,7 +434,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
 
   @Test
   void parameterVerification() {
-    MariadbStatement stmt =
+    SingleStoreStatement stmt =
         sharedConn.createStatement("SELECT * FROM PrepareResultSetTest WHERE 1 = ?");
     assertThrows(
         IndexOutOfBoundsException.class,
@@ -494,9 +494,9 @@ public class PrepareResultSetTest extends BaseConnectionTest {
     // unexpected error "unexpected message received when no command was send: 0x48000002"
     Assumptions.assumeTrue(!isMaxscale() && !"skysql-ha".equals(System.getenv("srv")));
     Assumptions.assumeFalse(isXpand());
-    MariadbConnectionConfiguration confPipeline =
+    SingleStoreConnectionConfiguration confPipeline =
         TestConfiguration.defaultBuilder.clone().useServerPrepStmts(true).build();
-    MariadbConnection conn = new MariadbConnectionFactory(confPipeline).create().block();
+    SingleStoreConnection conn = new SingleStoreConnectionFactory(confPipeline).create().block();
     try {
       assertThrows(
           Exception.class,
@@ -523,7 +523,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
         .createStatement("INSERT INTO parameterNull VALUES ('1', '1', 0), (null, '2', 1), (null, null, 2)")
         .execute()
         .blockLast();
-    MariadbStatement stmt =
+    SingleStoreStatement stmt =
         sharedConnPrepare.createStatement(
             "SELECT t2 FROM parameterNull WHERE COALESCE(t,?) is null ORDER BY id");
     stmt.bindNull(0, Integer.class)
@@ -563,7 +563,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
   void prepareReuse() {
     // https://jira.mariadb.org/browse/XPT-599 XPand doesn't support DO
     Assumptions.assumeFalse(isXpand());
-    MariadbStatement stmt = sharedConnPrepare.createStatement("DO 1 = ?");
+    SingleStoreStatement stmt = sharedConnPrepare.createStatement("DO 1 = ?");
     assertThrows(
         IndexOutOfBoundsException.class,
         () -> stmt.bind(-1, 1),
@@ -601,7 +601,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
         "Parameter at position 0 is not set");
   }
 
-  private List<String> prepareInfo(MariadbConnection connection) {
+  private List<String> prepareInfo(SingleStoreConnection connection) {
     return connection
         .createStatement(
             "SHOW SESSION STATUS LIKE 'Prepared_stmt_count'")
@@ -613,13 +613,13 @@ public class PrepareResultSetTest extends BaseConnectionTest {
 
   @Test
   void cache() throws Throwable {
-    MariadbConnectionConfiguration confPipeline =
+    SingleStoreConnectionConfiguration confPipeline =
         TestConfiguration.defaultBuilder
             .clone()
             .useServerPrepStmts(true)
             .prepareCacheSize(3)
             .build();
-    MariadbConnection connection = new MariadbConnectionFactory(confPipeline).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(confPipeline).create().block();
     connection
         .createStatement("SELECT ?")
         .bind(0, 1)
@@ -642,13 +642,13 @@ public class PrepareResultSetTest extends BaseConnectionTest {
   @Test
   @SuppressWarnings("unchecked")
   void cacheReuse() throws Throwable {
-    MariadbConnectionConfiguration confPipeline =
+    SingleStoreConnectionConfiguration confPipeline =
         TestConfiguration.defaultBuilder
             .clone()
             .useServerPrepStmts(true)
             .prepareCacheSize(3)
             .build();
-    MariadbConnection connection = new MariadbConnectionFactory(confPipeline).create().block();
+    SingleStoreConnection connection = new SingleStoreConnectionFactory(confPipeline).create().block();
     try {
       Method method = connection.getClass().getDeclaredMethod("_test_prepareCache");
       method.setAccessible(true);
