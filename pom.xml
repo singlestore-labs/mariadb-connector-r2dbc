@@ -1,6 +1,6 @@
 <!--
   ~ SPDX-License-Identifier: Apache-2.0
-  ~ Copyright (c) 2020-2022 MariaDB Corporation Ab
+  ~ Copyright (c) 2025-2025 SingleStore, Inc.
   -->
 
 <project
@@ -43,7 +43,7 @@
     </licenses>
 
     <organization>
-        <name>MariaDB Corporation Ab</name>
+        <name>SingleStore, Inc.</name>
         <url>https://www.mariadb.com</url>
     </organization>
 
