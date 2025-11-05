@@ -1,0 +1,94 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2025-2025 SingleStore, Inc.
+
+package com.singlestore.r2dbc.codec.list;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import java.nio.charset.StandardCharsets;
+import java.util.BitSet;
+import com.singlestore.r2dbc.ExceptionFactory;
+import com.singlestore.r2dbc.codec.Codec;
+import com.singlestore.r2dbc.codec.DataType;
+import com.singlestore.r2dbc.message.Context;
+import com.singlestore.r2dbc.message.server.ColumnDefinitionPacket;
+import com.singlestore.r2dbc.util.BufferUtils;
+
+public class BitSetCodec implements Codec<BitSet> {
+
+  public static final BitSetCodec INSTANCE = new BitSetCodec();
+
+  public static BitSet parseBit(ByteBuf buf, int length) {
+    byte[] arr = new byte[length];
+    buf.readBytes(arr);
+    revertOrder(arr);
+    return BitSet.valueOf(arr);
+  }
+
+  public static void revertOrder(byte[] array) {
+    int i = 0;
+    int j = array.length - 1;
+    byte tmp;
+    while (j > i) {
+      tmp = array[j];
+      array[j] = array[i];
+      array[i] = tmp;
+      j--;
+      i++;
+    }
+  }
+
+  public boolean canDecode(ColumnDefinitionPacket column, Class<?> type) {
+    return column.getDataType() == DataType.BIT && type.isAssignableFrom(BitSet.class);
+  }
+
+  @Override
+  public BitSet decodeText(
+      ByteBuf buf,
+      int length,
+      ColumnDefinitionPacket column,
+      Class<? extends BitSet> type,
+      ExceptionFactory factory) {
+    return parseBit(buf, length);
+  }
+
+  @Override
+  public BitSet decodeBinary(
+      ByteBuf buf,
+      int length,
+      ColumnDefinitionPacket column,
+      Class<? extends BitSet> type,
+      ExceptionFactory factory) {
+    return parseBit(buf, length);
+  }
+
+  public boolean canEncode(Class<?> value) {
+    return BitSet.class.isAssignableFrom(value);
+  }
+
+  @Override
+  public void encodeDirectText(ByteBuf out, Object value, Context context) {
+    byte[] bytes = ((BitSet) value).toByteArray();
+    revertOrder(bytes);
+
+    StringBuilder sb = new StringBuilder(bytes.length * Byte.SIZE + 3);
+    sb.append("b'");
+    for (int i = 0; i < Byte.SIZE * bytes.length; i++)
+      sb.append((bytes[i / Byte.SIZE] << i % Byte.SIZE & 0x80) == 0 ? '0' : '1');
+    sb.append("'");
+    out.writeCharSequence(sb.toString(), StandardCharsets.US_ASCII);
+  }
+
+  @Override
+  public void encodeDirectBinary(
+      ByteBufAllocator allocator, ByteBuf out, Object value, Context context) {
+    byte[] bytes = ((BitSet) value).toByteArray();
+    revertOrder(bytes);
+    out.writeBytes(BufferUtils.encodeLength(bytes.length));
+    out.writeBytes(bytes);
+  }
+
+  public DataType getBinaryEncodeType() {
+    return DataType.BLOB;
+  }
+}

@@ -12,7 +12,7 @@
         </encoder>
     </appender>
 
-    <logger level="ERROR" name="org.mariadb.r2dbc"/>
+    <logger level="ERROR" name="com.singlestore.r2dbc"/>
     <logger level="ERROR" name="io.netty.buffer"/>
     <logger level="ERROR" name="reactor.ipc.netty"/>
 

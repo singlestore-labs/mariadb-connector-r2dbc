@@ -13,7 +13,7 @@
         </encoder>
     </appender>
 
-    <logger level="ERROR" name="org.mariadb.r2dbc"/>
+    <logger level="ERROR" name="com.singlestore.r2dbc"/>
     <logger level="ERROR" name="dev.miku.r2dbc.mysql"/>
 
     <root level="WARN">

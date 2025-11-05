@@ -9,14 +9,14 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.mariadb</groupId>
-    <artifactId>r2dbc-mariadb</artifactId>
-    <version>1.3.0</version>
+    <groupId>com.singlestore</groupId>
+    <artifactId>r2dbc-singlestore</artifactId>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
-    <url>https://github.com/mariadb-corporation/mariadb-connector-r2dbc</url>
+    <url>https://github.com/singlestore-labs/singlestore-connector-r2dbc</url>
 
-    <name>R2DBC driver for MariaDB</name>
-    <description>R2DBC driver for MariaDB</description>
+    <name>R2DBC driver for SingleStore</name>
+    <description>R2DBC driver for SingleStore</description>
 
     <properties>
         <java.version>1.8</java.version>
@@ -29,7 +29,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <r2dbc-spi.version>1.0.0.RELEASE</r2dbc-spi.version>
         <reactor.version>2023.0.9</reactor.version>
-        <mariadb-jdbc.version>3.3.2</mariadb-jdbc.version>
+        <singlestore-jdbc.version>1.2.8</singlestore-jdbc.version>
         <uberjar.name>benchmarks</uberjar.name>
         <spotless.version>2.43.0</spotless.version>
         <jacoco.version>0.8.11</jacoco.version>
@@ -44,27 +44,27 @@
 
     <organization>
         <name>SingleStore, Inc.</name>
-        <url>https://www.mariadb.com</url>
+        <url>https://www.singlestore.com/</url>
     </organization>
 
     <developers>
         <developer>
-            <id>mariadbDevelopers</id>
-            <name>mariadb developers</name>
-            <url>http://www.mariadb.com</url>
+            <id>singlestoreDevelopers</id>
+            <name>singlestore developers</name>
+            <url>https://www.singlestore.com/</url>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/mariadb-corporation/mariadb-connector-r2dbc.git</connection>
-        <url>https://github.com/mariadb-corporation/mariadb-connector-r2dbc</url>
-        <developerConnection>scm:git:git@github.com/mariadb-corporation/mariadb-connector-r2dbc.git
+        <connection>scm:git:git://github.com/singlestore-labs/singlestore-connector-r2dbc.git</connection>
+        <url>https://github.com/singlestore-labs/singlestore-connector-r2dbc</url>
+        <developerConnection>scm:git:git@github.com/singlestore-labs/singlestore-connector-r2dbc.git
         </developerConnection>
     </scm>
 
     <issueManagement>
         <system>JIRA</system>
-        <url>https://mariadb.atlassian.net/browse/R2DC</url>
+        <url>https://memsql.atlassian.net/browse/PLAT</url>
     </issueManagement>
 
     <distributionManagement>
@@ -157,9 +157,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mariadb.jdbc</groupId>
-            <artifactId>mariadb-java-client</artifactId>
-            <version>${mariadb-jdbc.version}</version>
+            <groupId>com.singlestore</groupId>
+            <artifactId>singlestore-jdbc-client</artifactId>
+            <version>${singlestore-jdbc.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -228,7 +228,7 @@
                 <configuration>
                     <source>8</source>
                     <excludePackageNames>
-                        org.mariadb.r2dbc.client,org.mariadb.r2dbc.client.codec,org.mariadb.r2dbc.client.message,org.mariadb.r2dbc.client.util
+                        com.singlestore.r2dbc.client,com.singlestore.r2dbc.client.codec,com.singlestore.r2dbc.client.message,com.singlestore.r2dbc.client.util
                     </excludePackageNames>
                 </configuration>
                 <executions>
@@ -452,9 +452,9 @@
                     <version>${logback.version}</version>
                 </dependency>
                 <dependency>
-                    <groupId>org.mariadb.jdbc</groupId>
-                    <artifactId>mariadb-java-client</artifactId>
-                    <version>${mariadb-jdbc.version}</version>
+                    <groupId>com.singlestore</groupId>
+                    <artifactId>singlestore-jdbc-client</artifactId>
+                    <version>${singlestore-jdbc.version}</version>
                 </dependency>
             </dependencies>
 
