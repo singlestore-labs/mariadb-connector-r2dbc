@@ -251,11 +251,11 @@ public class StatementTest extends BaseConnectionTest {
   void statementToString() {
     String st = sharedConn.createStatement("SELECT 1").toString();
     Assertions.assertTrue(
-        st.contains("SingleStoreParameterizedQueryStatement{") && st.contains("sql='SELECT 1'"),
+        st.contains("SingleStoreClientParameterizedQueryStatement{") && st.contains("sql='SELECT 1'"),
         st);
     String st2 = sharedConn.createStatement("SELECT ?").toString();
     Assertions.assertTrue(
-        st2.contains("SingleStoreParameterizedQueryStatement{") && st2.contains("sql='SELECT ?'"),
+        st2.contains("SingleStoreClientParameterizedQueryStatement{") && st2.contains("sql='SELECT ?'"),
         st2);
   }
 
