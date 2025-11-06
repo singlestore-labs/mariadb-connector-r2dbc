@@ -15,7 +15,7 @@
 SingleStore client, 100% Java, compatible with Java8+, apache 2.0 licensed.
 Driver permits PAM authentication that comes with SingleStore.
 
-Driver follow [R2DBC 1.0.0 specifications](https://r2dbc.io/spec/1.0.0.RELEASE/spec/html/)
+Driver follows [R2DBC 1.0.0 specifications](https://r2dbc.io/spec/1.0.0.RELEASE/spec/html/)
 
 ## Quick Start
 
