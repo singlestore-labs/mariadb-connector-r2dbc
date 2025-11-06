@@ -1,0 +1,81 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2020-2024 MariaDB Corporation Ab
+// Copyright (c) 2025-2025 SingleStore, Inc.
+
+package com.singlestore.r2dbc.client;
+
+import io.r2dbc.spi.TransactionDefinition;
+import com.singlestore.r2dbc.ExceptionFactory;
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.message.ClientMessage;
+import com.singlestore.r2dbc.message.Context;
+import com.singlestore.r2dbc.message.ServerMessage;
+import com.singlestore.r2dbc.message.client.ExecutePacket;
+import com.singlestore.r2dbc.message.client.PreparePacket;
+import com.singlestore.r2dbc.message.client.SslRequestPacket;
+import com.singlestore.r2dbc.message.server.InitialHandshakePacket;
+import com.singlestore.r2dbc.util.HostAddress;
+import com.singlestore.r2dbc.util.PrepareCache;
+import com.singlestore.r2dbc.util.ServerPrepareResult;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+public interface Client {
+
+  Mono<Void> close();
+
+  boolean closeChannelIfNeeded();
+
+  void handleConnectionError(Throwable throwable);
+
+  void sendCommandWithoutResult(ClientMessage requests);
+
+  Flux<ServerMessage> sendCommand(ClientMessage requests, boolean canSafelyBeReExecuted);
+
+  Flux<ServerMessage> sendCommand(
+      ClientMessage requests, DecoderState initialState, boolean canSafelyBeReExecuted);
+
+  Flux<ServerMessage> sendCommand(
+      ClientMessage requests, DecoderState initialState, String sql, boolean canSafelyBeReExecuted);
+
+  Flux<ServerMessage> sendCommand(
+      PreparePacket preparePacket, ExecutePacket executePacket, boolean canSafelyBeReExecuted);
+
+  Mono<ServerPrepareResult> sendPrepare(
+      ClientMessage requests, ExceptionFactory factory, String sql);
+
+  Mono<Void> sendSslRequest(
+      SslRequestPacket sslRequest, SingleStoreConnectionConfiguration configuration);
+
+  boolean isAutoCommit();
+
+  boolean isInTransaction();
+
+  boolean noBackslashEscapes();
+
+  ServerVersion getVersion();
+
+  boolean isConnected();
+
+  boolean isCloseRequested();
+
+  void setContext(InitialHandshakePacket packet, long clientCapabilities);
+
+  Context getContext();
+
+  PrepareCache getPrepareCache();
+
+  Mono<Void> beginTransaction();
+
+  Mono<Void> beginTransaction(TransactionDefinition definition);
+
+  Mono<Void> commitTransaction();
+
+  Mono<Void> rollbackTransaction();
+
+  Mono<Void> setAutoCommit(boolean autoCommit);
+
+  long getThreadId();
+
+  HostAddress getHostAddress();
+}

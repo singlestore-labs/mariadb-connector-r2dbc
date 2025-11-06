@@ -1,6 +1,0 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (c) 2020-2022 MariaDB Corporation Ab
-
-org.mariadb.r2dbc.authentication.standard.NativePasswordPluginFlow
-org.mariadb.r2dbc.authentication.addon.ClearPasswordPluginFlow
-org.mariadb.r2dbc.authentication.standard.PamPluginFlow

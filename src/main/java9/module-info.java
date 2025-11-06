@@ -1,4 +1,4 @@
-module r2dbc.mariadb {
+module r2dbc.singlestore {
     requires transitive r2dbc.spi;
     requires transitive reactor.core;
     requires transitive io.netty.buffer;
@@ -11,18 +11,18 @@ module r2dbc.mariadb {
     requires transitive reactor.netty.core;
     requires transitive java.naming;
 
-    exports org.mariadb.r2dbc;
-    exports org.mariadb.r2dbc.api;
-    exports org.mariadb.r2dbc.authentication;
-    exports org.mariadb.r2dbc.message;
+    exports com.singlestore.r2dbc;
+    exports com.singlestore.r2dbc.api;
+    exports com.singlestore.r2dbc.authentication;
+    exports com.singlestore.r2dbc.message;
 
-    uses org.mariadb.r2dbc.authentication.AuthenticationPlugin;
+    uses com.singlestore.r2dbc.authentication.AuthenticationPlugin;
     uses io.r2dbc.spi.ConnectionFactoryProvider;
 
     provides io.r2dbc.spi.ConnectionFactoryProvider with
-            org.mariadb.r2dbc.MariadbConnectionFactoryProvider;
-    provides org.mariadb.r2dbc.authentication.AuthenticationPlugin with
-            org.mariadb.r2dbc.authentication.standard.NativePasswordPluginFlow,
-            org.mariadb.r2dbc.authentication.addon.ClearPasswordPluginFlow,
-            org.mariadb.r2dbc.authentication.standard.PamPluginFlow;
+            com.singlestore.r2dbc.SingleStoreConnectionFactoryProvider;
+    provides com.singlestore.r2dbc.authentication.AuthenticationPlugin with
+            com.singlestore.r2dbc.authentication.standard.NativePasswordPluginFlow,
+            com.singlestore.r2dbc.authentication.addon.ClearPasswordPluginFlow,
+            com.singlestore.r2dbc.authentication.standard.PamPluginFlow;
 }

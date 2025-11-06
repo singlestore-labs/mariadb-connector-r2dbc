@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2020-2024 MariaDB Corporation Ab
+// Copyright (c) 2025-2025 SingleStore, Inc.
+
+package com.singlestore.r2dbc;
+
+import io.r2dbc.spi.ConnectionFactoryMetadata;
+
+final class SingleStoreConnectionFactoryMetadata implements ConnectionFactoryMetadata {
+
+  public static final String NAME = "SingleStore";
+
+  static final SingleStoreConnectionFactoryMetadata INSTANCE = new SingleStoreConnectionFactoryMetadata();
+
+  private SingleStoreConnectionFactoryMetadata() {}
+
+  @Override
+  public String getName() {
+    return NAME;
+  }
+}

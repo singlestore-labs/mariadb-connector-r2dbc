@@ -1,38 +1,31 @@
 <p align="center">
-	<a href="http://mariadb.com/">
-		<img src="https://mariadb.com/kb/static/images/logo-2018-black.png">
+	<a href="https://www.singlestore.com/">
+		<img src="logo.png">
 	</a>
 </p>
 
-# MariaDB R2DBC connector
+# SingleStore R2DBC connector
 
 [![Maven Central][maven-image]][maven-url]
-[![CI Tests](https://github.com/mariadb-corporation/mariadb-connector-r2dbc/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/mariadb-corporation/mariadb-connector-r2dbc/actions/workflows/ci.yml)
+[![CI Tests](https://github.com/singlestore-labs/singlestore-connector-r2dbc/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/singlestore-labs/singlestore-connector-r2dbc/actions/workflows/ci.yml)
 [![License][license-image]][license-url]
-[![codecov][codecov-image]][codecov-url]
 
-**Non-blocking MariaDB and MySQL client.**
+**Non-blocking SingleStore client.**
 
-MariaDB and MySQL client, 100% Java, compatible with Java8+, apache 2.0 licensed.
+SingleStore client, 100% Java, compatible with Java8+, apache 2.0 licensed.
+Driver permits PAM authentication that comes with SingleStore.
 
-- Driver permits ed25519, PAM authentication that comes with MariaDB.
-- use MariaDB 10.5 returning fonction to permit Statement.returnGeneratedValues
-
-Driver follow [R2DBC 1.0.0 specifications](https://r2dbc.io/spec/1.0.0.RELEASE/spec/html/)
-
-## Documentation
-
-See [documentation](https://mariadb.com/docs/appdev/connector-r2dbc/) for native or with Spring Data R2DBC use.
+Driver follows [R2DBC 1.0.0 specifications](https://r2dbc.io/spec/1.0.0.RELEASE/spec/html/)
 
 ## Quick Start
 
-The MariaDB Connector is available through maven using :
+The SingleStore Connector is available through maven using :
 
 ```
 		<dependency>
-				<groupId>org.mariadb</groupId>
-				<artifactId>r2dbc-mariadb</artifactId>
-				<version>1.3.0</version>
+				<groupId>com.singlestore</groupId>
+				<artifactId>r2dbc-singlestore</artifactId>
+				<version>0.0.1</version>
 		</dependency>
 ```
 
@@ -42,33 +35,33 @@ Using builder
 
 ```java
 
-MariadbConnectionConfiguration conf = MariadbConnectionConfiguration.builder()
+SingleStoreConnectionConfiguration conf = SingleStoreConnectionConfiguration.builder()
 						.host("localhost")
 						.port(3306)
 						.username("myUser")
 						.password("MySuperPassword")
 						.database("db")
 						.build();
-MariadbConnectionFactory factory = new MariadbConnectionFactory(conf);
+SingleStoreConnectionFactory factory = new SingleStoreConnectionFactory(conf);
 
 //OR
 
-ConnectionFactory factory = ConnectionFactories.get("r2dbc:mariadb://user:password@host:3306,host2:3302/myDB?option1=value");
+ConnectionFactory factory = ConnectionFactories.get("r2dbc:singlestore://user:password@host:3306,host2:3302/myDB?option1=value");
 ```
 
 Basic example:
 
 ```java
-		MariadbConnectionConfiguration conf = MariadbConnectionConfiguration.builder()
+		SingleStoreConnectionConfiguration conf = SingleStoreConnectionConfiguration.builder()
 						.host("localhost")
 						.port(3306)
 						.username("myUser")
 						.password("MySuperPassword")
 						.database("db")
 						.build();
-		MariadbConnectionFactory factory = new MariadbConnectionFactory(conf);
+		SingleStoreConnectionFactory factory = new SingleStoreConnectionFactory(conf);
 
-		MariadbConnection connection = factory.create().block();
+		SingleStoreConnection connection = factory.create().block();
 		connection.createStatement("SELECT * FROM myTable WHERE val = ?")
 						.bind(0, "myVal") // setting parameter
 						.execute()
@@ -84,15 +77,15 @@ Basic example:
 |-------------------------------------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------:|:-------------------:|
 |                             **`username`** | User to access database.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |              *string*              |
 |                             **`password`** | User password.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |              *string*              |
-|                                 **`host`** | IP address or DNS of the database server. Multiple host can be set, separate by comma. If first host is not reachable (timeout is connectTimeout), driver use next hosts.*Not used when using option `socketPath`*.                                                                                                                                                                                                                                                                                      |              *string*              |     "localhost"     |
-|                                 **`port`** | Database server port number. *Not used when using option `socketPath`*                                                                                                                                                                                                                                                                                                                                                                                                                                   |             *integer*              |        3306         |
+|                                 **`host`** | IP address or DNS of the database server. Multiple host can be set, separate by comma. If first host is not reachable (timeout is connectTimeout), driver use next hosts.*Not used when using option `socket`*.                                                                                                                                                                                                                                                                                          |              *string*              |     "localhost"     |
+|                                 **`port`** | Database server port number. *Not used when using option `socket`*                                                                                                                                                                                                                                                                                                                                                                                                                                       |             *integer*              |        3306         |
 |                             **`database`** | Default database to use when establishing the connection.                                                                                                                                                                                                                                                                                                                                                                                                                                                |              *string*              |
 |                       **`connectTimeout`** | Sets the connection timeout                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |             *Duration*             |         10s         |
 |                         **`tcpKeepAlive`** | Sets socket keep alive                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |             *Boolean*              |        false        |
-|                     **`tcpAbortiveClose`** | 	This option can be used in environments where connections are created and closed in rapid succession. Often, it is not possible to create a socket in such an environment after a while, since all local “ephemeral” ports are used up by TCP connections in TCP_WAIT state. Using tcpAbortiveClose works around this problem by resetting TCP connections (abortive or hard close) rather than doing an orderly close.                                                                                 |             *boolean*              |        false        |
+|                     **`tcpAbortiveClose`** | This option can be used in environments where connections are created and closed in rapid succession. Often, it is not possible to create a socket in such an environment after a while, since all local “ephemeral” ports are used up by TCP connections in TCP_WAIT state. Using tcpAbortiveClose works around this problem by resetting TCP connections (abortive or hard close) rather than doing an orderly close.                                                                                  |             *boolean*              |        false        |
 |                               **`socket`** | Permits connections to the database through the Unix domain socket for faster connection whe server is local.                                                                                                                                                                                                                                                                                                                                                                                            |              *string*              |
 |                    **`allowMultiQueries`** | Allows you to issue several SQL statements in a single call. (That is, `INSERT INTO a VALUES('b'); INSERT INTO c VALUES('d');`).  <br/><br/>This may be a **security risk** as it allows for SQL Injection attacks.                                                                                                                                                                                                                                                                                      |             *boolean*              |        false        |
-|                 **`connectionAttributes`** | When performance_schema is active, permit to send server some client information. <br>Those information can be retrieved on server within tables performance_schema.session_connect_attrs and performance_schema.session_account_connect_attrs. This can permit from server an identification of client/application per connection                                                                                                                                                                       |        *Map<String,String>*        |
+|                 **`connectionAttributes`** | Permit to send server some client information. <br>Those information can be retrieved on server within tables information_schema.mv_connection_attributes. This can permit from server an identification of client/application per connection                                                                                                                                                                                                                                                            |        *Map<String,String>*        |
 |                     **`sessionVariables`** | Permits to set session variables upon successful connection                                                                                                                                                                                                                                                                                                                                                                                                                                              |        *Map<String,String>*        |
 |                          **`tlsProtocol`** | Force TLS/SSL protocol to a specific set of TLS versions (example "TLSv1.2", "TLSv1.3").                                                                                                                                                                                                                                                                                                                                                                                                                 |           *List<String>*           | <i>java default</i> |
 |                        **`serverSslCert`** | Permits providing server's certificate in DER form, or server's CA certificate. <br/>This permits a self-signed certificate to be trusted. Can be used in one of 3 forms : <ul><li> serverSslCert=/path/to/cert.pem (full path to certificate)</li><li> serverSslCert=classpath:relative/cert.pem (relative to current classpath)</li><li> as verbatim DER-encoded certificate string "------BEGIN CERTIFICATE-----"</li></ul>                                                                           |              *String*              |                     |
@@ -103,27 +96,11 @@ Basic example:
 |                   **`useServerPrepStmts`** | Permit to indicate to use text or binary protocol for query with parameter                                                                                                                                                                                                                                                                                                                                                                                                                               |             *boolean*              |        false        |
 |                     **`prepareCacheSize`** | if useServerPrepStmts = true, cache the prepared informations in a LRU cache to avoid re-preparation of command. Next use of that command, only prepared identifier and parameters (if any) will be sent to server. This mainly permit for server to avoid reparsing query.                                                                                                                                                                                                                              |               *int*                |         256         |
 |                          **`pamOtherPwd`** | Permit to provide additional password for PAM authentication with multiple authentication step. If multiple passwords, value must be URL encoded.                                                                                                                                                                                                                                                                                                                                                        |              *string*              |                     |
-|                           **`autocommit`** | Set default autocommit value on connection initialization"                                                                                                                                                                                                                                                                                                                                                                                                                                               |             *Boolean*             |        true         |
+|                           **`autocommit`** | Set default autocommit value on connection initialization"                                                                                                                                                                                                                                                                                                                                                                                                                                               |             *Boolean*              |        true         |
 |                        **`loopResources`** | permits to share netty EventLoopGroup among multiple async libraries/framework                                                                                                                                                                                                                                                                                                                                                                                                                           |          *LoopResources*           |                     |
 |          **`sslContextBuilderCustomizer`** | Permits to customized SSL context builder.                                                                                                                                                                                                                                                                                                                                                                                                                                                               | *UnaryOperator<SslContextBuilder>* |                     |
 |     **`sslTunnelDisableHostVerification`** | Disable hostname verification during SSLHandshake when SslMode.TUNNEL is set                                                                                                                                                                                                                                                                                                                                                                                                                             |             *boolean*              |                     |
-|                             **`timezone`** | permits to force session timezone in case of client having a different timezone compare to server. The option `timezone` can have 3 types of value: * 'disabled' (default) : connector doesn't change time_zone. * 'auto': client will use client default timezone. * '<a timezone>': connector will set connection variable to value. Since 1.2.0                                                                                                                                                       |               String               |     'disabled'      |
-|                       **`permitRedirect`** | Permit server redirection                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |             *boolean*              |        true         |
-|                    **`skipPostCommands`**  | Permit to indicate that commands after connections must be skipped. This permit to avoid unnecessary command on connection creation, and when using RDV proxy not to have session pinning. Use with care, because connector expects server to have : 1.connection exchanges to be UT8(mb3/mb4). 2.autocommit set to true. 3.transaction isolation defaulting to REPEATABLE-READ                                                                                                                          |             *boolean*              |       'false'       |
-
-
-## Compatibility
-
-Connector is compatible with R2DBC 1.0.0 spec.
-For 0.9.1 spec compatibility, use artifact-id r2dbc-mariadb-0.9.1-spec
-example
-```
-		<dependency>
-				<groupId>org.mariadb</groupId>
-				<artifactId>r2dbc-mariadb-0.9.1-spec</artifactId>
-				<version>1.3.0</version>
-		</dependency>
-```
+|                    **`skipPostCommands`**  | Permit to indicate that commands after connections must be skipped. This permit to avoid unnecessary command on connection creation, and when using RDV proxy not to have session pinning. Use with care, because connector expects server to have : 1.connection exchanges to be UT8(mb3/mb4). 2.autocommit set to true.                                                                                                                                                                                |             *boolean*              |       'false'       |
 
 
 ## Failover
@@ -133,7 +110,7 @@ database server.
 For example, server A has the current connection. After a failure (server crash, network down …) the connection will
 switch to another server (B).
 
-Load balancing allows load to be distributed over multiple servers :
+Load balancing allows load to be distributed over multiple servers:
 When initializing a connection or after a failed connection, the connector will attempt to connect to a host. The
 connection is selected randomly among the valid hosts. Thereafter, all statements will run on that database server until
 the connection will be closed (or fails).
@@ -141,12 +118,12 @@ Example: when creating a pool of 60 connections, each one will use a random host
 have about 20 connections to each host.
 
 ```java
-ConnectionFactory factory = ConnectionFactories.get("r2dbc:mariadb:sequential://user:password@host:3306,host2:3302/myDB?option1=value");
+ConnectionFactory factory = ConnectionFactories.get("r2dbc:singlestore:sequential://user:password@host:3306,host2:3302/myDB?option1=value");
 ```
 
 ### Failover behaviour
 
-Failover parameter is set (i.e. prefixing connection string with `r2dbc:mariadb:[sequential|loadbalancing]://...` or
+Failover parameter is set (i.e. prefixing connection string with `r2dbc:singlestore:[sequential|loadbalancing]://...` or
 using HaMode builder).
 
 There can be multiple fail causes. When a failure occurs many things will be done:
@@ -169,7 +146,7 @@ on successful reconnection, there will be different cases.
 If driver identify that command can be replayed without issue (for example connection.isValid(), a PREPARE/ROLLBACK
 command), driver will execute command without throwing any error.
 
-Driver cannot transparently handle all cases : imagine that the failover occurs when executing an INSERT command without
+Driver cannot transparently handle all cases: imagine that the failover occurs when executing an INSERT command without
 a transaction: driver cannot know that command has been received and executed on server. In those case, an SQLException
 with be thrown with SQLState "25S03".
 
@@ -181,25 +158,16 @@ implementation will solve most of failover cases transparently for user point of
 Redo transaction approach is to save commands in transaction. When a failover occurs during a transaction, the connector
 can automatically reconnect and replay transaction, making failover completely transparent.
 
-There is some limitations :
-
-driver will buffer up commands in a transaction until some inner limit.
-huge command will temporarily disable transaction buffering for current transaction.
-Commands must be idempotent only (queries can be "replayable")
-
-## Tracker
-
-To file an issue or follow the development, see [JIRA](https://jira.mariadb.org/projects/R2DBC/issues/).
+There is some limitations.
+ - Driver will buffer up commands in a transaction until some inner limit.
+ - Huge command will temporarily disable transaction buffering for current transaction.
+ - Commands must be idempotent only (queries can be "replayable")
 
 
-[maven-image]:https://img.shields.io/maven-central/v/org.mariadb/r2dbc-mariadb.svg
+[maven-image]:https://img.shields.io/maven-central/v/com.singlestore/r2dbc-singlestore.svg
 
-[maven-url]:https://maven-badges.herokuapp.com/maven-central/org.mariadb/r2dbc-mariadb
+[maven-url]:https://maven-badges.herokuapp.com/maven-central/com.singlestore/r2dbc-singlestore
 
 [license-image]:https://img.shields.io/badge/License-Apache%202.0-blue.svg
 
 [license-url]:https://opensource.org/licenses/Apache-2.0
-
-[codecov-image]:https://codecov.io/gh/mariadb-corporation/mariadb-connector-r2dbc/branch/master/graph/badge.svg?token=8fIhax7q23
-
-[codecov-url]:https://codecov.io/gh/mariadb-corporation/mariadb-connector-r2dbc
