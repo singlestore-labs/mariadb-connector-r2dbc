@@ -701,6 +701,7 @@ public class PrepareResultSetTest extends BaseConnectionTest {
         }
       }
 
+      Thread.sleep(100);
       Assertions.assertTrue(
           prepareResults[0].toString().contains("closing=true, use=0, cached=false}"));
       Assertions.assertTrue(
