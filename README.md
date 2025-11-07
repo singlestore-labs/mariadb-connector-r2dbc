@@ -25,7 +25,7 @@ The SingleStore Connector is available through maven using :
 		<dependency>
 				<groupId>com.singlestore</groupId>
 				<artifactId>r2dbc-singlestore</artifactId>
-				<version>0.0.1</version>
+				<version>0.0.1-beta</version>
 		</dependency>
 ```
 
