@@ -33,7 +33,14 @@ public class BlobCodec implements Codec<Blob> {
           DataType.LONGBLOB,
           DataType.STRING,
           DataType.VARSTRING,
-          DataType.TEXT);
+          DataType.TEXT,
+          DataType.INT8_VECTOR,
+          DataType.INT16_VECTOR,
+          DataType.INT32_VECTOR,
+          DataType.INT64_VECTOR,
+          DataType.FLOAT32_VECTOR,
+          DataType.FLOAT64_VECTOR,
+          DataType.BSON);
 
   public boolean canDecode(ColumnDefinitionPacket column, Class<?> type) {
     return COMPATIBLE_TYPES.contains(column.getDataType()) && type.isAssignableFrom(Blob.class);
@@ -78,6 +85,13 @@ public class BlobCodec implements Codec<Blob> {
       case LONGBLOB:
       case BLOB:
       case GEOMETRY:
+      case INT8_VECTOR:
+      case INT16_VECTOR:
+      case INT32_VECTOR:
+      case INT64_VECTOR:
+      case FLOAT32_VECTOR:
+      case FLOAT64_VECTOR:
+      case BSON:
         return new SingleStoreBlob(buf.readRetainedSlice(length));
 
       default:

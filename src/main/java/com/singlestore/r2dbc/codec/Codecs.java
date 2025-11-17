@@ -50,7 +50,8 @@ public final class Codecs {
         ShortCodec.INSTANCE,
         StreamCodec.INSTANCE,
         StringCodec.INSTANCE,
-        UuidCodec.INSTANCE
+        UuidCodec.INSTANCE,
+        VectorCodec.INSTANCE,
       };
   private static final Map<R2dbcType, Codec<?>> r2dbcTypeMapper = r2dbcTypeToDataTypeMap();
   private static final Map<Class<?>, Codec<?>> codecMapper = classToCodecMap();

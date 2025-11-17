@@ -15,9 +15,13 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.*;
 import com.singlestore.r2dbc.BaseConnectionTest;
@@ -37,11 +41,15 @@ public class BlobParameterTest extends BaseConnectionTest {
         .createStatement("CREATE TABLE BlobParam (t1 BLOB, t2 BLOB, t3 BLOB)")
         .execute()
         .blockLast();
+    if (minVersion(8, 7, 1)) {
+      sharedConn.createStatement("CREATE TABLE BlobParam2 (t BSON, id INT)").execute().blockLast();
+    }
   }
 
   @AfterAll
   public static void after2() {
     sharedConn.createStatement("DROP TABLE BlobParam").execute().blockLast();
+    sharedConn.createStatement("DROP TABLE IF EXISTS BlobParam2").execute().blockLast();
   }
 
   @BeforeEach
@@ -554,5 +562,76 @@ public class BlobParameterTest extends BaseConnectionTest {
               }
             })
         .verifyComplete();
+  }
+
+  @Test
+  public void sendBsonParam() throws Exception {
+    Assumptions.assumeTrue(minVersion(8, 7, 1));
+    sendBsonParam(TestConfiguration.defaultBuilder.clone()
+        .useServerPrepStmts(true)
+        .build()
+    );
+  }
+
+  @Test
+  public void sendBsonParamPrepare() throws Exception {
+    Assumptions.assumeTrue(minVersion(8, 7, 1));
+    sendBsonParam(TestConfiguration.defaultBuilder.clone()
+        .useServerPrepStmts(true)
+        .enableExtendedDataTypes(true)
+        .build()
+    );
+  }
+
+  public void sendBsonParam(SingleStoreConnectionConfiguration conf) throws Exception {
+    SingleStoreConnection conn = new SingleStoreConnectionFactory(conf).create().block();
+    List<byte[]> expectedVals = new ArrayList<>();
+    expectedVals.add(convertInt32ToBson(1234632));
+    expectedVals.add(convertLocalDateTimeToBson(LocalDateTime.now()));
+    expectedVals.add(convertInt32ToBson(1234));
+    expectedVals.add(null);
+    AtomicInteger index = new AtomicInteger();
+
+    Consumer<Object> consumer =
+        actualObject -> {
+          Optional<ByteBuffer> actual = (Optional<ByteBuffer>) actualObject;
+          byte[] expected = expectedVals.get(index.getAndIncrement());
+          if (expected == null) {
+            Assertions.assertFalse(actual.isPresent());
+          } else {
+            Assertions.assertTrue(actual.isPresent());
+            if (actual.get().hasArray()) {
+              Assertions.assertArrayEquals(actual.get().array(), expected);
+            } else {
+              byte[] res = new byte[actual.get().remaining()];
+              actual.get().get(res);
+              Assertions.assertArrayEquals(res, expected);
+            }
+          }
+        };
+
+    try {
+      conn
+          .createStatement("INSERT INTO BlobParam2 VALUES (?, 1), (?, 2), (?, 3), (?, 4)")
+          .bind(0, expectedVals.get(0))
+          .bind(1, expectedVals.get(1))
+          .bind(2, expectedVals.get(2))
+          .bindNull(3, byte[].class)
+          .execute()
+          .blockLast();
+
+      conn
+          .createStatement("SELECT t FROM BlobParam2 ORDER BY id LIMIT 4")
+          .execute()
+          .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
+          .as(StepVerifier::create)
+          .consumeNextWith(consumer)
+          .consumeNextWith(consumer)
+          .consumeNextWith(consumer)
+          .consumeNextWith(consumer)
+          .verifyComplete();
+    } finally {
+      conn.close().block();
+    }
   }
 }

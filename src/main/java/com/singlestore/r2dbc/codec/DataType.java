@@ -32,14 +32,25 @@ public enum DataType {
   BLOB(252),
   VARSTRING(253),
   STRING(254),
-  GEOMETRY(255);
+  GEOMETRY(255),
 
-  static final DataType[] typeMap;
+  // SingleStoreDB extended types
+  BSON(1001),
+  FLOAT32_VECTOR(2001),
+  FLOAT64_VECTOR(2002),
+  INT8_VECTOR(2003),
+  INT16_VECTOR(2004),
+  INT32_VECTOR(2005),
+  INT64_VECTOR(2006);
+
+  static final DataType[] basicTypeMap;
 
   static {
-    typeMap = new DataType[256];
+    basicTypeMap = new DataType[256];
     for (DataType v : values()) {
-      typeMap[v.singlestoreType] = v;
+      if (v.singlestoreType < 256) {
+        basicTypeMap[v.singlestoreType] = v;
+      }
     }
   }
 
@@ -58,7 +69,7 @@ public enum DataType {
    */
   public static DataType fromServer(int typeValue, int charsetNumber) {
 
-    DataType dataType = typeMap[typeValue];
+    DataType dataType = basicTypeMap[typeValue];
 
     if (charsetNumber != 63 && typeValue >= 249 && typeValue <= 252) {
       // SingleStore Text dataType

@@ -45,7 +45,14 @@ public class StringCodec implements Codec<String> {
           DataType.SET,
           DataType.TEXT,
           DataType.VARSTRING,
-          DataType.STRING);
+          DataType.STRING,
+          DataType.INT8_VECTOR,
+          DataType.INT16_VECTOR,
+          DataType.INT32_VECTOR,
+          DataType.INT64_VECTOR,
+          DataType.FLOAT32_VECTOR,
+          DataType.FLOAT64_VECTOR,
+          DataType.BSON);
 
   public static String zeroFilling(String value, ColumnDefinitionPacket col) {
     StringBuilder zeroAppendStr = new StringBuilder();

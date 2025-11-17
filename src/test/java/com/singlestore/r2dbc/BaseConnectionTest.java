@@ -7,6 +7,8 @@ package com.singlestore.r2dbc;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Random;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -230,5 +232,34 @@ public class BaseConnectionTest {
         .createStatement(query.toString())
         .execute()
         .blockLast();
+  }
+
+  public static byte[] convertInt32ToBson(int value) {
+    byte[] bson = new byte[5]; // 4 (value) + 1 (type)
+    bson[4] = 0x10; // Type for int32
+    // Convert the integer to a byte array (little-endian format)
+    bson[0] = (byte) (value); // Byte 1
+    bson[1] = (byte) (value >> 8); // Byte 2
+    bson[2] = (byte) (value >> 16); // Byte 3
+    bson[3] = (byte) (value >> 24); // Byte 4
+    return bson;
+  }
+
+
+  public static byte[] convertLocalDateTimeToBson(LocalDateTime localDateTime) {
+    byte[] bson = new byte[9]; // 1 (type) + 4 (value) + 3 (length, 8 total)
+    bson[8] = 0x09; // Type for timestamp
+    Instant instant = localDateTime.toInstant(ZoneOffset.UTC);
+    long dateInMillis = instant.toEpochMilli();
+    // Convert the integer to a byte array (little-endian format)
+    bson[0] = (byte) (dateInMillis);
+    bson[1] = (byte) (dateInMillis >> 8);
+    bson[2] = (byte) (dateInMillis >> 16);
+    bson[3] = (byte) (dateInMillis >> 24);
+    bson[4] = (byte) (dateInMillis >> 32);
+    bson[5] = (byte) (dateInMillis >> 40);
+    bson[6] = (byte) (dateInMillis >> 48);
+    bson[7] = (byte) (dateInMillis >> 56);
+    return bson;
   }
 }

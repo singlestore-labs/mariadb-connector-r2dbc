@@ -4,6 +4,7 @@
 
 package com.singlestore.r2dbc.util;
 
+import com.singlestore.r2dbc.type.Vector;
 import io.r2dbc.spi.Blob;
 import io.r2dbc.spi.R2dbcType;
 import io.r2dbc.spi.Type;
@@ -38,7 +39,9 @@ public enum SingleStoreType implements Type {
   VARCHAR(R2dbcType.VARCHAR.getName(), String.class, StringCodec.INSTANCE),
   CLOB(R2dbcType.CLOB.getName(), String.class, StringCodec.INSTANCE),
   BINARY(R2dbcType.BINARY.getName(), Blob.class, BlobCodec.INSTANCE),
-  DECIMAL(R2dbcType.DECIMAL.getName(), BigDecimal.class, BigDecimalCodec.INSTANCE);
+  DECIMAL(R2dbcType.DECIMAL.getName(), BigDecimal.class, BigDecimalCodec.INSTANCE),
+  BSON("BSON", Blob.class, BlobCodec.INSTANCE),
+  VECTOR("VECTOR", Vector.class, VectorCodec.INSTANCE);
 
   private final String typeName;
   private final Class<?> classType;

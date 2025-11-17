@@ -31,7 +31,14 @@ public class StreamCodec implements Codec<InputStream> {
           DataType.LONGBLOB,
           DataType.TEXT,
           DataType.VARSTRING,
-          DataType.STRING);
+          DataType.STRING,
+          DataType.INT8_VECTOR,
+          DataType.INT16_VECTOR,
+          DataType.INT32_VECTOR,
+          DataType.INT64_VECTOR,
+          DataType.FLOAT32_VECTOR,
+          DataType.FLOAT64_VECTOR,
+          DataType.BSON);
 
   public boolean canDecode(ColumnDefinitionPacket column, Class<?> type) {
     return COMPATIBLE_TYPES.contains(column.getDataType())

@@ -4,6 +4,8 @@
 
 package com.singlestore.r2dbc.message.server;
 
+import com.singlestore.r2dbc.client.util.ProtocolExtendedTypeCodes;
+import com.singlestore.r2dbc.client.util.VectorType;
 import io.netty.buffer.ByteBuf;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Nullability;
@@ -17,7 +19,13 @@ import com.singlestore.r2dbc.util.constants.ColumnFlags;
 
 public final class ColumnDefinitionPacket
     implements ServerMessage, ColumnMetadata {
-  private final byte[] meta;
+  private final String catalog;
+  private final String schema;
+  private final String table;
+  private final String orgTable;
+  private final String name;
+  private final String orgName;
+  private final String extTypeFormat;
   private final int charset;
   private final long length;
   private final DataType dataType;
@@ -27,7 +35,13 @@ public final class ColumnDefinitionPacket
   private final SingleStoreConnectionConfiguration conf;
 
   private ColumnDefinitionPacket(
-      byte[] meta,
+      String catalog,
+      String schema,
+      String table,
+      String orgTable,
+      String name,
+      String orgName,
+      String extTypeFormat,
       int charset,
       long length,
       DataType dataType,
@@ -35,7 +49,13 @@ public final class ColumnDefinitionPacket
       int flags,
       boolean ending,
       SingleStoreConnectionConfiguration conf) {
-    this.meta = meta;
+    this.catalog = catalog;
+    this.schema = schema;
+    this.table = table;
+    this.orgTable = orgTable;
+    this.name = name;
+    this.orgName = orgName;
+    this.extTypeFormat = extTypeFormat;
     this.charset = charset;
     this.length = length;
     this.dataType = dataType;
@@ -46,27 +66,13 @@ public final class ColumnDefinitionPacket
   }
 
   private ColumnDefinitionPacket(String name, SingleStoreConnectionConfiguration conf) {
-    byte[] nameBytes = name.getBytes(StandardCharsets.UTF_8);
-    byte[] arr = new byte[6 + 2 * nameBytes.length];
-    int pos = 0;
-
-    // lenenc_str     catalog
-    // lenenc_str     schema
-    // lenenc_str     table
-    // lenenc_str     org_table
-    for (int i = 0; i < 4; i++) {
-      arr[pos++] = 0;
-    }
-
-    // lenenc_str     name
-    // lenenc_str     org_name
-    for (int i = 0; i < 2; i++) {
-      arr[pos++] = (byte) nameBytes.length;
-      System.arraycopy(nameBytes, 0, arr, pos, nameBytes.length);
-      pos += nameBytes.length;
-    }
-
-    this.meta = arr;
+    this.catalog = "";
+    this.schema = "";
+    this.table = "";
+    this.orgTable = "";
+    this.name = name;
+    this.orgName = name;
+    this.extTypeFormat = null;
     this.charset = 33;
     this.length = 8;
     this.dataType = DataType.BIGINT;
@@ -76,17 +82,45 @@ public final class ColumnDefinitionPacket
     this.conf = conf;
   }
 
+  private static String readShortString(ByteBuf buf) {
+    int len = buf.readByte() & 0xff;
+    return buf.readCharSequence(len, StandardCharsets.UTF_8).toString();
+  }
+
   public static ColumnDefinitionPacket decode(
       ByteBuf buf, boolean ending, SingleStoreConnectionConfiguration conf) {
-    byte[] meta = new byte[buf.readableBytes() - 12];
-    buf.readBytes(meta);
+    String catalog = readShortString(buf);
+    String schema = readShortString(buf);
+    String table = readShortString(buf);
+    String orgTable = readShortString(buf);
+    String name = readShortString(buf);
+    String orgName = readShortString(buf);
+
+    int fixedLengthFields = buf.readByte();
+
     int charset = buf.readUnsignedShortLE();
     long length = buf.readUnsignedIntLE();
     DataType dataType = DataType.fromServer(buf.readUnsignedByte(), charset);
     int flags = buf.readUnsignedShortLE();
     byte decimals = buf.readByte();
+
+    String extTypeFormat = null;
+    if (fixedLengthFields > 12) {
+      buf.skipBytes(2); // unused
+      ProtocolExtendedTypeCodes typeCode = ProtocolExtendedTypeCodes.fromCode(buf.readByte());
+      if (typeCode == ProtocolExtendedTypeCodes.VECTOR) {
+        int dimensionsOfVector = buf.readIntLE();
+        VectorType typeOfVectorElements = VectorType.fromCode(buf.readByte());
+        dataType = typeOfVectorElements.getType();
+        extTypeFormat = dimensionsOfVector + "," + dataType.name();
+      } else if (typeCode == ProtocolExtendedTypeCodes.BSON) {
+        dataType = DataType.BSON;
+      }
+    }
+
     return new ColumnDefinitionPacket(
-        meta, charset, length, dataType, decimals, flags, ending, conf);
+        catalog, schema, table, orgTable, name, orgName, extTypeFormat,
+        charset, length, dataType, decimals, flags, ending, conf);
   }
 
   public static ColumnDefinitionPacket fromGeneratedId(
@@ -94,37 +128,29 @@ public final class ColumnDefinitionPacket
     return new ColumnDefinitionPacket(name, conf);
   }
 
-  private String getString(int idx) {
-    int pos = 0;
-    for (int i = 0; i < idx; i++) {
-      // maximum length of 64 characters.
-      // so length encode is just encoded on one byte
-      int len = this.meta[pos++] & 0xff;
-      pos += len;
-    }
-    int length = this.meta[pos++] & 0xff;
-    return new String(this.meta, pos, length, StandardCharsets.UTF_8);
-  }
-
   public String getSchema() {
-    return this.getString(1);
+    return schema;
   }
 
   public String getTableAlias() {
-    return this.getString(2);
+    return table;
   }
 
   public String getTable() {
-    return this.getString(3);
+    return orgTable;
   }
 
   @Override
   public String getName() {
-    return this.getString(4);
+    return name;
   }
 
   public String getColumn() {
-    return this.getString(5);
+    return orgName;
+  }
+
+  public String getExtTypeFormat() {
+    return extTypeFormat;
   }
 
   public int getCharset() {
@@ -239,8 +265,15 @@ public final class ColumnDefinitionPacket
       case LONGBLOB:
       case BLOB:
       case GEOMETRY:
+      case BSON:
         return SingleStoreType.BLOB;
-
+      case INT8_VECTOR:
+      case INT16_VECTOR:
+      case INT32_VECTOR:
+      case INT64_VECTOR:
+      case FLOAT32_VECTOR:
+      case FLOAT64_VECTOR:
+        return SingleStoreType.VECTOR;
       default:
         return null;
     }

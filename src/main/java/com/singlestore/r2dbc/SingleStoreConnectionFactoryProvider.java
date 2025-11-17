@@ -31,6 +31,7 @@ public final class SingleStoreConnectionFactoryProvider implements ConnectionFac
   public static final Option<String> SSL_MODE = Option.valueOf("sslMode");
   public static final Option<Boolean> TRANSACTION_REPLAY = Option.valueOf("transactionReplay");
   public static final Option<String> HAMODE = Option.valueOf("haMode");
+  public static final Option<Boolean> ENABLE_EXTENDED_DATA_TYPES = Option.valueOf("enableExtendedDataTypes");
 
   public static final Option<String> CONNECTION_ATTRIBUTES = Option.valueOf("connectionAttributes");
   public static final Option<String> PAM_OTHER_PASSWORD = Option.valueOf("pamOtherPwd");
