@@ -594,8 +594,8 @@ public class BlobParameterTest extends BaseConnectionTest {
 
     Consumer<Object> consumer =
         actualObject -> {
-          Optional<ByteBuffer> actual = (Optional<ByteBuffer>) actualObject;
           byte[] expected = expectedVals.get(index.getAndIncrement());
+          Optional<ByteBuffer> actual = (Optional<ByteBuffer>) actualObject;
           if (expected == null) {
             Assertions.assertFalse(actual.isPresent());
           } else {
