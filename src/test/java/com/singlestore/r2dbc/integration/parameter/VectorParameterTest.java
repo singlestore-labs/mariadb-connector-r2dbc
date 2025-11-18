@@ -7,6 +7,7 @@ import com.singlestore.r2dbc.api.SingleStoreConnection;
 import com.singlestore.r2dbc.client.util.VectorType;
 import com.singlestore.r2dbc.type.Vector;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import static com.singlestore.r2dbc.integration.codec.VectorParseTest.generateVe
 public class VectorParameterTest extends BaseConnectionTest {
   @Test
   public void sendParam() throws Exception {
+    Assumptions.assumeTrue(minVersion(8, 7, 1));
     SingleStoreConnection connection = new SingleStoreConnectionFactory(
       TestConfiguration.defaultBuilder.clone()
         .useServerPrepStmts(true)
