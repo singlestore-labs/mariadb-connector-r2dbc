@@ -630,6 +630,11 @@ public class BlobParameterTest extends BaseConnectionTest {
           .consumeNextWith(consumer)
           .consumeNextWith(consumer)
           .verifyComplete();
+
+      conn
+        .createStatement("TRUNCATE TABLE BlobParam2")
+        .execute()
+        .blockLast();
     } finally {
       conn.close().block();
     }
