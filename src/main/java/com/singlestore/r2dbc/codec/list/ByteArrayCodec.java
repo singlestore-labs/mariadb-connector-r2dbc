@@ -27,7 +27,14 @@ public class ByteArrayCodec implements Codec<byte[]> {
           DataType.GEOMETRY,
           DataType.VARSTRING,
           DataType.TEXT,
-          DataType.STRING);
+          DataType.STRING,
+          DataType.INT8_VECTOR,
+          DataType.INT16_VECTOR,
+          DataType.INT32_VECTOR,
+          DataType.INT64_VECTOR,
+          DataType.FLOAT32_VECTOR,
+          DataType.FLOAT64_VECTOR,
+          DataType.BSON);
 
   public boolean canDecode(ColumnDefinitionPacket column, Class<?> type) {
     return COMPATIBLE_TYPES.contains(column.getDataType())

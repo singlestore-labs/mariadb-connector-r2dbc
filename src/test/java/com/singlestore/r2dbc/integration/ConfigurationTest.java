@@ -358,7 +358,7 @@ public class ConfigurationTest extends BaseConnectionTest {
             + " prepareCacheSize=null, tlsProtocol=null, serverSslCert=null,"
             + " clientSslCert=null, clientSslKey=null, clientSslPassword=null, sslMode=TRUST,"
             + " sslTunnelDisableHostVerification=false, pamOtherPwd=*,*,"
-            + " autoCommit=true}",
+            + " autoCommit=true, enableExtendedDataTypes=false}",
         builder.toString());
     builder.tlsProtocol((String) null);
     Assertions.assertEquals(
@@ -371,7 +371,7 @@ public class ConfigurationTest extends BaseConnectionTest {
             + " prepareCacheSize=null, tlsProtocol=null, serverSslCert=null,"
             + " clientSslCert=null, clientSslKey=null, clientSslPassword=null, sslMode=TRUST,"
             + " sslTunnelDisableHostVerification=false, pamOtherPwd=*,*,"
-            + " autoCommit=true}",
+            + " autoCommit=true, enableExtendedDataTypes=false}",
         builder.toString());
     SingleStoreConnectionConfiguration conf = builder.build();
     Assertions.assertEquals("sslMode=trust", conf.getSslConfig().toString());

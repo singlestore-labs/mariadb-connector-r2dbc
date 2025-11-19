@@ -49,6 +49,7 @@ public final class SingleStoreConnectionConfiguration {
   private final LoopResources loopResources;
   private final UnaryOperator<SslContextBuilder> sslContextBuilderCustomizer;
   private final boolean skipPostCommands;
+  private final boolean enableExtendedDataTypes;
 
   private SingleStoreConnectionConfiguration(
       String haMode,
@@ -80,7 +81,8 @@ public final class SingleStoreConnectionConfiguration {
       String restrictedAuth,
       @Nullable LoopResources loopResources,
       @Nullable UnaryOperator<SslContextBuilder> sslContextBuilderCustomizer,
-      boolean sslTunnelDisableHostVerification) {
+      boolean sslTunnelDisableHostVerification,
+      boolean enableExtendedDataTypes) {
     this.haMode = haMode == null ? HaMode.NONE : HaMode.from(haMode);
     this.connectTimeout = connectTimeout == null ? Duration.ofSeconds(10) : connectTimeout;
     this.tcpKeepAlive = tcpKeepAlive == null ? Boolean.FALSE : tcpKeepAlive;
@@ -121,6 +123,7 @@ public final class SingleStoreConnectionConfiguration {
     this.loopResources = loopResources != null ? loopResources : TcpResources.get();
     this.useServerPrepStmts = !this.allowMultiQueries && useServerPrepStmts;
     this.sslContextBuilderCustomizer = sslContextBuilderCustomizer;
+    this.enableExtendedDataTypes = enableExtendedDataTypes;
   }
 
   private SingleStoreConnectionConfiguration(
@@ -146,7 +149,8 @@ public final class SingleStoreConnectionConfiguration {
       boolean skipPostCommands,
       String[] restrictedAuth,
       LoopResources loopResources,
-      UnaryOperator<SslContextBuilder> sslContextBuilderCustomizer) {
+      UnaryOperator<SslContextBuilder> sslContextBuilderCustomizer,
+      boolean enableExtendedDataTypes) {
     this.database = database;
     this.hostAddresses = hostAddresses;
     this.haMode = haMode;
@@ -170,6 +174,7 @@ public final class SingleStoreConnectionConfiguration {
     this.restrictedAuth = restrictedAuth;
     this.loopResources = loopResources;
     this.sslContextBuilderCustomizer = sslContextBuilderCustomizer;
+    this.enableExtendedDataTypes = enableExtendedDataTypes;
   }
 
   static boolean boolValue(Object value) {
@@ -374,6 +379,13 @@ public final class SingleStoreConnectionConfiguration {
                   SingleStoreConnectionFactoryProvider.SSL_CONTEXT_BUILDER_CUSTOMIZER));
     }
 
+    if (connectionFactoryOptions.hasOption(SingleStoreConnectionFactoryProvider.ENABLE_EXTENDED_DATA_TYPES)) {
+      builder.enableExtendedDataTypes(
+          boolValue(
+              connectionFactoryOptions.getValue(
+                  SingleStoreConnectionFactoryProvider.ENABLE_EXTENDED_DATA_TYPES)));
+    }
+
     return builder;
   }
 
@@ -450,6 +462,10 @@ public final class SingleStoreConnectionConfiguration {
 
   public SslConfig getSslConfig() {
     return sslConfig;
+  }
+
+  public boolean getEnableExtendedDataTypes() {
+    return enableExtendedDataTypes;
   }
 
   public boolean useServerPrepStmts() {
@@ -680,6 +696,7 @@ public final class SingleStoreConnectionConfiguration {
     @Nullable private LoopResources loopResources;
     @Nullable private UnaryOperator<SslContextBuilder> sslContextBuilderCustomizer;
     private boolean sslTunnelDisableHostVerification;
+    private boolean enableExtendedDataTypes = false;
 
     private Builder() {}
 
@@ -737,7 +754,8 @@ public final class SingleStoreConnectionConfiguration {
           this.restrictedAuth,
           this.loopResources,
           this.sslContextBuilderCustomizer,
-          this.sslTunnelDisableHostVerification);
+          this.sslTunnelDisableHostVerification,
+          this.enableExtendedDataTypes);
     }
 
     /**
@@ -939,6 +957,11 @@ public final class SingleStoreConnectionConfiguration {
       return this;
     }
 
+    public Builder enableExtendedDataTypes(boolean enableExtendedDataTypes) {
+      this.enableExtendedDataTypes = enableExtendedDataTypes;
+      return this;
+    }
+
     /**
      * Permit to indicate to use text or binary protocol.
      *
@@ -1114,6 +1137,8 @@ public final class SingleStoreConnectionConfiguration {
           + hiddenPamPwd
           + ", autoCommit="
           + autocommit
+          + ", enableExtendedDataTypes="
+          + enableExtendedDataTypes
           + '}';
     }
   }

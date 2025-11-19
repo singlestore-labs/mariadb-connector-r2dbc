@@ -4,6 +4,9 @@
 
 package com.singlestore.r2dbc.integration.codec;
 
+import com.singlestore.r2dbc.SingleStoreConnectionConfiguration;
+import com.singlestore.r2dbc.SingleStoreConnectionFactory;
+import com.singlestore.r2dbc.TestConfiguration;
 import io.r2dbc.spi.Blob;
 import io.r2dbc.spi.R2dbcTransientResourceException;
 import java.io.IOException;
@@ -12,12 +15,16 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import com.singlestore.r2dbc.BaseConnectionTest;
@@ -41,11 +48,17 @@ public class BlobParseTest extends BaseConnectionTest {
         .blockLast();
     sharedConn.createStatement("FLUSH TABLES").execute().blockLast();
     sharedConn.commitTransaction().block();
+    if (minVersion(8, 7, 1)) {
+      sharedConn.createStatement("CREATE TABLE BlobCodec3 (t BSON, id INT)").execute().blockLast();
+      sharedConn.createStatement("INSERT INTO BlobCodec3 VALUES (128:>BSON, 1), (TIMESTAMP('2010-12-31 23:59:59'):>BSON, 2), ('{\"f1\":\"v1\"}':>BSON, 3), (null, 4)")
+          .execute().blockLast();
+    }
   }
 
   @AfterAll
   public static void afterAll2() {
     sharedConn.createStatement("DROP TABLE IF EXISTS BlobTable").execute().blockLast();
+    sharedConn.createStatement("DROP TABLE IF EXISTS BlobCodec3").execute().blockLast();
   }
 
   @Test
@@ -537,5 +550,67 @@ public class BlobParseTest extends BaseConnectionTest {
         .as(StepVerifier::create)
         .expectNextMatches(c -> c.equals(SingleStoreType.BLOB))
         .verifyComplete();
+  }
+
+  @Test
+  public void getObjectBson() throws Exception {
+    Assumptions.assumeTrue(minVersion(8, 7, 1));
+    getBsonObject(TestConfiguration.defaultBuilder.clone()
+        .useServerPrepStmts(true)
+        .build()
+    );
+  }
+
+  @Test
+  public void getObjectBsonPrepare() throws Exception {
+    Assumptions.assumeTrue(minVersion(8, 7, 1));
+    getBsonObject(TestConfiguration.defaultBuilder.clone()
+        .useServerPrepStmts(true)
+        .enableExtendedDataTypes(true)
+        .build()
+    );
+  }
+
+  public void getBsonObject(SingleStoreConnectionConfiguration conf) throws Exception {
+    SingleStoreConnection conn = new SingleStoreConnectionFactory(conf).create().block();
+    List<byte[]> expectedVals = new ArrayList<>();
+    expectedVals.add(convertInt32ToBson(128));
+    expectedVals.add(convertLocalDateTimeToBson(LocalDateTime.of(2010, 12, 31, 23, 59, 59)));
+    expectedVals.add(new byte[] {16, 0, 0, 0, 2, 102, 49, 0, 3, 0, 0, 0, 118, 49, 0, 0});
+    expectedVals.add(null);
+    AtomicInteger index = new AtomicInteger();
+
+    Consumer<Object> consumer =
+        actualObject -> {
+          byte[] expected = expectedVals.get(index.getAndIncrement());
+          Optional<ByteBuffer> actual = (Optional<ByteBuffer>) actualObject;
+          if (expected == null) {
+            Assertions.assertFalse(actual.isPresent());
+          } else {
+            Assertions.assertTrue(actual.isPresent());
+            if (actual.get().hasArray()) {
+              Assertions.assertArrayEquals(actual.get().array(), expected);
+            } else {
+              byte[] res = new byte[actual.get().remaining()];
+              actual.get().get(res);
+              Assertions.assertArrayEquals(res, expected);
+            }
+          }
+        };
+
+    try {
+      conn
+          .createStatement("SELECT t, id FROM BlobCodec3 ORDER BY id LIMIT 4")
+          .execute()
+          .flatMap(r -> r.map((row, metadata) -> Optional.ofNullable(row.get(0))))
+          .as(StepVerifier::create)
+          .consumeNextWith(consumer)
+          .consumeNextWith(consumer)
+          .consumeNextWith(consumer)
+          .consumeNextWith(consumer)
+          .verifyComplete();
+    } finally {
+      conn.close().block();
+    }
   }
 }

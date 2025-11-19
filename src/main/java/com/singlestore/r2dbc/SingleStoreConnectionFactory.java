@@ -5,6 +5,7 @@
 package com.singlestore.r2dbc;
 
 import com.singlestore.r2dbc.api.SingleStoreConnection;
+import com.singlestore.r2dbc.client.ServerVersion;
 import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ReferenceCounted;
@@ -80,6 +81,10 @@ public final class SingleStoreConnectionFactory implements ConnectionFactory {
     sql.append(" names UTF8MB4");
     if (configuration.autocommit() != null) {
       sql.append(",autocommit=").append((configuration.autocommit() ? "1" : "0"));
+    }
+    ServerVersion v = client.getVersion();
+    if (v != null && v != ServerVersion.UNKNOWN_VERSION && v.versionGreaterOrEqual(8, 7, 1)) {
+      sql.append(",@@SESSION.enable_extended_types_metadata=").append((configuration.getEnableExtendedDataTypes() ? "on" : "off"));
     }
 
     // set session variables if defined
